@@ -4,12 +4,13 @@ import express, { Application } from "express";
 import expressSession from "express-session";
 import passport from 'passport';
 // import "./config/passport/passport.config";
+import { globalNotFoundResponse } from './middlewares/notFoundRoute.middleware';
 import { homeRoute } from './modules/home/home.controller';
 
 const app: Application = express();
 
 app.use( expressSession( {
-    secret: "my-sercet",
+    secret: "my-secret",
     resave: true,
     saveUninitialized:false
 } ) );
@@ -20,6 +21,11 @@ app.use( express.json() );
 app.use( cors() );
 
 // professional route
-app.get("/", homeRoute)
+app.get( "/", homeRoute )
+
+
+// global not found routes
+app.use(globalNotFoundResponse)
+
 
 export default app;
