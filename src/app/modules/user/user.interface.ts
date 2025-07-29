@@ -1,25 +1,29 @@
-
-export enum UserRole
-{
-    RIDER = "RIDER",
-    ADMIN = "ADMIN",
-    DRIVER = "DRIVER"
+export enum UserRole {
+  RIDER = "RIDER",
+  ADMIN = "ADMIN",
+  DRIVER = "DRIVER"
 }
 
-export interface VehicleInfo
-{
-    license: string;
-    model: number;
-    plateNumber: number;
+export enum OnlineStatus {
+  ACTIVE = 'ACTIVE',
+  OFFLINE = 'OFFLINE',
+  SUSPENDED = "SUSPENDED"
 }
 
-export interface IUser
-{
-    name: string;
-    email: string;
-    password: string;
-    isBlocked?: boolean;
-    role: UserRole;
-    vehicleInfo?: VehicleInfo;
+export interface VehicleInfo {
+  license: string;
+  model: string;
+  plateNumber: string;
+}
 
+export interface IUser {
+  name: string;
+  email: string;
+  password: string;
+  role: UserRole;
+  isBlocked?: boolean;  
+            
+  isApproved?: boolean;           // driver-specific
+  isOnline?: OnlineStatus;        // driver-specific
+  vehicleInfo?: VehicleInfo;      // driver-specific
 }
