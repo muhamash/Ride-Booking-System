@@ -16,7 +16,9 @@ export interface VehicleInfo {
   plateNumber: string;
 }
 
-export interface IUser {
+export interface IUser
+{
+  userName: string;  
   name: string;
   email: string;
   password: string;

@@ -44,7 +44,6 @@ export const globalErrorResponse = (
         message = `Invalid value for '${ error.path }': ${ error.value }`;
         statusCode = httpStatus.BAD_REQUEST;
     }
-
     // mongo validation
     else if ( error instanceof mongoose.Error.ValidationError )
     {
@@ -62,7 +61,6 @@ export const globalErrorResponse = (
             ...( process.env.NODE_ENV === "development" && { stack: error.stack } ),
         } );
     }
-
     //duplicate
     else if (
         typeof error === "object" &&
@@ -71,10 +69,9 @@ export const globalErrorResponse = (
     )
     {
         const dupFields = Object.keys( ( error as unknown ).keyValue || {} );
-        message = `Duplicate field value for: ${ dupFields.join( ", " ) }`;
+        message = `Already exists!! : ${ dupFields.join( ", " ) }`;
         statusCode = httpStatus.CONFLICT;
     }
-
     // custom
     else if ( error instanceof AppError )
     {
@@ -82,7 +79,6 @@ export const globalErrorResponse = (
         message = error.message;
         stack = error.stack;
     }
-
     // general js
     else if ( error instanceof Error )
     {
@@ -90,7 +86,6 @@ export const globalErrorResponse = (
         stack = error.stack;
         statusCode = ( error as unknown ).statusCode || httpStatus.INTERNAL_SERVER_ERROR;
     }
-
     // fallback unknown error
     else
     {
@@ -98,6 +93,7 @@ export const globalErrorResponse = (
         statusCode = httpStatus.INTERNAL_SERVER_ERROR;
     }
 
+    console.log(error)
     // build response
     const responsePayload: ErrorResponsePayload = {
         name: ( error as unknown ).name || "Error",
