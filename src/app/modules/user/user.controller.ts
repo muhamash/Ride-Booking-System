@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import httpStatus from 'http-status-codes';
 import { asyncHandler, responseFunction } from "../../utils/controller.util";
-import { createUserService } from "./user.service";
+import { createUserService, getUserByIdService } from "./user.service";
 
 
 export const createUser = asyncHandler( async ( req: Request, res: Response ): Promise<void> =>
@@ -26,7 +26,13 @@ export const createUser = asyncHandler( async ( req: Request, res: Response ): P
     } );
 } );
 
-// export const watchMe = asyncHandler( async ( req: Request, res: Response ) =>
-// {
-    
-// } );
+export const getMe = asyncHandler( async ( req: Request, res: Response ): Promise<void> =>
+{
+    const user = await getUserByIdService( req.user?.userId );
+
+    responseFunction( res, {
+        message: "User retrieved successfully",
+        statusCode: httpStatus.OK,
+        data: user,
+    } );
+} );

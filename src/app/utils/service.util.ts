@@ -7,7 +7,7 @@ import { generateToken } from "./middleware.util";
 export const userTokens = async ( user: Partial<IUser> ) =>
 {
     const jwtPayload = {
-        userId: user._id,
+        userId: user.id,
         username: user.username,
         email: user.email,
         role: user.role,

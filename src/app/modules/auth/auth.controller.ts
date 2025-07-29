@@ -4,6 +4,7 @@ import passport from "passport";
 import { AppError } from "../../../config/errors/App.error";
 import { asyncHandler, responseFunction, setCookie } from "../../utils/controller.util";
 import { userTokens } from "../../utils/service.util";
+import { getNewAccessTokenService, userLogoutService } from "./auth.service";
 
 export const userLogin = asyncHandler( async ( req: Request, res: Response, next: NextFunction ) =>
 {
@@ -22,8 +23,8 @@ export const userLogin = asyncHandler( async ( req: Request, res: Response, next
 
         const loginData = await userTokens( user );
 
-        await setCookie( res, "refreshToken", loginData.refreshToken, 240 * 60 * 60 * 1000 );
-        await setCookie( res, "accessToken", loginData.accessToken, 100 * 60 * 1000 );
+        await setCookie( res, "refreshToken", loginData.refreshToken, 4 * 60 * 60 * 1000 );
+        await setCookie( res, "accessToken", loginData.accessToken, 7 * 24 * 60 * 1000 );
 
         const responseData = user.toObject();
         delete responseData.password;
@@ -41,4 +42,48 @@ export const userLogin = asyncHandler( async ( req: Request, res: Response, next
             },
         } );
     } )( req, res, next );
+} );
+
+export const userLogout = asyncHandler( async ( req: Request, res: Response ) =>
+{
+    await setCookie( res, "refreshToken", "", 0 );
+    await setCookie( res, "accessToken", "", 0 );
+    await userLogoutService( req.user?.userId );
+
+    responseFunction( res, {
+        message: "User logged out successfully",
+        statusCode: httpStatus.OK,
+        data: null,
+    } );
+} );
+
+export const getNewAccessToken = asyncHandler( async ( req: Request, res: Response ) =>
+{
+    const refreshToken = req.cookies.refreshToken;
+
+    if ( !refreshToken)
+    {
+        throw new AppError(httpStatus.BAD_REQUEST, "Cookies or user not found!!")
+    }
+
+    const tokenInfo = await getNewAccessTokenService( refreshToken );
+    if ( !tokenInfo )
+    {
+        throw new AppError(httpStatus.UNAUTHORIZED, "Invalid refresh token or user not found!!");
+    }  
+
+    if(tokenInfo.refreshToken && tokenInfo.accessToken) {
+        await setCookie( res, "refreshToken", tokenInfo.refreshToken, 4 * 60 * 60 * 1000 );
+
+        await setCookie( res, "accessToken", tokenInfo.accessToken, 7 * 24 * 60 * 1000 );
+
+        responseFunction( res, {
+            message: `New tokens created!!`,
+            statusCode: httpStatus.CREATED,
+            data: tokenInfo,
+        } );
+    }
+    else {
+        throw new AppError(httpStatus.UNAUTHORIZED, "Error in creating new tokens!!");
+    }
 } );

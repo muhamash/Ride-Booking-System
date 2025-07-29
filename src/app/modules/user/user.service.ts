@@ -23,3 +23,17 @@ export const createUserService = async (payload: Partial<IUser>) =>
     // console.log(createdUser, user)
     return createdUser;
 }
+
+export const getUserByIdService = async (userId: string): Promise<IUser | null> =>
+{
+    // console.log("Fetching user by ID:", userId);
+    const user = await User.findById(userId).select("-password").lean();
+    
+    if ( !user )
+    {
+        // console.log("User not found with ID:", userId);
+        throw new AppError(httpStatus.NOT_FOUND, "User not found" );
+    }
+
+    return user;
+}

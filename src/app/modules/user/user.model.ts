@@ -1,5 +1,4 @@
 import bcrypt from 'bcryptjs';
-import { NextFunction } from "express";
 import { model, Schema } from "mongoose";
 import { envStrings } from "../../../config/env.config";
 import { generateSlug } from '../../utils/helperr.util';
@@ -8,7 +7,7 @@ import { IUser, UserRole, VehicleInfo } from "./user.interface";
 const vehicleInfoSchema = new Schema<VehicleInfo>( {
     license: { type: String, required: true },
     model: { type: String, required: true },
-    plateNumber: { type: String, required: true },
+    plateNumber: { type: String, required: true, unique: true },
 } );
 
 export const userSchema = new Schema<IUser>( {
@@ -44,10 +43,19 @@ export const userSchema = new Schema<IUser>( {
         enum: Object.values( UserRole ),
         default: UserRole.RIDER
     },
+    isBlocked: { type: Boolean, default: false },
+        isOnline: {
+        type: Boolean, default: false,
+    }, 
 
     // driver??
-    isApproved: { type: Boolean, default: false },
-    isOnline: { type: Boolean, default: false },
+    isApproved: {
+        type: Boolean, default: false,
+        required: function ()
+        {
+            return this.role === UserRole.DRIVER;
+        },
+    },
     vehicleInfo: {
         type: vehicleInfoSchema,
         required: function ()
@@ -65,18 +73,29 @@ export const userSchema = new Schema<IUser>( {
 );
 
 // hash password before saving!
-userSchema.pre<IUser>( "save", async function ( next: NextFunction )
+userSchema.pre<IUser>( "save", async function ( next )
 {
-    if ( !this.isModified( 'password' ) ) return next();
-    this.password = await bcrypt.hash( this.password, Number( envStrings.BCRYPT_SALT ) );
-    
-    this.username = generateSlug( this.email, this.role );
+    if ( this.isModified( "password" ) )
+    {
+        this.password = await bcrypt.hash(
+            this.password,
+            Number( envStrings.BCRYPT_SALT )
+        );
+    }
 
-    console.log("password hashed!!! username created!!!", this.username);
+    if ( this.isModified( "email" ) || this.isNew )
+    {
+        this.username = generateSlug( this.email, this.role );
+    }
 
     next();
 } );
 
+// userSchema.virtual( "wasRecentlyOnline" ).get( function ()
+// {
+//     const cutoff = new Date( Date.now() - 4 * 60 * 60 * 1000 );
+//     return this.lastOnlineAt > cutoff;
+// } );
 
 
 export const User = model<IUser>( "User", userSchema );

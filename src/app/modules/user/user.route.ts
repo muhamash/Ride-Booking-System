@@ -1,11 +1,13 @@
 import { Router } from "express";
+import { checkAuth } from "../../middlewares/checkAuth.middleware";
 import { validateRequest } from "../../middlewares/validateReq.middleware";
-import { createUser } from "./user.controller";
+import { createUser, getMe } from "./user.controller";
+import { UserRole } from "./user.interface";
 import { zodUserSchema } from "./user.validation";
 
-const route = Router();
+const router = Router();
 
-route.post( "/create", validateRequest( zodUserSchema ), createUser );
-// Router.get( "/me" );
+router.post( "/create", validateRequest( zodUserSchema ), createUser );
+router.get( "/me", checkAuth(UserRole.ADMIN, UserRole.DRIVER, UserRole.RIDER), getMe );
 
-export const userRoute = route;
+export const userRoute = router;

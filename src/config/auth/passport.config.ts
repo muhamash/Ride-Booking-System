@@ -1,7 +1,6 @@
 import bcrypt from "bcryptjs";
 import passport from "passport";
 import { Strategy as LocalStrategy } from "passport-local";
-import { UserRole } from "../../app/modules/user/user.interface";
 import { User } from "../../app/modules/user/user.model";
 
 passport.use(
@@ -27,19 +26,10 @@ passport.use(
                     return done( null, false, { message: "Your account is blocked" } );
                 }
 
-                if(user.role === UserRole.DRIVER && !user.isApproved)
-                {
-                    return done( null, false, { message: "Your account is not approved yet" } );
-                }
-
-                if ( user.role === UserRole.DRIVER )
-                {
-                    await User.updateOne(
-                        { _id: user._id },
-                        { $set: { isOnline: true } }
-                    );
-                }
-                
+                // if(user.role === UserRole.DRIVER && !user.isApproved)
+                // {
+                //     return done( null, false, { message: "Your account is not approved yet" } );
+                // }
 
                 const isMatch = await bcrypt.compare( password, user.password );
 
@@ -48,7 +38,18 @@ passport.use(
                     return done( null, false, { message: "Invalid email or password" } );
                 }
 
-                return done( null, user );
+                // if ( user.role === UserRole.ADMIN && user.isApproved === false )
+                // {
+                    
+                // }
+
+                const response = await User.findOneAndUpdate(
+                    { _id: user._id },
+                    { $set: { isOnline: true } }, { new: true }
+                );
+
+                // console.log("User logged in:", user);
+                return done( null, response );
             }
             catch ( error: unknown )
             {
