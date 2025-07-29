@@ -25,3 +25,8 @@ export const createUser = asyncHandler( async ( req: Request, res: Response ): P
         data: user,
     } );
 } );
+
+// export const watchMe = asyncHandler( async ( req: Request, res: Response ) =>
+// {
+    
+// } );

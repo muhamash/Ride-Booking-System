@@ -16,14 +16,14 @@ export const userSchema = new Schema<IUser>( {
         type: String,
         required: true
     },
-    username: {
-        type: String,
-        unique: true
-    },
     email: {
         type: String,
         required: true,
         unique: true,
+    },
+    username: {
+        type: String,
+        unique: true
     },
     password: {
         type: String,
@@ -72,7 +72,7 @@ userSchema.pre<IUser>( "save", async function ( next: NextFunction )
     
     this.username = generateSlug( this.email, this.role );
 
-    console.log("password hashed!!! username created!!!")
+    console.log("password hashed!!! username created!!!", this.username);
 
     next();
 } );

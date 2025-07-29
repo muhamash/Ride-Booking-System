@@ -3,7 +3,7 @@ import cors from 'cors';
 import express, { Application } from "express";
 import expressSession from "express-session";
 import passport from 'passport';
-// import "./config/passport/passport.config";
+import "../config/auth/passport.config";
 import { globalErrorResponse } from './middlewares/globalError.middleware';
 import { globalNotFoundResponse } from './middlewares/notFoundRoute.middleware';
 import { homeRoute } from './modules/home/home.controller';

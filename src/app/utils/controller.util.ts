@@ -11,7 +11,7 @@ export const asyncHandler = ( fn: AsyncHandlerType ) => ( req: Request, res: Res
     });
 };
 
-export const responseFunction = <T> ( res: Request, data?: TResponse<T> ) =>
+export const responseFunction = <T> ( res: Response, data?: TResponse<T> ) =>
 {
     // console.log(data)
     res.status( data.statusCode ).json( {

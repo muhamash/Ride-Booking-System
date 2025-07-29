@@ -5,6 +5,7 @@ import { zodUserSchema } from "./user.validation";
 
 const route = Router();
 
-route.post( "/create", validateRequest(zodUserSchema), createUser );
+route.post( "/create", validateRequest( zodUserSchema ), createUser );
+// Router.get( "/me" );
 
 export const userRoute = route;

@@ -1,7 +1,7 @@
 import httpStatus from 'http-status-codes';
 import mongoose from "mongoose";
-import { envStrings } from './env.config';
-import { AppError } from './errors/App.error';
+import { envStrings } from '../env.config';
+import { AppError } from '../errors/App.error';
 
 export const dbConnect = async () : Promise<void> =>
 {

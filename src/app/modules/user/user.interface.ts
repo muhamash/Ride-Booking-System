@@ -18,7 +18,7 @@ export interface VehicleInfo {
 
 export interface IUser
 {
-  userName: string;  
+  // username: string;  
   name: string;
   email: string;
   password: string;

@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import app from "./app/app";
-import { dbConnect } from "./config/mongoos.config";
+import { dbConnect } from "./config/db/mongoos.config";
 
 
 const startServer = async () =>
