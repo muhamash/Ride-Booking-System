@@ -5,7 +5,7 @@ export const adminRouter = Router();
 
 const moduleRouter = [
     {
-        path: "/",
+        path: "/admin",
         route: adminRoutes
     }
 ];

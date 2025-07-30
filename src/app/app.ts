@@ -9,6 +9,7 @@ import { globalNotFoundResponse } from './middlewares/notFoundRoute.middleware';
 import { homeRoute } from './modules/home/home.controller';
 import { adminRouter } from './routes/admin.route';
 import { firstVersionRouter } from './routes/module.route';
+import { riderRouter } from './routes/ride.route';
 
 const app: Application = express();
 
@@ -26,7 +27,8 @@ app.use( cors() );
 // professional route
 app.get( "/", homeRoute )
 app.use( "/api", firstVersionRouter )
-app.use( "/api/admin", adminRouter );
+app.use( "/api", adminRouter );
+app.use( "/api", riderRouter );
 
 // global not found routes
 app.use( globalNotFoundResponse )
