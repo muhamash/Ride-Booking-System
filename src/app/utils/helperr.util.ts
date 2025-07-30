@@ -1,5 +1,7 @@
 import haversine from 'haversine-distance';
+import httpStatus from 'http-status-codes';
 import slugify from "slugify";
+import { AppError } from '../../config/errors/App.error';
 
 export const generateSlug = ( email: string, role: string ) =>
 {
@@ -26,4 +28,30 @@ export const estimateFare = ( { startLat, startLng, endLat, endLng, durationInMi
         durationInMin,
         estimatedFare: Math.ceil( totalFare )
     };
+};
+
+export async function reverseGeocode ( lat: number, lng: number )
+{
+    const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${ lat }&lon=${ lng }`;
+
+    try
+    {
+        const res = await fetch( url, {
+            headers: {
+                "User-Agent": "reverse-geo-script"
+            }
+        } );
+
+        const data = await res.json();
+
+        return {
+            displayName: data.display_name,
+            address: data.address,
+            lat: parseFloat( data.lat ),
+            lng: parseFloat( data.lon ),
+        };
+    } catch ( error: unknown )
+    {
+        throw new AppError(httpStatus.EXPECTATION_FAILED,  `Location failed to be fetched!!, ${error}`)
+    }
 };

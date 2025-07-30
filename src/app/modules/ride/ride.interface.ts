@@ -1,4 +1,5 @@
 import { Types } from "mongoose";
+import { IRatings } from "../driver/river.interface";
 
 export enum RideStatus {
   REQUESTED = "REQUESTED",
@@ -9,19 +10,28 @@ export enum RideStatus {
   CANCELLED = "CANCELLED",
 }
 
+export enum CancelledBy {
+  RIDER = "RIDER",
+  DRIVER = "DRIVER",
+  ADMIN = "ADMIN",
+}
+
+export interface IPickUpLocation {
+  lat: number;
+  lng: number;
+  address?: string;
+}
+
+export interface IDropOffLocation {
+  lat: number;
+  lng: number;
+  address?: string;
+}
 export interface IRide {
   rider: Types.ObjectId;
   driver?: Types.ObjectId; 
-  pickupLocation: {
-    lat: number;
-    lng: number;
-    address?: string;
-  };
-  dropLocation: {
-    lat: number;
-    lng: number;
-    address?: string;
-  };
+  pickUpLocation: IPickUpLocation;
+  dropOffLocation: IDropOffLocation;
   fare: number;
   status: RideStatus;
   requestedAt: Date;
@@ -29,14 +39,8 @@ export interface IRide {
   pickedUpAt?: Date;
   completedAt?: Date;
   cancelledAt?: Date;
-  cancelledBy?: "RIDER" | "DRIVER" | "ADMIN";
-  paymentMethod?: string;
-  paymentStatus?: "PENDING" | "PAID" | "FAILED";
+  cancelledBy?: CancelledBy;
   distanceInKm?: number;
   durationInMin?: number;
-  rating?: {
-    riderRating?: number;
-    driverRating?: number;
-    feedback?: string;
-  };
+  rating?: IRatings;
 };

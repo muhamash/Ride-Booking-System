@@ -14,6 +14,8 @@ passport.use(
         {
             try
             {
+                const userLocation = req.userLocation
+                console.log(userLocation)
                 const user = await User.findOne( { email } );
 
                 if ( !user )
@@ -40,7 +42,7 @@ passport.use(
                     { new: true }
                 ).populate( "driver" );
 
-                console.log("User logged in:", response);
+                // console.log("User logged in:", response);
                 return done( null, response );
             }
             catch ( error: unknown )

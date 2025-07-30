@@ -6,6 +6,7 @@ import passport from 'passport';
 import "../config/auth/passport.config";
 import { globalErrorResponse } from './middlewares/globalError.middleware';
 import { globalNotFoundResponse } from './middlewares/notFoundRoute.middleware';
+import { trackLocationByLatLng } from './middlewares/trackLocation.middleware';
 import { homeRoute } from './modules/home/home.controller';
 import { adminRouter } from './routes/admin.route';
 import { firstVersionRouter } from './routes/module.route';
@@ -25,7 +26,7 @@ app.use( express.json() );
 app.use( cors() );
 
 // professional route
-app.get( "/", homeRoute )
+app.get( "/",trackLocationByLatLng, homeRoute )
 app.use( "/api", firstVersionRouter )
 app.use( "/api", adminRouter );
 app.use( "/api", riderRouter );

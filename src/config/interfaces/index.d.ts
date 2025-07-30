@@ -8,6 +8,7 @@ declare global
         {
             user: JwtPayload;
             // targetUser?: IUser;
+            userLocation: Record<string, unknown>
         }
     }
 }

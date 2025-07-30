@@ -2,7 +2,24 @@ import bcrypt from 'bcryptjs';
 import { model, Schema } from "mongoose";
 import { envStrings } from "../../../config/env.config";
 import { generateSlug } from '../../utils/helperr.util';
-import { IUser, UserRole } from "./user.interface";
+import { ILocation, IUser, UserRole } from "./user.interface";
+
+export const locationSchema = new Schema<ILocation>({
+  type: {
+    type: String,
+    enum: ['Point'],
+    default: 'Point',
+    required: true
+  },
+  coordinates: {
+    type: [Number],
+    required: true,
+    default: [0, 0]
+  },
+  address: {
+    type: String
+  }
+} );
 
 export const userSchema = new Schema<IUser>( {
     name: {
@@ -31,14 +48,15 @@ export const userSchema = new Schema<IUser>( {
         default: UserRole.RIDER
     },
     isBlocked: { type: Boolean, default: false },
-        isOnline: {
+    isOnline: {
         type: Boolean, default: false,
-    }, 
+    },
     driver: {
         type: Schema.Types.ObjectId,
         ref: "Driver",
         default: null
-    }   
+    },
+    location: locationSchema,
 },
     {
         timestamps: true,

@@ -2,6 +2,7 @@ import httpStatus from 'http-status-codes';
 import jwt from "jsonwebtoken";
 import { ZodError } from "zod";
 import { AppError } from '../../config/errors/App.error';
+import { ILocation } from '../modules/user/user.interface';
 
 export const isZodError = ( error: unknown ): error is { issues: unknown[] } =>
 {
@@ -49,4 +50,28 @@ export const verifyToken = ( token: string, secret: string ) =>
   {
     throw new AppError( httpStatus.BAD_REQUEST, `Error in verify token` )
   }
+};
+
+
+export const generateRandomDhakaLocations = (count = 300): ILocation[] => {
+  const centerLat = 23.8103; 
+  const centerLng = 90.4125;
+  const maxOffset = 0.05;
+
+  const locations: Location[] = [];
+
+  for (let i = 0; i < count; i++) {
+    const latOffset = (Math.random() - 0.5) * maxOffset * 2;
+    const lngOffset = (Math.random() - 0.5) * maxOffset * 2;
+
+    const lat = parseFloat((centerLat + latOffset).toFixed(6));
+    const lng = parseFloat((centerLng + lngOffset).toFixed(6));
+
+    locations.push( {
+      lat,
+      lng,
+    } );
+  }
+
+  return locations;
 };

@@ -3,7 +3,11 @@ export enum UserRole {
   ADMIN = "ADMIN",
   DRIVER = "DRIVER"
 }
-
+export interface ILocation {
+  type: 'Point';
+  coordinates: [number, number];
+  address?: string;
+}
 
 export interface VehicleInfo {
   license: string;
@@ -19,5 +23,6 @@ export interface IUser
   password: string;
   role: UserRole;
   isBlocked?: boolean;  
-  isOnline?: boolean;        
+  isOnline?: boolean;     
+  location: ILocation;
 }

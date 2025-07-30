@@ -6,6 +6,7 @@ import { createUserService, getUserByIdService } from "./user.service";
 
 export const createUser = asyncHandler( async ( req: Request, res: Response ): Promise<void> =>
 {
+    console.log(req.userLocation)
     const user = await createUserService( req.body );
 
     if ( !user )
