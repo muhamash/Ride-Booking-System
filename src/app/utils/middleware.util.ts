@@ -53,10 +53,12 @@ export const verifyToken = ( token: string, secret: string ) =>
 };
 
 
-export const generateRandomDhakaLocations = (count = 300): ILocation[] => {
+export const generateRandomDhakaLocations = (): ILocation[] =>
+{
+  const count = 500;
   const centerLat = 23.8103; 
   const centerLng = 90.4125;
-  const maxOffset = 0.05;
+  const maxOffset = 0.01;
 
   const locations: Location[] = [];
 
@@ -73,5 +75,9 @@ export const generateRandomDhakaLocations = (count = 300): ILocation[] => {
     } );
   }
 
-  return locations;
+  const randomIndex = Math.floor( Math.random() * count );
+
+  console.log(randomIndex, locations[randomIndex])
+  
+  return locations[randomIndex];
 };

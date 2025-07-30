@@ -6,6 +6,8 @@ import { generateRandomDhakaLocations } from "../utils/middleware.util";
 export const trackLocationByLatLng = asyncHandler( async ( req: Request, res: Response, next: NextFunction )=> {
     const { lat, lng } = generateRandomDhakaLocations();
 
+    // console.log(lat, lng)
+
     if ( !lat || !lng ) return next();
 
     const latNum = parseFloat( lat as string );
@@ -15,7 +17,7 @@ export const trackLocationByLatLng = asyncHandler( async ( req: Request, res: Re
 
     const geo = await reverseGeocode( latNum, lngNum );
 
-    console.log( geo, lat, lng ,"tracker middleware");
+    // console.log( geo, lat, lng ,"tracker middleware");
     
     if ( geo )
     {

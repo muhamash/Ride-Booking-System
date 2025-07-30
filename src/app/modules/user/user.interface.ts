@@ -24,5 +24,5 @@ export interface IUser
   role: UserRole;
   isBlocked?: boolean;  
   isOnline?: boolean;     
-  location: ILocation;
+  location?: ILocation;
 }

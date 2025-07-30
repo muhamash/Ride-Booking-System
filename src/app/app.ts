@@ -27,9 +27,9 @@ app.use( cors() );
 
 // professional route
 app.get( "/",trackLocationByLatLng, homeRoute )
-app.use( "/api", firstVersionRouter )
-app.use( "/api", adminRouter );
-app.use( "/api", riderRouter );
+app.use( "/api",trackLocationByLatLng, firstVersionRouter )
+app.use( "/api",trackLocationByLatLng, adminRouter );
+app.use( "/api",trackLocationByLatLng, riderRouter );
 
 // global not found routes
 app.use( globalNotFoundResponse )
