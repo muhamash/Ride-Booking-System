@@ -16,7 +16,7 @@ export const rideSchema = new Schema<IRide>( {
         default: RideStatus.REQUESTED,
     },
     requestedAt: { type: Date, default: Date.now },
-    expiresAt: { type: Date, default: () => new Date(Date.now() + 5 * 60 * 1000), index: { expires: 0 } },
+    expiresAt: { type: Date, default: () => new Date(Date.now() + 5 * 60 * 1000), index: { expireAfterSeconds: 0 }, },
     acceptedAt: { type: Date },
     pickedUpAt: { type: Date },
     completedAt: { type: Date },

@@ -25,6 +25,17 @@ export const requestRideService = async (
         throw new AppError(httpStatus.EXPECTATION_FAILED, "Missing data: user location, or destination" );
     }
 
+    const isExistRequest = await Ride.find( {
+        rider: user.userId,
+        status: { $ne: RideStatus.COMPLETED }
+    } );
+
+    // console.log(isExistRequest)
+    if ( isExistRequest.length > 0 )
+    {
+        throw new AppError(httpStatus.CONFLICT, "You have pending rides on database!!" );
+    }
+
     // Get address of the destination
     const dropOffLocationAddress = await reverseGeocode( dropLat, dropLng );
     const dropOffLocation: ILocation = {
