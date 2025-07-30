@@ -1,44 +1,70 @@
-import haversineDistance from "haversine-distance";
+import haversine from "haversine-distance";
+import { reverseGeocode } from "../../utils/helperr.util";
 import { ActiveDriver } from "../../utils/types.util";
 import { ILocation, IUser } from "../user/user.interface";
+import { RideStatus } from "./ride.interface";
+import { Ride } from "./ride.model";
 
 export const requestRideService = async (
-    location: ILocation,
+    pickUpLocation: ILocation,
     user: Partial<IUser>,
-    activeDrivers: ActiveDriver[]
+    activeDrivers: ActiveDriver[],
+    dropLat: number,
+    dropLng: number
 ) =>
 {
-    if ( !location || !activeDrivers?.length )
+    if ( !pickUpLocation || !activeDrivers?.length || !dropLat || !dropLng )
     {
-        throw new Error( "Missing user location or drivers" );
+        throw new Error( "Missing data: user location, drivers, or destination" );
     }
+
+    // Get address of the destination
+    const dropOffLocationAddress = await reverseGeocode( dropLat, dropLng );
+    const dropOffLocation: ILocation = {
+        type: "Point",
+        coordinates: [ dropLat, dropLng ],
+        address: dropOffLocationAddress?.displayName || "Unknown",
+    };
 
     // Add distance to each driver
     const enrichedDrivers = activeDrivers.map( ( driver ) =>
     {
         const driverCoords = driver.location.coordinates as number[];
-        const userCoords = location.coordinates as number[];
-        const distance = Number(haversineDistance( userCoords, driverCoords ).toFixed(2));
-        return { ...driver, distance };
+        const riderCoords = pickUpLocation.coordinates as number[];
+        const distanceInMeters = haversine( riderCoords, driverCoords );
+        const distanceInKm = Number( ( distanceInMeters / 1000 ).toFixed( 2 ) );
+        return { ...driver, distanceInKm };
     } );
 
-    // Sort by highest rating, then by nearest distance
+    // Sort: highest rating first, then closest
     enrichedDrivers.sort( ( a, b ) =>
     {
-        if ( b.avgRating !== a.avgRating )
-        {
-            return b.avgRating - a.avgRating; 
-        }
-        return a.distance - b.distance; 
+        if ( b.avgRating !== a.avgRating ) return b.avgRating - a.avgRating;
+        return a.distanceInKm - b.distanceInKm;
     } );
 
-    const bestMatch = enrichedDrivers[ 0 ];
+    const matchedDriver = enrichedDrivers[ 0 ];
+    if ( !matchedDriver ) throw new Error( "No available driver found" );
 
-    // console.log( "Best matched driver:", bestMatch, activeDrivers );
+    // Estimate fare (simplified example: 50 BDT base + 25/km)
+    const estimatedFare = 50 + 25 * matchedDriver.distanceInKm;
 
-    return {
-        user,
-        location,
-        matchedDriver: bestMatch,
-    };
+    const newRide = await Ride.create( {
+        rider: user.userId,
+        driver: matchedDriver.driverId,
+        pickUpLocation,
+        dropOffLocation,
+        driverLocation: matchedDriver.location,
+        distanceInKm: matchedDriver.distanceInKm,
+        fare: estimatedFare,
+        status: RideStatus.REQUESTED,
+        requestedAt: new Date(),
+    } );
+
+    const ride = await Ride.findById( newRide._id )
+        .populate( "rider", "name email username" )
+        .populate( "driver", "vehicleInfo rating driverStatus" );
+
+    return ride;
+
 };

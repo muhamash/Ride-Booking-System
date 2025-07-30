@@ -1,24 +1,14 @@
 import { model, Schema } from "mongoose";
 import { ratingSchema } from "../driver/driver.model";
-import { CancelledBy, IDropOffLocation, IPickUpLocation, IRide, RideStatus } from "./ride.interface";
-
-export const pickUpLocationSchema = new Schema<IPickUpLocation>({
-    lat: { type: Number, required: true },
-    lng: { type: Number, required: true },
-    address: { type: String },
-} );
-
-export const dropOffLocationSchema = new Schema<IDropOffLocation>({
-    lat: { type: Number, required: true },
-    lng: { type: Number, required: true },
-    address: { type: String },
-} );
+import { locationSchema } from "../user/user.model";
+import { CancelledBy, IRide, RideStatus } from "./ride.interface";
 
 export const rideSchema = new Schema<IRide>( {
     rider: { type: Schema.Types.ObjectId, ref: "User", required: true },
     driver: { type: Schema.Types.ObjectId, ref: "Driver", required: true },
-    pickUpLocation: pickUpLocationSchema,
-    dropOffLocation: dropOffLocationSchema,
+    pickUpLocation: locationSchema,
+    dropOffLocation: locationSchema,
+    driverLocation:locationSchema,
     fare: { type: Number, required: true },
     status: {
         type: String,
@@ -26,6 +16,7 @@ export const rideSchema = new Schema<IRide>( {
         default: RideStatus.REQUESTED,
     },
     requestedAt: { type: Date, default: Date.now },
+    expiresAt: { type: Date, default: () => new Date(Date.now() + 5 * 60 * 1000), index: { expires: 0 } },
     acceptedAt: { type: Date },
     pickedUpAt: { type: Date },
     completedAt: { type: Date },

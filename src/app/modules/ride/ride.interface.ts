@@ -1,5 +1,6 @@
 import { Types } from "mongoose";
 import { IRatings } from "../driver/river.interface";
+import { ILocation } from "../user/user.interface";
 
 export enum RideStatus {
   REQUESTED = "REQUESTED",
@@ -16,22 +17,13 @@ export enum CancelledBy {
   ADMIN = "ADMIN",
 }
 
-export interface IPickUpLocation {
-  lat: number;
-  lng: number;
-  address?: string;
-}
-
-export interface IDropOffLocation {
-  lat: number;
-  lng: number;
-  address?: string;
-}
 export interface IRide {
   rider: Types.ObjectId;
+  expiresAt: Date;
   driver?: Types.ObjectId; 
-  pickUpLocation: IPickUpLocation;
-  dropOffLocation: IDropOffLocation;
+  pickUpLocation: ILocation;
+  dropOffLocation: ILocation;
+  driverLocation: ILocation;
   fare: number;
   status: RideStatus;
   requestedAt: Date;

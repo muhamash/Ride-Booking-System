@@ -9,8 +9,9 @@ export const requestRide = asyncHandler( async ( req: Request, res: Response ) =
     const location = req.userLocation;
     const user = req.user;
     const activeDriver = req.activeDriverPayload;
+    const {lat, lng} = req.body;
 
-    const response = await requestRideService( location, user, activeDriver );
+    const response = await requestRideService( location, user, activeDriver, lat, lng );
 
     if ( !response && !user && !location )
     {
