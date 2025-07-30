@@ -27,7 +27,11 @@ export const getNewAccessTokenService = async ( refreshToken: string ) =>
     
     const refreshTokenVerify = verifyToken( refreshToken, envStrings.REFRESH_TOKEN_SECRET as string );
 
-    const user = await User.findOne( { email: refreshTokenVerify.email } );
+    const user = await User.findOneAndUpdate(
+        { email: refreshTokenVerify?.email },
+        { $set: { lastOnlineAt: new Date() } },
+        { new: true }
+    );
 
     if ( !user )
     {

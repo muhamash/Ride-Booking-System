@@ -11,6 +11,7 @@ import { homeRoute } from './modules/home/home.controller';
 import { adminRouter } from './routes/admin.route';
 import { firstVersionRouter } from './routes/module.route';
 import { riderRouter } from './routes/ride.route';
+import { scheduleUserOfflineJob } from './utils/db/userOfflineJob.util';
 
 const app: Application = express();
 
@@ -24,6 +25,10 @@ app.use( passport.session() );
 app.use( cookieParser() );
 app.use( express.json() );
 app.use( cors() );
+
+
+// user set offline job --> corn
+scheduleUserOfflineJob()
 
 // professional route
 app.get( "/",trackLocationByLatLng, homeRoute )

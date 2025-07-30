@@ -1,4 +1,6 @@
 import haversine from "haversine-distance";
+import httpStatus from 'http-status-codes';
+import { AppError } from "../../../config/errors/App.error";
 import { reverseGeocode } from "../../utils/helperr.util";
 import { ActiveDriver } from "../../utils/types.util";
 import { ILocation, IUser } from "../user/user.interface";
@@ -13,9 +15,14 @@ export const requestRideService = async (
     dropLng: number
 ) =>
 {
-    if ( !pickUpLocation || !activeDrivers?.length || !dropLat || !dropLng )
+    if ( !activeDrivers?.length )
     {
-        throw new Error( "Missing data: user location, drivers, or destination" );
+        throw new AppError(httpStatus.EXPECTATION_FAILED, "No drivers are online!!" );
+    }
+
+    if ( !pickUpLocation ||  !dropLat || !dropLng )
+    {
+        throw new AppError(httpStatus.EXPECTATION_FAILED, "Missing data: user location, or destination" );
     }
 
     // Get address of the destination

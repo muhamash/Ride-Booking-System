@@ -54,6 +54,10 @@ export const userSchema = new Schema<IUser>( {
         ref: "Driver",
         default: null
     },
+    lastOnlineAt: {
+        type: Date,
+        default: Date.now(),
+    },
     location: locationSchema,
 },
     {

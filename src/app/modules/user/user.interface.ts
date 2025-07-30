@@ -18,6 +18,7 @@ export interface VehicleInfo {
 export interface IUser
 {
   username: string;  
+  lastOnlineAt?: Date;
   name: string;
   email: string;
   password: string;

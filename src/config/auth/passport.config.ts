@@ -43,7 +43,7 @@ passport.use(
 
                 const response = await User.findOneAndUpdate(
                     { _id: user._id },
-                    { $set: { isOnline: true, location: req.userLocation } },
+                    { $set: { isOnline: true, location: req.userLocation, lastOnlineAt: new Date() } },
                     { new: true }
                 ).populate( "driver" );
 
