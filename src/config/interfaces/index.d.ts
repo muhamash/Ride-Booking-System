@@ -1,4 +1,5 @@
 import { JwtPayload } from "jsonwebtoken";
+import { ILocation } from '../../app/modules/user/user.interface';
 
 declare global
 {
@@ -7,8 +8,8 @@ declare global
         interface Request
         {
             user: JwtPayload;
-            // targetUser?: IUser;
-            userLocation: Record<string, unknown>
+            userLocation: ILocation;
+            activeDriverPayload: Record<string, string | number | object>[];
         }
     }
 }

@@ -16,7 +16,7 @@ export const dropOffLocationSchema = new Schema<IDropOffLocation>({
 
 export const rideSchema = new Schema<IRide>( {
     rider: { type: Schema.Types.ObjectId, ref: "User", required: true },
-    driver: { type: Schema.Types.ObjectId, ref: "Driver" },
+    driver: { type: Schema.Types.ObjectId, ref: "Driver", required: true },
     pickUpLocation: pickUpLocationSchema,
     dropOffLocation: dropOffLocationSchema,
     fare: { type: Number, required: true },

@@ -18,9 +18,9 @@ passport.use(
                 // const locationPayload:Record<string, unknown> = {
                 //     coordinates: [ userLocation.lat, userLocation.lng ],
                 //     address: userLocation.displayName
-                // }
+                // }   
+
                 // console.log(locationPayload, "from login passport")
-                
                 const user = await User.findOne( { email } );
 
                 if ( !user )
@@ -43,11 +43,11 @@ passport.use(
 
                 const response = await User.findOneAndUpdate(
                     { _id: user._id },
-                    { $set: { isOnline: true } },
+                    { $set: { isOnline: true, location: req.userLocation } },
                     { new: true }
                 ).populate( "driver" );
 
-                // console.log("User logged in:", response);
+                // console.log("User logged in:", response, req.userLocation);
                 return done( null, response );
             }
             catch ( error: unknown )

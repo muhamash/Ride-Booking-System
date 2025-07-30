@@ -3,8 +3,9 @@ import { asyncHandler } from "../utils/controller.util";
 import { reverseGeocode } from "../utils/helperr.util";
 import { generateRandomDhakaLocations } from "../utils/middleware.util";
 
-export const trackLocationByLatLng = asyncHandler( async ( req: Request, res: Response, next: NextFunction )=> {
-    const { lat, lng } = generateRandomDhakaLocations();
+export const trackLocationByLatLng = asyncHandler( async ( req: Request, res: Response, next: NextFunction ) =>
+{
+    const { lat, lng } = await generateRandomDhakaLocations();
 
     // console.log(lat, lng)
 
@@ -21,7 +22,11 @@ export const trackLocationByLatLng = asyncHandler( async ( req: Request, res: Re
     
     if ( geo )
     {
-        req.userLocation = geo;
+        const locationPayload: Record<string, unknown> = {
+            coordinates: [ geo.lat, geo.lng ],
+            address: geo.displayName
+        }
+        req.userLocation = locationPayload;
         req.headers[ "x-user-location" ] = JSON.stringify( geo );
     }
 
