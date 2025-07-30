@@ -4,7 +4,7 @@ import { UserRole } from "./user.interface";
 
 export const vehicleInfoSchema = z.object( {
     license: z.string( { invalid_type_error: "Name must be string" } ).min( 3, { message: "license must be at least 3 characters long." } ),
-    model: z.number( { invalid_type_error: "Name must be string" } ),
+    model: z.string( { invalid_type_error: "Name must be string" } ),
     plateNumber: z.string().min( 3, { message: "plate number must be at least 3 characters long." } ),
 } );
 

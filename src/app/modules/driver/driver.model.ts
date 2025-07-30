@@ -1,4 +1,4 @@
-import { Schema } from "mongoose";
+import { model, Schema } from "mongoose";
 import { DriverStatus, IDriver } from "./river.interface";
 
 export const vehicleInfoSchema = new Schema({
@@ -13,7 +13,6 @@ export const ratingSchema = new Schema({
 });
 
 export const driverSchema = new Schema<IDriver>( {
-    isBlocked: { type: Boolean, default: false },
     isOnline: {
         type: Boolean,
         default: false,
@@ -35,8 +34,8 @@ export const driverSchema = new Schema<IDriver>( {
     },
     totalEarnings: { type: Number, default: 0 },
     totalRides: { type: Number, default: 0 },
-    riderId: { type: Schema.Types.ObjectId, ref: "User" },
-    driverId: { type: Schema.Types.ObjectId, ref: "User", required: true },
+    rider: { type: Schema.Types.ObjectId, ref: "User" },
+    user: { type: Schema.Types.ObjectId, ref: "User", required: true },
     username: {
         type: String,
         unique: true,
@@ -50,4 +49,4 @@ export const driverSchema = new Schema<IDriver>( {
     toObject: { virtuals: true },
 } );
 
-export const DriverModel = model<IDriver>( "Driver", driverSchema );
+export const Driver = model<IDriver>( "Driver", driverSchema );

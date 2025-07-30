@@ -22,7 +22,7 @@ export const userSchema = new Schema<IUser>( {
         type: String,
         required: true,
         minlength: [ 5, 'Password must be at least 5 characters long' ],
-        select: false
+        // select: false
     },
     role: {
         type: String,
@@ -34,6 +34,11 @@ export const userSchema = new Schema<IUser>( {
         isOnline: {
         type: Boolean, default: false,
     }, 
+    driver: {
+        type: Schema.Types.ObjectId,
+        ref: "Driver",
+        default: null
+    }   
 },
     {
         timestamps: true,

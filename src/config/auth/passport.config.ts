@@ -36,10 +36,11 @@ passport.use(
 
                 const response = await User.findOneAndUpdate(
                     { _id: user._id },
-                    { $set: { isOnline: true } }, { new: true }
-                );
+                    { $set: { isOnline: true } },
+                    { new: true }
+                ).populate( "driver" );
 
-                // console.log("User logged in:", user);
+                console.log("User logged in:", response);
                 return done( null, response );
             }
             catch ( error: unknown )

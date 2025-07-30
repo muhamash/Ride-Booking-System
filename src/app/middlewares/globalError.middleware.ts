@@ -21,18 +21,19 @@ export const globalErrorResponse = (
     if ( isZodError( error ) )
     {
         const fieldIssues = parseZodError( error );
-
+        const customIssues = JSON.parse( error.message ) || [];
+        
         message = fieldIssues.length
-            ? `Validation error on field '${ fieldIssues[ 0 ].field }': ${ fieldIssues[ 0 ].message }`
-            :  "Validation error!";
+            ? `Validation error on field ' ${customIssues[0]?.path ?? fieldIssues[ 0 ]?.field }': ${ fieldIssues[ 0 ]?.message }`
+            : customIssues[0]?.message ?? "Validation error!";
 
-        // console.log(customErrors[0].message );
+        // console.log(customIssues[0]);
         return res.status( httpStatus.BAD_REQUEST ).json( {
             name: error.name || "ZodError",
             message,
             status: httpStatus.BAD_REQUEST,
             success: false,
-            errors: fieldIssues,
+            errors: customIssues ??  fieldIssues,
             ...( process.env.NODE_ENV === "development" && { stack: error.stack } ),
         } );
     }

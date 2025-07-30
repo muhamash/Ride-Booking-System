@@ -13,6 +13,7 @@ export const userLogin = asyncHandler( async ( req: Request, res: Response, next
     {
         if ( error )
         {
+            console.error("Authentication error:", error);
             return next( new AppError( httpStatus.INTERNAL_SERVER_ERROR, error as string ) );
         }
 
@@ -34,10 +35,7 @@ export const userLogin = asyncHandler( async ( req: Request, res: Response, next
             statusCode: httpStatus.ACCEPTED,
             data: {
                 email: user.email,
-                // accessToken: loginData.accessToken,
-                // refreshToken: loginData.refreshToken,
                 userId: user._id,
-                // expiresIn: 300000,
                 user:  responseData,
             },
         } );

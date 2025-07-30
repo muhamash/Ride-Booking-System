@@ -20,8 +20,8 @@ export interface IRatings
 export interface IDriver
 {
     username: string;
-    riderId?: Types.ObjectId;
-    driverId: Types.ObjectId;
+    rider?: Types.ObjectId;
+    user: Types.ObjectId;
 
     isApproved: boolean;           
     isOnline: boolean;           
