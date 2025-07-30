@@ -2,13 +2,7 @@ import bcrypt from 'bcryptjs';
 import { model, Schema } from "mongoose";
 import { envStrings } from "../../../config/env.config";
 import { generateSlug } from '../../utils/helperr.util';
-import { IUser, UserRole, VehicleInfo } from "./user.interface";
-
-const vehicleInfoSchema = new Schema<VehicleInfo>( {
-    license: { type: String, required: true },
-    model: { type: String, required: true },
-    plateNumber: { type: String, required: true, unique: true },
-} );
+import { IUser, UserRole } from "./user.interface";
 
 export const userSchema = new Schema<IUser>( {
     name: {
@@ -28,14 +22,7 @@ export const userSchema = new Schema<IUser>( {
         type: String,
         required: true,
         minlength: [ 5, 'Password must be at least 5 characters long' ],
-        // validate: {
-        //     validator: function ( value: string )
-        //     {
-        //         return /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test( value );
-        //     },
-        //     message:
-        //         'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character',
-        // },
+        select: false
     },
     role: {
         type: String,
@@ -47,22 +34,6 @@ export const userSchema = new Schema<IUser>( {
         isOnline: {
         type: Boolean, default: false,
     }, 
-
-    // driver??
-    isApproved: {
-        type: Boolean, default: false,
-        required: function ()
-        {
-            return this.role === UserRole.DRIVER;
-        },
-    },
-    vehicleInfo: {
-        type: vehicleInfoSchema,
-        required: function ()
-        {
-            return this.role === UserRole.DRIVER;
-        },
-    }
 },
     {
         timestamps: true,
@@ -72,7 +43,7 @@ export const userSchema = new Schema<IUser>( {
     }
 );
 
-// hash password before saving!
+// hash password and generate username before saving!
 userSchema.pre<IUser>( "save", async function ( next )
 {
     if ( this.isModified( "password" ) )

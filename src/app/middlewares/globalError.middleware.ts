@@ -24,8 +24,9 @@ export const globalErrorResponse = (
 
         message = fieldIssues.length
             ? `Validation error on field '${ fieldIssues[ 0 ].field }': ${ fieldIssues[ 0 ].message }`
-            : "Validation error!";
+            :  "Validation error!";
 
+        // console.log(customErrors[0].message );
         return res.status( httpStatus.BAD_REQUEST ).json( {
             name: error.name || "ZodError",
             message,

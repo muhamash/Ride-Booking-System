@@ -26,10 +26,6 @@ passport.use(
                     return done( null, false, { message: "Your account is blocked" } );
                 }
 
-                // if(user.role === UserRole.DRIVER && !user.isApproved)
-                // {
-                //     return done( null, false, { message: "Your account is not approved yet" } );
-                // }
 
                 const isMatch = await bcrypt.compare( password, user.password );
 
@@ -37,11 +33,6 @@ passport.use(
                 {
                     return done( null, false, { message: "Invalid email or password" } );
                 }
-
-                // if ( user.role === UserRole.ADMIN && user.isApproved === false )
-                // {
-                    
-                // }
 
                 const response = await User.findOneAndUpdate(
                     { _id: user._id },

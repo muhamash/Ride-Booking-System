@@ -5,13 +5,6 @@ export enum UserRole {
 }
 
 
-export enum DriverStatus {
-  AVAILABLE = "AVAILABLE",
-  UNAVAILABLE = "UNAVAILABLE",
-  ON_TRIP = "ON_TRIP",
-  OFFLINE = "OFFLINE",
-  SUSPENDED = "SUSPENDED"
-}
 export interface VehicleInfo {
   license: string;
   model: string;
@@ -26,8 +19,5 @@ export interface IUser
   password: string;
   role: UserRole;
   isBlocked?: boolean;  
-
-  isApproved?: boolean;           // driver-specific
-  isOnline?: boolean;        // driver-specific
-  vehicleInfo?: VehicleInfo;      // driver-specific
+  isOnline?: boolean;        
 }

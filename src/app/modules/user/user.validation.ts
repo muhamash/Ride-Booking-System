@@ -1,4 +1,5 @@
 import z from "zod";
+import { DriverStatus } from "../driver/river.interface";
 import { UserRole } from "./user.interface";
 
 export const vehicleInfoSchema = z.object( {
@@ -35,6 +36,15 @@ export const zodUserSchema = z.object( {
     isApproved: z.boolean( { invalid_type_error: "approval decision must be boolean" } ).optional(),
     isOnline: z.boolean( { invalid_type_error: "online decision must be boolean" } ).optional(),
     vehicleInfo: vehicleInfoSchema.optional(),
+    driverStatus: z.string( { invalid_type_error: "Driver status must be string" } )
+        .transform( ( val ) => val.toUpperCase() )
+        .refine( ( val ) => [ DriverStatus.AVAILABLE, DriverStatus.UNAVAILABLE, DriverStatus.SUSPENDED ].includes( val as string ), {
+            message: "Driver status must be either 'AVAILABLE', 'UNAVAILABLE', or 'SUSPENDED'.",
+        } )
+        .default( DriverStatus.AVAILABLE ).optional(),
+    isBlocked: z.boolean( { invalid_type_error: "isBlocked must be boolean" } ).default( false ).optional(),
+    riderId: z.string( { invalid_type_error: "Rider ID must be a valid ObjectId" } ).optional(),
+    username: z.string( { invalid_type_error: "Username must be string" } ).min( 3, { message: "Username must be at least 3 characters long." } ).optional(),
 } ).superRefine( ( data, ctx ) =>
 {
     if ( data.role === UserRole.DRIVER && !data.vehicleInfo )
