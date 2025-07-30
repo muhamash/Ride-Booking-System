@@ -24,7 +24,7 @@ export interface IDriver
     user: Types.ObjectId;
 
     isApproved: boolean;           
-    isOnline: boolean;           
+    // isOnline: boolean;           
     vehicleInfo: VehicleInfo;
     driverStatus?: DriverStatus;  
     rating?: {

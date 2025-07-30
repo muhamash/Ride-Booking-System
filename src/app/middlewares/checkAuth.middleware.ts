@@ -35,7 +35,7 @@ export const checkAuth = (...authRoles: string[]) => async ( req: Request, res: 
 
         if ( !authRoles.includes( verifiedToken.role ) )
         {
-            throw new AppError( 403, `You are not permitted to view this route!!! because you are ${verifiedToken.role}; expected ADMIN or SUPER_ADMIN` )
+            throw new AppError( 403, `You are not permitted to view this route!!! because you are ${verifiedToken.role}; expected ADMIN` )
         }
 
         req.user = verifiedToken;

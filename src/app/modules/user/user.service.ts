@@ -63,7 +63,7 @@ export const createUserService = async ( payload: Partial<IUser> ) =>
 export const getUserByIdService = async (userId: string): Promise<IUser | null> =>
 {
     // console.log("Fetching user by ID:", userId);
-    const user = await User.findById(userId).select("-password").lean();
+    const user = await User.findById(userId).select("-password").populate("driver").lean();
     
     if ( !user )
     {

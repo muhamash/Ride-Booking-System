@@ -13,10 +13,6 @@ export const ratingSchema = new Schema({
 });
 
 export const driverSchema = new Schema<IDriver>( {
-    isOnline: {
-        type: Boolean,
-        default: false,
-    },
     isApproved: {
         type: Boolean,
         default: true,

@@ -7,7 +7,8 @@ import "../config/auth/passport.config";
 import { globalErrorResponse } from './middlewares/globalError.middleware';
 import { globalNotFoundResponse } from './middlewares/notFoundRoute.middleware';
 import { homeRoute } from './modules/home/home.controller';
-import { firstVersionRouter } from './routes/index.route';
+import { adminRouter } from './routes/admin.route';
+import { firstVersionRouter } from './routes/module.route';
 
 const app: Application = express();
 
@@ -24,7 +25,8 @@ app.use( cors() );
 
 // professional route
 app.get( "/", homeRoute )
-app.use("/api", firstVersionRouter)
+app.use( "/api", firstVersionRouter )
+app.use( "/api/admin", adminRouter );
 
 // global not found routes
 app.use( globalNotFoundResponse )
