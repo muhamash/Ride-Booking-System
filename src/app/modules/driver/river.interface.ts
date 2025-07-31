@@ -20,7 +20,7 @@ export interface IRatings
 export interface IDriver
 {
     username: string;
-    rider?: Types.ObjectId;
+    rider?: Types.ObjectId[];
     user: Types.ObjectId;
 
     isApproved: boolean;           

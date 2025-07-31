@@ -30,7 +30,7 @@ export const driverSchema = new Schema<IDriver>( {
     },
     totalEarnings: { type: Number, default: 0 },
     totalRides: { type: Number, default: 0 },
-    rider: { type: Schema.Types.ObjectId, ref: "User" },
+    // rider: { type: Schema.Types.ObjectId, ref: "User" },
     user: { type: Schema.Types.ObjectId, ref: "User", required: true },
     username: {
         type: String,

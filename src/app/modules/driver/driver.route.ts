@@ -19,7 +19,9 @@ router.patch( "/in-transit/:id", checkAuth(UserRole.DRIVER), updateUserLocationI
 router.patch( "/complete-ride/:id", checkAuth( UserRole.DRIVER ), updateUserLocationIntoDb, completeRide );
 
 
-router.patch("/driver-update/:id", checkAuth( UserRole.DRIVER, UserRole.ADMIN ))
+router.patch( "/driver-update/:id", checkAuth( UserRole.DRIVER, UserRole.ADMIN ) )
+
+router.get("/driver-state/:id", checkAuth( UserRole.DRIVER, UserRole.ADMIN ))
 
 
 export const driverRoutes = router;

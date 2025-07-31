@@ -14,4 +14,6 @@ router.get( "/me", checkAuth( UserRole.ADMIN, UserRole.DRIVER, UserRole.RIDER ),
 
 router.patch( "update-user/:id", checkAuth( UserRole.ADMIN, UserRole.DRIVER, UserRole.RIDER ) );
 
+router.get( "user-state/:id", checkAuth( UserRole.ADMIN, UserRole.DRIVER, UserRole.RIDER ) );
+
 export const userRoute = router;
