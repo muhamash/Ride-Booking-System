@@ -1,6 +1,6 @@
 import httpStatus from 'http-status-codes';
 import mongoose from 'mongoose';
-import { AppError } from "../../../config/errors/App.error";
+import { AppError } from '../../../config/errors/App.error';
 import { RideStatus } from '../ride/ride.interface';
 import { Ride } from '../ride/ride.model';
 import { IUser } from '../user/user.interface';
@@ -181,9 +181,18 @@ export const completeRideService = async ( id: string, user: Partial<IUser> ) =>
 
     if ( completedRide?.status === RideStatus.COMPLETED )
     {
-        await Driver.findOneAndUpdate( { username: user.username },
-            { $set: { driverStatus: DriverStatus.AVAILABLE } },
+        const findDriver = await Driver.findOne( { username: user.username } );
+
+        if ( findDriver )
+        {
+            await Driver.findOneAndUpdate( { username: user.username },
+            { $set: { driverStatus: DriverStatus.AVAILABLE, totalRides : findDriver.totalRides + 1, totalEarnings: findDriver.totalEarnings + completedRide.fare } },
             { new: true } );
+        }
+        else
+        {
+            throw new AppError(httpStatus.NOT_FOUND, "Driver not. found!!")
+        }
     }
     
     return completedRide
