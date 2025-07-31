@@ -19,11 +19,13 @@ export enum CancelledBy {
 
 export interface IRide {
   rider: Types.ObjectId;
-  expiresAt: Date;
+  expiresAt: Date | null;
   driver?: Types.ObjectId; 
   pickUpLocation: ILocation;
   dropOffLocation: ILocation;
   driverLocation: ILocation;
+  riderUserName: string;
+  driverUserName: string;
   fare: number;
   status: RideStatus;
   requestedAt: Date;

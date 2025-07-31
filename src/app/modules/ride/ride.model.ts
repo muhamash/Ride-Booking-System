@@ -6,6 +6,16 @@ import { CancelledBy, IRide, RideStatus } from "./ride.interface";
 export const rideSchema = new Schema<IRide>( {
     rider: { type: Schema.Types.ObjectId, ref: "User", required: true },
     driver: { type: Schema.Types.ObjectId, ref: "Driver", required: true },
+    riderUserName: {
+        type: String,
+        require: true,
+        ref: "User"
+    },
+    driverUserName: {
+        type: String,
+        require: true,
+        ref: "Driver"
+    },
     pickUpLocation: locationSchema,
     dropOffLocation: locationSchema,
     driverLocation:locationSchema,
@@ -16,7 +26,10 @@ export const rideSchema = new Schema<IRide>( {
         default: RideStatus.REQUESTED,
     },
     requestedAt: { type: Date, default: Date.now },
-    expiresAt: { type: Date, default: () => new Date(Date.now() + 5 * 60 * 1000), index: { expireAfterSeconds: 0 }, },
+    expiresAt: {
+        type: Date, default: () => new Date( Date.now() + 5 * 60 * 1000 ),
+        index: { expireAfterSeconds: 0 },
+    },
     acceptedAt: { type: Date },
     pickedUpAt: { type: Date },
     completedAt: { type: Date },

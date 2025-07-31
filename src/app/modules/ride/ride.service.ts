@@ -27,7 +27,7 @@ export const requestRideService = async (
 
     const isExistRequest = await Ride.find( {
         rider: user.userId,
-        status: { $ne: RideStatus.COMPLETED }
+        status: { $eq: RideStatus.REQUESTED }
     } );
 
     // console.log(isExistRequest)
@@ -61,6 +61,7 @@ export const requestRideService = async (
         return a.distanceInKm - b.distanceInKm;
     } );
 
+    // console.log( enrichedDrivers );
     const matchedDriver = enrichedDrivers[ 0 ];
     if ( !matchedDriver ) throw new Error( "No available driver found" );
 
@@ -77,12 +78,15 @@ export const requestRideService = async (
         fare: estimatedFare,
         status: RideStatus.REQUESTED,
         requestedAt: new Date(),
+        riderUserName: user.username,
+        driverUserName: matchedDriver.username,
+        
     } );
 
     const ride = await Ride.findById( newRide._id )
         .populate( "rider", "name email username" )
-        .populate( "driver", "vehicleInfo rating driverStatus" );
+        .populate( "driver", "vehicleInfo rating driverStatus username user" );
 
-    return ride;
-
+    return { ride, totalAvailable:enrichedDrivers.length}
+ 
 };

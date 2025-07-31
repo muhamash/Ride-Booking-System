@@ -1,0 +1,91 @@
+import { Request, Response } from "express";
+import httpStatus from 'http-status-codes';
+import { AppError } from "../../../config/errors/App.error";
+import { asyncHandler, responseFunction } from "../../utils/controller.util";
+import { acceptRideRequestService, cancelRideRequestService, checkRideRequestService, completeRideService, inTransitRideService, pickUpService } from "./driver.service";
+
+export const checkRideRequest = asyncHandler( async ( req: Request, res: Response) =>
+{
+    const user = req.user;
+    // console.log(user)
+    if ( !user )
+    {
+        throw new AppError(httpStatus.BAD_REQUEST, "User from the request body is empty!!")
+    }
+    const ride = await checkRideRequestService( user.username );
+
+    responseFunction( res, {
+        message: `Found some ride requests!!`,
+        statusCode: httpStatus.OK,
+        data:ride
+    })
+} );
+
+export const acceptRideRequest = asyncHandler( async ( req: Request, res: Response ) =>
+{
+    const rideId = req.params.id;
+    const user = req.user;
+
+    const acceptedRide = await acceptRideRequestService( rideId, user );
+
+    responseFunction( res, {
+        message: `Ride accepted!!!`,
+        statusCode: httpStatus.ACCEPTED,
+        data: acceptedRide
+    } )
+} );
+
+export const cancelRideRequest = asyncHandler( async ( req: Request, res: Response ) =>
+{
+    const rideId = req.params.id;
+    const user = req.user;
+
+    const cancelRide = await cancelRideRequestService( rideId, user );
+
+    responseFunction( res, {
+        message: `Ride cancelled!!!`,
+        statusCode: httpStatus.ok,
+        data: cancelRide
+    } )
+} );
+
+
+export const pickUpRide = asyncHandler( async ( req: Request, res: Response ) =>
+{
+    const id = req.params.id;
+
+    const pickUp = await pickUpService( id );
+
+    responseFunction( res, {
+        message: "Picked up the user!",
+        statusCode: httpStatus.OK,
+        data: pickUp
+    })
+} );
+
+export const inTransitRide = asyncHandler( async ( req: Request, res: Response ) =>
+{
+    const id = req.params.id;
+
+    const inTransit = await inTransitRideService( id );
+
+    responseFunction( res, {
+        message: "Picked up the user!",
+        statusCode: httpStatus.OK,
+        data: inTransit
+    })
+} );
+
+export const completeRide = asyncHandler( async ( req: Request, res: Response ) =>
+{
+    const id = req.params.id;
+    const user = req.user;
+
+    const completedRide = await completeRideService( id, user );
+
+    responseFunction( res, {
+        message: "Picked up the user!",
+        statusCode: httpStatus.OK,
+        data: completedRide
+    })
+} );

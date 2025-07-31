@@ -1,5 +1,7 @@
 import { NextFunction, Request, Response } from "express";
+import mongoose from "mongoose";
 import { DriverStatus } from "../modules/driver/river.interface";
+import { Ride } from "../modules/ride/ride.model";
 import { UserRole } from "../modules/user/user.interface";
 import { User } from "../modules/user/user.model";
 import { asyncHandler } from "../utils/controller.util";
@@ -20,7 +22,7 @@ export const updateUserLocationIntoDb = asyncHandler( async ( req: Request, res:
     )
         .select( "-password" )
         .populate( "driver", "driverStatus isApproved vehicleInfo rating _id" )
-        .lean(); 
+        .lean();
 
     // Now filter for AVAILABLE drivers only
     const availableDrivers = activeDrivers.filter(
@@ -49,6 +51,17 @@ export const updateUserLocationIntoDb = asyncHandler( async ( req: Request, res:
         { $set: { location: userLocation } },
         { new: true }
     );
+
+    if ( user.role === UserRole.DRIVER )
+    {
+        await Ride.findOneAndUpdate(
+            { driver: new mongoose.Types.ObjectId( user.userId ) },
+            { $set: { driverLocation: userLocation } },
+            { new: true }
+        );
+    }
+
+
 
     return next();
 } );

@@ -9,6 +9,9 @@ import { zodUserSchema } from "./user.validation";
 const router = Router();
 
 router.post( "/create", validateRequest( zodUserSchema ), createUser );
-router.get( "/me", checkAuth(UserRole.ADMIN, UserRole.DRIVER, UserRole.RIDER), updateUserLocationIntoDb, getMe );
+
+router.get( "/me", checkAuth( UserRole.ADMIN, UserRole.DRIVER, UserRole.RIDER ), updateUserLocationIntoDb, getMe );
+
+router.patch( "update-user/:id", checkAuth( UserRole.ADMIN, UserRole.DRIVER, UserRole.RIDER ) );
 
 export const userRoute = router;

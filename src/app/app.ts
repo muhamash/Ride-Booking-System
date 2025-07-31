@@ -10,7 +10,7 @@ import { trackLocationByLatLng } from './middlewares/trackLocation.middleware';
 import { homeRoute } from './modules/home/home.controller';
 import { adminRouter } from './routes/admin.route';
 import { firstVersionRouter } from './routes/module.route';
-import { riderRouter } from './routes/ride.route';
+import { riderRouter } from './routes/service.route';
 import { scheduleUserOfflineJob } from './utils/db/userOfflineJob.util';
 
 const app: Application = express();

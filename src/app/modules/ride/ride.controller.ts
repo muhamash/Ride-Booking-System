@@ -25,6 +25,7 @@ export const requestRide = asyncHandler( async ( req: Request, res: Response ) =
     responseFunction( res, {
         message: `successfully requested the ride now you have confirm the ride with the fare`,
         statusCode: httpStatus.OK,
-        data: response
+        data: response,
+
     } );
-});
+} );
