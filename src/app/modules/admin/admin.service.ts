@@ -8,7 +8,7 @@ import { Ride } from '../ride/ride.model';
 import { UserRole } from '../user/user.interface';
 import { User } from "../user/user.model";
 import { driverSearchableFields, excludeField, rideSearchableField, searchableFields } from "./admin.constrain";
-import { blockParam } from './admin.type';
+import { blockParam, suspendParam } from './admin.type';
 
 
 export const getAllUsersService = async ( query?: Record<string, string> ) =>
@@ -102,33 +102,74 @@ export const getRideByIdService = async ( rideId: string ) =>
     return ride;
 };
 
-export const suspendDriverIdService = async ( userId: string ) =>
+export const suspendDriverIdService = async ( userId: string, param: suspendParam ) =>
 {
     // console.log( userId );
-    const user = await Driver.findOne({user: new mongoose.Types.ObjectId(userId), driverStatus: DriverStatus.AVAILABLE}  ).populate( "user" );
+    const user = await Driver.findOne( { user: new mongoose.Types.ObjectId( userId ), driverStatus: DriverStatus.AVAILABLE } ).populate( "user" );
 
     if ( !user )
     {
         throw new AppError( httpStatus.NOT_FOUND, "driver not found" );
     }
 
-    const updateDriver = await Driver
-        .findOneAndUpdate( { user: new mongoose.Types.ObjectId( userId ) },
-            { $set: { driverStatus: DriverStatus.SUSPENDED } },
-            { new: true } ).populate("user");
-    
-    if ( updateDriver )
+    if ( param === "suspend" && user.driverStatus === DriverStatus.SUSPENDED )
     {
-        const updatedTheUser = await User.findByIdAndUpdate( new mongoose.Types.ObjectId( userId ), {
-            $set: { isBlocked: true }
-        }, { new: true } ).populate( "driver" );
+        throw new AppError( httpStatus.CONFLICT, " driver already suspended!!" );
+    }
 
-        return updatedTheUser
-    }
-    else
+    if ( param === "rollback" && !user.driverStatus === DriverStatus.SUSPENDED )
     {
-        throw new AppError(httpStatus.BAD_REQUEST, "Failed to update  the driver")
+        throw new AppError( httpStatus.CONFLICT, " driver already working!!" );
     }
+
+    if ( param === "suspend" && user.driverStatus === DriverStatus.UNAVAILABLE )
+    {
+        throw new AppError( httpStatus.CONFLICT, " driver already working!! wait to be available first!!" );
+    }
+
+    let updateDriver;
+
+    if ( param === "rollback" && user.driverStatus === DriverStatus.SUSPENDED )
+    {
+        updateDriver = await Driver
+            .findOneAndUpdate( { user: new mongoose.Types.ObjectId( userId ) },
+                { $set: { driverStatus: DriverStatus.AVAILABLE } },
+                { new: true } ).populate( "user" );
+        
+        if ( updateDriver )
+        {
+            const updatedTheUser = await User.findByIdAndUpdate( new mongoose.Types.ObjectId( userId ), {
+                $set: { isBlocked: false }
+            }, { new: true } ).populate( "driver" );
+
+            return updatedTheUser
+        }
+        else
+        {
+            throw new AppError( httpStatus.BAD_REQUEST, "Failed to update  the driver" )
+        }
+    }
+
+    if ( param === "suspend" && user.driverStatus === DriverStatus.AVAILABLE )
+    {
+        updateDriver = await Driver
+            .findOneAndUpdate( { user: new mongoose.Types.ObjectId( userId ) },
+                { $set: { driverStatus: DriverStatus.SUSPENDED } },
+                { new: true } ).populate( "user" );
+        
+        if ( updateDriver )
+        {
+            const updatedTheUser = await User.findByIdAndUpdate( new mongoose.Types.ObjectId( userId ), {
+                $set: { isBlocked: true }
+            }, { new: true } ).populate( "driver" );
+
+            return updatedTheUser
+        }
+        else
+        {
+            throw new AppError( httpStatus.BAD_REQUEST, "Failed to update  the driver" )
+        }
+    }   
 };
 
 // export interface 

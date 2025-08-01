@@ -113,7 +113,8 @@ export const getRideById = asyncHandler( async ( req: Request, res: Response ): 
 export const suspendDriverById = asyncHandler( async ( req: Request, res: Response ): Promise<void> =>
 {
     const userId = req.params.id;
-    const user = await suspendDriverIdService(userId);
+    const param = req.params.suspendParam;
+    const user = await suspendDriverIdService(userId, param);
 
     if ( !user )
     {
