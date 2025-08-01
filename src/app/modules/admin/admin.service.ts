@@ -4,6 +4,7 @@ import { AppError } from "../../../config/errors/App.error";
 import { QueryBuilder } from "../../utils/db/queybuilder.util";
 import { Driver } from '../driver/driver.model';
 import { DriverStatus } from '../driver/river.interface';
+import { RideStatus } from '../ride/ride.interface';
 import { Ride } from '../ride/ride.model';
 import { UserRole } from '../user/user.interface';
 import { User } from "../user/user.model";
@@ -248,7 +249,7 @@ export const deleteBlockedUserService = async ( userId: string ) =>
 
 export const deleteRideService = async ( rideId: string ) =>
 {
-    const findRide = await Ride.findById( rideId );
+    const findRide = await Ride.findOne( { _id: rideId }, { $ne: { status: RideStatus.REQUESTED } } );
     
     if ( !findRide )
     {

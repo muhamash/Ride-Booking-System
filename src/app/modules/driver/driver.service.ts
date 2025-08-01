@@ -4,6 +4,7 @@ import { AppError } from '../../../config/errors/App.error';
 import { RideStatus } from '../ride/ride.interface';
 import { Ride } from '../ride/ride.model';
 import { IUser } from '../user/user.interface';
+import { User } from '../user/user.model';
 import { Driver } from './driver.model';
 import { DriverStatus, VehicleInfo } from './river.interface';
 
@@ -56,7 +57,7 @@ export const acceptRideRequestService = async ( rideId: string, user: Partial<IU
     if ( acceptedRide.status === RideStatus.ACCEPTED )
     {
         await Driver.findOneAndUpdate( { username: user.username },
-            { $set: { driverStatus: DriverStatus.UNAVAILABLE } },
+            { $set: { driverStatus: DriverStatus.RIDING } },
             { new: true } );
     }
 
@@ -210,4 +211,29 @@ export const updateVehicleService = async ( userId: string, payload:Partial<Vehi
     const updatedDriver = await Driver.findByIdAndUpdate( driver._id, payload, { new: true, runValidators: true } );
 
     return updatedDriver
+}
+
+export const driverStateService = async ( userId: string ) =>
+{
+    const user = await User.findById( userId );
+
+    if ( !user )
+    {
+        throw new AppError(httpStatus.NOT_FOUND, "user not found!!")
+    }
+
+    const driver = await Driver.findOne( { user: user._id } );
+    if ( driver )
+    {
+        throw new AppError(httpStatus.CONFLICT, "this user is not a driver!!")
+    }
+
+    const rides = await Ride.find( { driver: driver._id } ).populate("driver");
+
+    if ( rides.length < 1 )
+    {
+        throw new AppError(httpStatus.NOT_FOUND, "no ride  found!!")
+    }
+
+    return rides
 }

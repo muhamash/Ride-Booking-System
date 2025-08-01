@@ -3,7 +3,7 @@ import passport from "passport";
 import { Strategy as LocalStrategy } from "passport-local";
 import { Driver } from "../../app/modules/driver/driver.model";
 import { DriverStatus } from "../../app/modules/driver/river.interface";
-import { UserRole } from "../../app/modules/user/user.interface";
+import { ILocation, UserRole } from "../../app/modules/user/user.interface";
 import { User } from "../../app/modules/user/user.model";
 
 passport.use(
@@ -50,7 +50,7 @@ passport.use(
                     {
                         $set: {
                             isOnline: true,
-                            location: req.userLocation,
+                            location: req.userLocation as ILocation,
                             lastOnlineAt: new Date(),
                         },
                     },
@@ -87,7 +87,7 @@ passport.serializeUser( ( user: Express.User, done: ( error: unknown, id?: unkno
     done( null, user._id );
 } );
 
-passport.deserializeUser( async ( id: string, done: unknown ) =>
+passport.deserializeUser(async (id: string, done: (err: never, user?: unknown) => void) =>
 {
     try
     {

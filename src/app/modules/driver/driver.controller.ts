@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import httpStatus from 'http-status-codes';
 import { AppError } from "../../../config/errors/App.error";
 import { asyncHandler, responseFunction } from "../../utils/controller.util";
-import { acceptRideRequestService, cancelRideRequestService, checkRideRequestService, completeRideService, inTransitRideService, pickUpService, updateVehicleService } from "./driver.service";
+import { acceptRideRequestService, cancelRideRequestService, checkRideRequestService, completeRideService, driverStateService, inTransitRideService, pickUpService, updateVehicleService } from "./driver.service";
 
 export const checkRideRequest = asyncHandler( async ( req: Request, res: Response) =>
 {
@@ -110,4 +110,23 @@ export const updateVehicleInfo = asyncHandler( async ( req: Request, res: Respon
         statusCode: httpStatus.ACCEPTED,
         data: updatedVehicle
     } )
+} );
+
+export const driverState = asyncHandler( async ( req: Request, res: Response ) =>
+{
+    const userId = req.params.id;
+
+    const states = await driverStateService( userId );
+
+    if ( !states )
+    {
+        throw new AppError(httpStatus.INTERNAL_SERVER_ERROR, "Something happened when tried to fetch the driver state!!")
+    }
+
+
+    responseFunction( res, {
+        message: "Vehicle updated!!",
+        statusCode: httpStatus.ACCEPTED,
+        data: states
+    } );
 } );

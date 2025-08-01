@@ -3,17 +3,24 @@ import mongoose from "mongoose";
 import { envStrings } from '../env.config';
 import { AppError } from '../errors/App.error';
 
-export const dbConnect = async () : Promise<void> =>
+export const dbConnect = async (): Promise<void> =>
 {
 
-    try {
+    try
+    {
         await mongoose.connect( envStrings.DB_URL );
         
         console.log( `MongoDB database is connected!! 🥭` )
     }
-    catch ( error : unknown )
+    catch ( error: unknown )
     {
-        // console.log(error)
-        throw new AppError( httpStatus.BAD_GATEWAY, error );
-    }    
-}
+        let message = 'Unknown error';
+
+        if ( error instanceof Error )
+        {
+            message = error.message;
+        }
+
+        throw new AppError( httpStatus.BAD_GATEWAY, message );
+    }
+};
