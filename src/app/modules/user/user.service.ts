@@ -1,8 +1,10 @@
+import bcrypt from "bcryptjs";
 import httpStatus from 'http-status-codes';
 import mongoose from 'mongoose';
+import { envStrings } from '../../../config/env.config';
 import { AppError } from "../../../config/errors/App.error";
 import { Driver } from '../driver/driver.model';
-import { UserRole } from './user.interface';
+import { IUser, UserRole } from './user.interface';
 import { User } from "./user.model";
 
 export const createUserService = async ( payload: Partial<IUser> ) =>
@@ -72,4 +74,18 @@ export const getUserByIdService = async (userId: string): Promise<IUser | null> 
     }
 
     return user;
+}
+
+export const updateUserService = async ( userId: string, payload: Partial<IUser> ) =>
+{
+    if ( payload.password )
+    {
+        payload.password = await bcrypt.hash( payload.password, envStrings.BCRYPT_SALT );
+    }
+
+    const newUpdatedUser = await User.findByIdAndUpdate( userId, payload, { new: true, runValidators: true } ).lean();
+
+    delete newUpdatedUser?.password;
+
+    return newUpdatedUser;
 }

@@ -2,7 +2,7 @@ import httpStatus from 'http-status-codes';
 import jwt from "jsonwebtoken";
 import { ZodError } from "zod";
 import { AppError } from '../../config/errors/App.error';
-import { ILocation } from '../modules/user/user.interface';
+import { ILocation, UserRole } from '../modules/user/user.interface';
 
 export const isZodError = ( error: unknown ): error is { issues: unknown[] } =>
 {
@@ -81,3 +81,23 @@ export const generateRandomDhakaLocations = async(): ILocation[] =>
   
   return locations[randomIndex];
 };
+
+export const isAllowedToUpdate = ( currentRole: string, currentUserId: string, targetRole: string, targetUserId: string ) =>
+{
+  if ( currentRole === UserRole.ADMIN  )
+  {
+    if ( targetRole === UserRole.ADMIN && targetUserId !== currentUserId )
+    {
+      return false
+    }
+
+    return true
+  }
+
+  if ( [ UserRole.RIDER, UserRole.DRIVER ].includes( currentRole ) )
+  {
+    return currentUserId === targetUserId;
+  }
+
+  return false;
+}

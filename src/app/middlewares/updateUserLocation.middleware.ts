@@ -29,7 +29,7 @@ export const updateUserLocationIntoDb = asyncHandler( async ( req: Request, res:
         ( user ) => user.driver?.driverStatus === DriverStatus.AVAILABLE
     );
 
-    // Map to final payload
+    // final payload
     const activeDriverPayload: Record<string, string | number | object>[] = availableDrivers.map( ( user ) => ( {
         driverId: user.driver._id.toString(),
         userId: user._id.toString(),
@@ -39,7 +39,7 @@ export const updateUserLocationIntoDb = asyncHandler( async ( req: Request, res:
         location: user.location,
         isApproved: user.driver.isApproved,
         avgRating: user.driver.rating?.averageRating || 0,
-        // vehicleInfo: user.driver.vehicleInfo || {},
+        vehicleInfo: user.driver.vehicleInfo || {},
     } ) );
 
     // console.log( activeDriverPayload );

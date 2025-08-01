@@ -2,17 +2,19 @@ import { Request, Response } from "express";
 import httpStatus from 'http-status-codes';
 import { AppError } from "../../../config/errors/App.error";
 import { asyncHandler, responseFunction } from "../../utils/controller.util";
-import { acceptRideRequestService, cancelRideRequestService, checkRideRequestService, completeRideService, inTransitRideService, pickUpService } from "./driver.service";
+import { acceptRideRequestService, cancelRideRequestService, checkRideRequestService, completeRideService, inTransitRideService, pickUpService, updateVehicleService } from "./driver.service";
 
 export const checkRideRequest = asyncHandler( async ( req: Request, res: Response) =>
 {
+    const body = req.body;
     const user = req.user;
+    const username = body.username ?? user.username;
     // console.log(user)
-    if ( !user )
+    if ( !username )
     {
-        throw new AppError(httpStatus.BAD_REQUEST, "User from the request body is empty!!")
+        throw new AppError(httpStatus.BAD_REQUEST, "username got empty!!")
     }
-    const ride = await checkRideRequestService( user.username );
+    const ride = await checkRideRequestService( username );
 
     responseFunction( res, {
         message: `Found some ride requests!!`,
@@ -88,4 +90,24 @@ export const completeRide = asyncHandler( async ( req: Request, res: Response ) 
         statusCode: httpStatus.OK,
         data: completedRide
     })
+} );
+
+// driver self
+export const updateVehicleInfo = asyncHandler( async ( req: Request, res: Response ) =>
+{
+    const driverId = req.params.id;
+    const body = req.body;
+
+    const updatedVehicle = await updateVehicleService( driverId, body );
+
+    if ( updatedVehicle )
+    {
+        throw new AppError( httpStatus.EXPECTATION_FAILED, "failed to update the target vehicle!!" )
+    }
+
+    responseFunction( res, {
+        message: "Vehicle updated!!",
+        statusCode: httpStatus.ACCEPTED,
+        data: updatedVehicle
+    } )
 } );

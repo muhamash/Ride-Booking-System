@@ -19,6 +19,8 @@ router.patch( "/suspend-driver/:id/:suspendParam", checkAuth( UserRole.ADMIN ), 
 
 router.patch( "/block-user/:id/:blockParam", checkAuth( UserRole.ADMIN ), blockUserById );
 
+router.patch( "/approve-driver/:id/:approveParam", checkAuth( UserRole.ADMIN ) ); //incomplete api
+
 router.delete( "/delete-blocked-user/:id", checkAuth( UserRole.ADMIN ), deleteBlockedUser );
 router.delete("/ride/:id", checkAuth( UserRole.ADMIN ), deleteRide)
 

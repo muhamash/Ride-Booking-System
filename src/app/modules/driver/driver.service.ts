@@ -5,7 +5,7 @@ import { RideStatus } from '../ride/ride.interface';
 import { Ride } from '../ride/ride.model';
 import { IUser } from '../user/user.interface';
 import { Driver } from './driver.model';
-import { DriverStatus } from './river.interface';
+import { DriverStatus, VehicleInfo } from './river.interface';
 
 
 export const checkRideRequestService = async (username: string) =>
@@ -91,7 +91,7 @@ export const cancelRideRequestService = async ( rideId: string, user: Partial<IU
 
     const cancelRide = await Ride.findOneAndUpdate(
         { _id: new mongoose.Types.ObjectId( rideId ) },
-        { $set: { status: RideStatus.CANCELLED, cancelledAt: Date.now(), cancelledBy: user.role  } },
+        { $set: { status: RideStatus.CANCELLED, cancelledAt: Date.now(), cancelledBy: user.role , expiresAt: null } },
         { new: true }
     );
 
@@ -197,3 +197,17 @@ export const completeRideService = async ( id: string, user: Partial<IUser> ) =>
     
     return completedRide
 };
+
+export const updateVehicleService = async ( userId: string, payload:Partial<VehicleInfo> ) =>
+{
+    const driver = await Driver.findById( userId );
+
+    if ( !driver )
+    {
+         throw new AppError( httpStatus.NOT_FOUND, "failed to find the target vehicle!!" )
+    }
+
+    const updatedDriver = await Driver.findByIdAndUpdate( driver._id, payload, { new: true, runValidators: true } );
+
+    return updatedDriver
+}

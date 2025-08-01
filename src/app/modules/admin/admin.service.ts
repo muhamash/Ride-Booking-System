@@ -172,7 +172,6 @@ export const suspendDriverIdService = async ( userId: string, param: suspendPara
     }   
 };
 
-// export interface 
 export const blockUserByIdService = async ( userId: string, param: blockParam ) =>
 {
     // console.log( userId );
@@ -265,3 +264,4 @@ export const deleteRideService = async ( rideId: string ) =>
     }
     
 };
+
