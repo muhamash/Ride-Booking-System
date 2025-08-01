@@ -8,7 +8,10 @@ import { zodRideRequest } from "./ride.validation";
 
 const router = Router();
 
-router.post( "/request", checkAuth( UserRole.RIDER, UserRole.ADMIN ),updateUserLocationIntoDb,validateRequest(zodRideRequest), requestRide );
+router.post( "/request", checkAuth( UserRole.RIDER, UserRole.ADMIN ), updateUserLocationIntoDb, validateRequest( zodRideRequest ), requestRide );
+
+router.post( "/request/cancel/:id", checkAuth( UserRole.RIDER, UserRole.ADMIN ), updateUserLocationIntoDb );
+
 
 
 export const rideRoutes = router;
