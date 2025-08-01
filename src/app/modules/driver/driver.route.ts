@@ -20,9 +20,10 @@ router.patch( "/in-transit/:id", checkAuth(UserRole.DRIVER), updateUserLocationI
 
 router.patch( "/complete-ride/:id", checkAuth( UserRole.DRIVER ), updateUserLocationIntoDb, completeRide );
 
-
 router.patch( "/driver-update-vehicle/:id", checkAuth( UserRole.DRIVER, UserRole.ADMIN ), validateRequest( vehicleInfoZodSchema ), updateVehicleInfo );
-router.get( "/driver-state/:id", checkAuth( UserRole.DRIVER, UserRole.ADMIN ) );
 
+
+router.get( "/driver-state/:id", checkAuth( UserRole.DRIVER, UserRole.ADMIN ) ); 
+//extra feature route
 
 export const driverRoutes = router;
