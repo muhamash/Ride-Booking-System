@@ -9,18 +9,20 @@ const router = Router();
 router.get( "/user/all", checkAuth( UserRole.ADMIN ), getAllUsers );
 router.get( "/user/:id", checkAuth( UserRole.ADMIN ), getUserById );
 
-router.get( "/driver/:id", checkAuth( UserRole.ADMIN ), getDriverById );
 router.get( "/driver/all", checkAuth( UserRole.ADMIN ), getAllDrivers );
+router.get( "/driver/:id", checkAuth( UserRole.ADMIN ), getDriverById );
 
-router.get( "/all-rides", checkAuth( UserRole.ADMIN ), getAllRides );
-router.get( "/ride/:id", checkAuth( UserRole.ADMIN ), getRideById );
+router.get( "/all-rides", checkAuth( UserRole.ADMIN ), getAllRides ); //not tested
+router.get( "/ride/:id", checkAuth( UserRole.ADMIN ), getRideById ); //not tested
 
 router.patch( "/suspend-driver/:id/:suspendParam", checkAuth( UserRole.ADMIN ), suspendDriverById );
 
 router.patch( "/block-user/:id/:blockParam", checkAuth( UserRole.ADMIN ), blockUserById );
 
 router.patch( "/approve-driver/:id/:approveParam", checkAuth( UserRole.ADMIN ), approvalDriver ); 
+
 router.delete( "/delete-blocked-user/:id", checkAuth( UserRole.ADMIN ), deleteBlockedUser );
+
 router.delete("/ride/:id", checkAuth( UserRole.ADMIN ), deleteRide)
 
 export const adminRoutes = router;

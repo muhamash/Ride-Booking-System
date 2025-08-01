@@ -105,7 +105,7 @@ export const getRideByIdService = async ( rideId: string ) =>
 export const suspendDriverIdService = async ( userId: string, param: suspendParam ) =>
 {
     // console.log( userId );
-    const user = await Driver.findOne( { user: new mongoose.Types.ObjectId( userId ), driverStatus: DriverStatus.AVAILABLE } ).populate( "user" );
+    const user = await Driver.findOne( { user: new mongoose.Types.ObjectId( userId ) } );
 
     if ( !user )
     {
@@ -117,25 +117,27 @@ export const suspendDriverIdService = async ( userId: string, param: suspendPara
         throw new AppError( httpStatus.CONFLICT, " driver already suspended!!" );
     }
 
-    if ( param === "rollback" && !user.driverStatus === DriverStatus.AVAILABLE )
+    if ( param === "rollback" && user.driverStatus === DriverStatus.AVAILABLE )
     {
         throw new AppError( httpStatus.CONFLICT, " driver already available!!" );
     }
 
-    if ( param === "suspend" && user.driverStatus === DriverStatus.UNAVAILABLE )
+    if ( param === "suspend" && user.driverStatus === DriverStatus.RIDING )
     {
         throw new AppError( httpStatus.CONFLICT, " driver already working!! wait to be available first!!" );
     }
 
+    console.log(user, param, !user.driverStatus === DriverStatus.AVAILABLE)
     let updateDriver;
 
-    if ( param === "rollback" && user.driverStatus === DriverStatus.SUSPENDED )
+    if ( param === "rollback" && user.driverStatus !== DriverStatus.AVAILABLE )
     {
         updateDriver = await Driver
             .findOneAndUpdate( { user: new mongoose.Types.ObjectId( userId ) },
                 { $set: { driverStatus: DriverStatus.AVAILABLE } },
                 { new: true } ).populate( "user" );
         
+        console.log(updateDriver,"dfasfsdf")
         if ( updateDriver )
         {
             const updatedTheUser = await User.findByIdAndUpdate( new mongoose.Types.ObjectId( userId ), {
@@ -150,7 +152,7 @@ export const suspendDriverIdService = async ( userId: string, param: suspendPara
         }
     }
 
-    if ( param === "suspend" && user.driverStatus === DriverStatus.AVAILABLE )
+    if ( param === "suspend" && user.driverStatus !== DriverStatus.SUSPENDED )
     {
         updateDriver = await Driver
             .findOneAndUpdate( { user: new mongoose.Types.ObjectId( userId ) },
@@ -163,6 +165,7 @@ export const suspendDriverIdService = async ( userId: string, param: suspendPara
                 $set: { isBlocked: true }
             }, { new: true } ).populate( "driver" );
 
+            console.log(updateDriver, updatedTheUser)
             return updatedTheUser
         }
         else
@@ -268,7 +271,7 @@ export const deleteRideService = async ( rideId: string ) =>
 export const approveDriverService = async ( driverId: string, param: approvalParam ) =>
 {
     // console.log( userId );
-    const driver = await Driver.findById( new mongoose.Types.ObjectId( driverId ) );
+    const driver = await Driver.findOne( { user: new mongoose.Types.ObjectId( driverId ) } );
 
     if ( !driver )
     {
@@ -288,21 +291,18 @@ export const approveDriverService = async ( driverId: string, param: approvalPar
     let updatedTheDriver;
     if ( param === "notApproved" && driver.isApproved )
     {
-        updatedTheDriver = await Driver.findByIdAndUpdate( new mongoose.Types.ObjectId( driverId ), {
+        updatedTheDriver = await Driver.findOneAndUpdate( { user: new mongoose.Types.ObjectId( driverId ) }, {
             $set: { isApproved: false }
-        }, { new: true } ).populate( "user" );
+        }, { new: true } );
     }
 
     if ( param === "approved" && !driver.isApproved )
     {
-        updatedTheDriver = await Driver.findByIdAndUpdate( new mongoose.Types.ObjectId( driverId ), {
+        updatedTheDriver = await Driver.findOneAndUpdate( { user: new mongoose.Types.ObjectId( driverId ) }, {
             $set: { isApproved: true }
-        }, { new: true } ).populate( "driver" );
-    }
-    else
-    {
-        throw new AppError( httpStatus.BAD_REQUEST, "Failed to update  the driver" )
+        }, { new: true } );
     }
 
+    // console.log( driver, updatedTheDriver, driver.isApproved, param === "approved", param )
     return updatedTheDriver;
 };

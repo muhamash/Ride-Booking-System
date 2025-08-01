@@ -1,7 +1,7 @@
 import httpStatus from 'http-status-codes';
 import { AppError } from '../../../config/errors/App.error';
 import { asyncHandler, responseFunction } from "../../utils/controller.util";
-import { allRideService, blockUserByIdService, deleteBlockedUserService, deleteRideService, getAllDriversServices, getAllUsersService, getDriverByIdService, getRideByIdService, getUserByIdService, suspendDriverIdService } from './admin.service';
+import { allRideService, approveDriverService, blockUserByIdService, deleteBlockedUserService, deleteRideService, getAllDriversServices, getAllUsersService, getDriverByIdService, getRideByIdService, getUserByIdService, suspendDriverIdService } from './admin.service';
 import { approvalParam, blockParam } from './admin.type';
 
 
@@ -118,7 +118,7 @@ export const suspendDriverById = asyncHandler( async ( req: Request, res: Respon
 
     if ( !user )
     {
-        throw new AppError( httpStatus.NOT_FOUND, "User not found" );
+        throw new AppError( httpStatus.BAD_REQUEST, "Can not modify the driver!!" );
     }
 
     responseFunction( res, {
@@ -174,12 +174,13 @@ export const deleteRide = asyncHandler( async ( req: Request, res: Response ): P
 export const approvalDriver = asyncHandler( async ( req: Request, res: Response ): Promise<void> =>
 {
     const userId: string = req.params.id;
-    const param: approvalParam = req.params.blockParam;
-    const user = await blockUserByIdService(userId, param);
+    const param: approvalParam = req.params.approveParam;
+    // console.log(approvalParam)
+    const user = await approveDriverService(userId, param);
 
     if ( !user )
     {
-        throw new AppError( httpStatus.EXPECTATION_FAILED, "something wrong on approve a driver" );
+        throw new AppError( httpStatus.EXPECTATION_FAILED, "something wrong when on a operation of approval a driver" );
     }
 
     responseFunction( res, {

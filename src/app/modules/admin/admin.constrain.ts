@@ -4,6 +4,6 @@ export const excludeField: string[] = [ "search", "sort", "fields", "page", "ski
 
 export const searchableFields: string[] = [ "username", "email", "role", "name" ];
 
-export const driverSearchableFields: string[] = [ "username", "totalRides", "totalEarnings", "driverStatus" ];
+export const driverSearchableFields: string[] = [ "username", "driverStatus" ];
 
 export const rideSearchableField: string[] = [ "pickUpLocation", "dropOffLocation", "driverUserName", "riderUserName", "cancelledBy" ];

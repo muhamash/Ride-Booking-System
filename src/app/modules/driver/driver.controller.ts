@@ -6,9 +6,9 @@ import { acceptRideRequestService, cancelRideRequestService, checkRideRequestSer
 
 export const checkRideRequest = asyncHandler( async ( req: Request, res: Response) =>
 {
-    const body = req.body;
+    // const body = req.body;
     const user = req.user;
-    const username = body.username ?? user.username;
+    const username = user.username;
     // console.log(user)
     if ( !username )
     {

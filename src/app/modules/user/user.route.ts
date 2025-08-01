@@ -13,8 +13,8 @@ router.post( "/create", validateRequest( zodUserSchema ), createUser );
 
 router.get( "/me", checkAuth( UserRole.ADMIN, UserRole.DRIVER, UserRole.RIDER ), updateUserLocationIntoDb, getMe );
 
-router.patch( "update-user/:id", checkAuth( UserRole.ADMIN, UserRole.DRIVER, UserRole.RIDER ),validateRequest(updateUserZodSchema), checkUpdatePermission, updateUser );
+router.patch( "/update-user/:id", checkAuth( UserRole.ADMIN, UserRole.DRIVER, UserRole.RIDER ),validateRequest(updateUserZodSchema), checkUpdatePermission, updateUser );
 
-router.get( "user-state/:id", checkAuth( UserRole.ADMIN, UserRole.RIDER ) ); //extra feature route
+router.get( "/user-state/:id", checkAuth( UserRole.ADMIN, UserRole.RIDER ) ); //extra feature route
 
 export const userRoute = router;

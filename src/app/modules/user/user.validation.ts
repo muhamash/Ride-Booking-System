@@ -77,7 +77,6 @@ export const updateUserZodSchema = z.object( {
         .regex( /^(?=.*\d)/, {
             message: "Password must contain at least 1 number.",
         } ).optional(),
-    location: locationZodSchema 
 
 } ).refine(
     ( data ) => Object.keys( data ).some( ( key ) => data[ key as keyof typeof data ] !== undefined ),

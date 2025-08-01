@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import httpStatus from 'http-status-codes';
+import { AppError } from "../../config/errors/App.error";
 import { User } from "../modules/user/user.model";
 import { isAllowedToUpdate } from "../utils/middleware.util";
 

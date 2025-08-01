@@ -3,7 +3,8 @@ import { Types } from "mongoose";
 export enum DriverStatus {
   AVAILABLE = "AVAILABLE",
   UNAVAILABLE = "UNAVAILABLE",
-  SUSPENDED = "SUSPENDED"
+  SUSPENDED = "SUSPENDED",
+  RIDING = "RIDING"
 }
 export interface VehicleInfo {
   license: string;

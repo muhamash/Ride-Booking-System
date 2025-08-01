@@ -8,7 +8,7 @@ import { vehicleInfoZodSchema } from "./driver.validation";
 
 const router = Router();
 
-router.get( "/check-ride-request", checkAuth( UserRole.ADMIN, UserRole.DRIVER ), updateUserLocationIntoDb, checkRideRequest );
+router.post( "/check-ride-request", checkAuth(  UserRole.DRIVER ), updateUserLocationIntoDb, checkRideRequest );
 
 router.post( "/accept-ride-request/:id", checkAuth( UserRole.DRIVER ), updateUserLocationIntoDb, acceptRideRequest );
 

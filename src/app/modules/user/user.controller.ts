@@ -42,12 +42,13 @@ export const getMe = asyncHandler( async ( req: Request, res: Response ): Promis
 
 export const updateUser = asyncHandler( async ( req: Request, res: Response ): Promise<void> =>
 {
-    if ( !req.params.id )
+    const userId = req.params?.id
+    if ( !userId )
     {
         throw new AppError( httpStatus.BAD_REQUEST, "No userId detected!!" )
     }
 
-    const user = await updateUserService( req.params.id, req.body );
+    const user = await updateUserService( userId, req.body );
 
     if ( !user )
     {
@@ -62,3 +63,4 @@ export const updateUser = asyncHandler( async ( req: Request, res: Response ): P
         }
     )
 } );
+
