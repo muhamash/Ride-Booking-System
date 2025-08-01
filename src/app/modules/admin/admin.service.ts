@@ -8,7 +8,7 @@ import { Ride } from '../ride/ride.model';
 import { UserRole } from '../user/user.interface';
 import { User } from "../user/user.model";
 import { driverSearchableFields, excludeField, rideSearchableField, searchableFields } from "./admin.constrain";
-import { blockParam, suspendParam } from './admin.type';
+import { approvalParam, blockParam, suspendParam } from './admin.type';
 
 
 export const getAllUsersService = async ( query?: Record<string, string> ) =>
@@ -117,9 +117,9 @@ export const suspendDriverIdService = async ( userId: string, param: suspendPara
         throw new AppError( httpStatus.CONFLICT, " driver already suspended!!" );
     }
 
-    if ( param === "rollback" && !user.driverStatus === DriverStatus.SUSPENDED )
+    if ( param === "rollback" && !user.driverStatus === DriverStatus.AVAILABLE )
     {
-        throw new AppError( httpStatus.CONFLICT, " driver already working!!" );
+        throw new AppError( httpStatus.CONFLICT, " driver already available!!" );
     }
 
     if ( param === "suspend" && user.driverStatus === DriverStatus.UNAVAILABLE )
@@ -182,7 +182,7 @@ export const blockUserByIdService = async ( userId: string, param: blockParam ) 
         throw new AppError( httpStatus.NOT_FOUND, " user not found" );
     }
 
-    if ( param === "block" && !user.isBlocked )
+    if ( param === "block" && user.isBlocked )
     {
         throw new AppError( httpStatus.CONFLICT, " user already blocked!!" );
     }
@@ -265,3 +265,44 @@ export const deleteRideService = async ( rideId: string ) =>
     
 };
 
+export const approveDriverService = async ( driverId: string, param: approvalParam ) =>
+{
+    // console.log( userId );
+    const driver = await Driver.findById( new mongoose.Types.ObjectId( driverId ) );
+
+    if ( !driver )
+    {
+        throw new AppError( httpStatus.NOT_FOUND, " driver not found" );
+    }
+
+    if ( param === "notApproved" && !driver.isApproved )
+    {
+        throw new AppError( httpStatus.CONFLICT, " driver already notApproved!!" );
+    }
+
+    if ( param === "approved" && driver.isApproved )
+    {
+        throw new AppError( httpStatus.CONFLICT, " driver already approved!!" );
+    }
+
+    let updatedTheDriver;
+    if ( param === "notApproved" && driver.isApproved )
+    {
+        updatedTheDriver = await Driver.findByIdAndUpdate( new mongoose.Types.ObjectId( driverId ), {
+            $set: { isApproved: false }
+        }, { new: true } ).populate( "user" );
+    }
+
+    if ( param === "approved" && !driver.isApproved )
+    {
+        updatedTheDriver = await Driver.findByIdAndUpdate( new mongoose.Types.ObjectId( driverId ), {
+            $set: { isApproved: true }
+        }, { new: true } ).populate( "driver" );
+    }
+    else
+    {
+        throw new AppError( httpStatus.BAD_REQUEST, "Failed to update  the driver" )
+    }
+
+    return updatedTheDriver;
+};

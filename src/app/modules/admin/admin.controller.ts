@@ -2,7 +2,7 @@ import httpStatus from 'http-status-codes';
 import { AppError } from '../../../config/errors/App.error';
 import { asyncHandler, responseFunction } from "../../utils/controller.util";
 import { allRideService, blockUserByIdService, deleteBlockedUserService, deleteRideService, getAllDriversServices, getAllUsersService, getDriverByIdService, getRideByIdService, getUserByIdService, suspendDriverIdService } from './admin.service';
-import { blockParam } from './admin.type';
+import { approvalParam, blockParam } from './admin.type';
 
 
 export const getAllUsers = asyncHandler( async ( req: Request, res: Response ): Promise<void> =>
@@ -122,7 +122,7 @@ export const suspendDriverById = asyncHandler( async ( req: Request, res: Respon
     }
 
     responseFunction( res, {
-        message: "Driver  suspended successfully",
+        message: "Driver  modified",
         statusCode: httpStatus.OK,
         data: user,
     } );
@@ -141,7 +141,7 @@ export const blockUserById = asyncHandler( async ( req: Request, res: Response )
     }
 
     responseFunction( res, {
-        message: "User blocked successfully",
+        message: "User modified",
         statusCode: httpStatus.OK,
         data: user,
     } );
@@ -168,5 +168,23 @@ export const deleteRide = asyncHandler( async ( req: Request, res: Response ): P
         message: "ride deleted successfully",
         statusCode: httpStatus.OK,
         data: ride,
+    } );
+} );
+
+export const approvalDriver = asyncHandler( async ( req: Request, res: Response ): Promise<void> =>
+{
+    const userId: string = req.params.id;
+    const param: approvalParam = req.params.blockParam;
+    const user = await blockUserByIdService(userId, param);
+
+    if ( !user )
+    {
+        throw new AppError( httpStatus.EXPECTATION_FAILED, "something wrong on approve a driver" );
+    }
+
+    responseFunction( res, {
+        message: "Modified request!!",
+        statusCode: httpStatus.OK,
+        data: user,
     } );
 } );

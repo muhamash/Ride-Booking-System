@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { checkAuth } from "../../middlewares/checkAuth.middleware";
 import { UserRole } from "../user/user.interface";
-import { blockUserById, deleteBlockedUser, deleteRide, getAllDrivers, getAllRides, getAllUsers, getDriverById, getRideById, getUserById, suspendDriverById } from "./admin.controller";
+import { approvalDriver, blockUserById, deleteBlockedUser, deleteRide, getAllDrivers, getAllRides, getAllUsers, getDriverById, getRideById, getUserById, suspendDriverById } from "./admin.controller";
 
 
 const router = Router();
@@ -19,8 +19,7 @@ router.patch( "/suspend-driver/:id/:suspendParam", checkAuth( UserRole.ADMIN ), 
 
 router.patch( "/block-user/:id/:blockParam", checkAuth( UserRole.ADMIN ), blockUserById );
 
-router.patch( "/approve-driver/:id/:approveParam", checkAuth( UserRole.ADMIN ) ); //incomplete api
-
+router.patch( "/approve-driver/:id/:approveParam", checkAuth( UserRole.ADMIN ), approvalDriver ); 
 router.delete( "/delete-blocked-user/:id", checkAuth( UserRole.ADMIN ), deleteBlockedUser );
 router.delete("/ride/:id", checkAuth( UserRole.ADMIN ), deleteRide)
 
