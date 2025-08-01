@@ -15,7 +15,7 @@ export const checkRideRequestService = async (username: string) =>
     {
         throw new AppError(httpStatus.BAD_REQUEST, "Wrong username")
     }
-    const findRide = await Ride.find({ driverUserName: username });
+    const findRide = await Ride.find({ driverUserName: username, status: RideStatus.REQUESTED });
 
     if ( findRide.length < 1 )
     {

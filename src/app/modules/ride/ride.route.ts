@@ -10,7 +10,6 @@ const router = Router();
 
 router.post( "/request", checkAuth( UserRole.RIDER, UserRole.ADMIN ), updateUserLocationIntoDb, validateRequest( zodRideRequest ), requestRide );
 
-router.post( "/request/cancel/:id", checkAuth( UserRole.RIDER, UserRole.ADMIN ), updateUserLocationIntoDb ); //in complete
 
 router.post( "/rating", checkAuth( UserRole.RIDER, UserRole.ADMIN ) ); //extra feature route
 

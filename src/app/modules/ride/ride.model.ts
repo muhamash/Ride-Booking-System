@@ -27,7 +27,7 @@ export const rideSchema = new Schema<IRide>( {
     },
     requestedAt: { type: Date, default: Date.now },
     expiresAt: {
-        type: Date, default: () => new Date( Date.now() + 5 * 60 * 1000 ),
+        type: Date, default: () => new Date( Date.now() + 5 * 60 * 60 * 1000 ),
         index: { expireAfterSeconds: 0 },
     },
     acceptedAt: { type: Date },

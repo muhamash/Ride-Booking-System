@@ -90,3 +90,36 @@ export const requestRideService = async (
     return { ride, totalAvailable:enrichedDrivers.length}
  
 };
+
+export const cancelRideService = async ( rideId: string, user: Partial<IUser> ) =>
+{
+    if ( !rideId )
+    {
+        throw new AppError(httpStatus.BAD_REQUEST, "ride id  not found at the request body")
+    }
+
+    const searchRide = await Ride.findOne( {
+        _id: rideId,
+        status: RideStatus.REQUESTED
+    } );
+    
+    if ( !searchRide )
+    {
+        throw new AppError(httpStatus.NOT_FOUND, "Ride not found or ride is been expired!!")
+    }
+
+    if ( searchRide.status === RideStatus.CANCELLED  )
+    {
+        throw new AppError(httpStatus.NON_AUTHORITATIVE_INFORMATION, "Ride already cancelled!!")
+    }
+
+    const cancelRide = await Ride.findOneAndUpdate(
+        { _id: new mongoose.Types.ObjectId( rideId ) },
+        { $set: { status: RideStatus.CANCELLED, cancelledAt: Date.now(), cancelledBy: user.role , expiresAt: null } },
+        { new: true }
+    );
+
+    console.log(cancelRide)
+
+    return cancelRide;
+}
