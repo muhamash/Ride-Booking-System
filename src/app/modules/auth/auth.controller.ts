@@ -46,6 +46,7 @@ export const userLogout = asyncHandler( async ( req: Request, res: Response ) =>
 {
     await setCookie( res, "refreshToken", "", 0 );
     await setCookie( res, "accessToken", "", 0 );
+    console.log(req.user)
     await userLogoutService( req.user?.userId );
 
     responseFunction( res, {

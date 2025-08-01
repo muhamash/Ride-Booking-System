@@ -33,8 +33,6 @@ export const zodUserSchema = z.object( {
             message: "Role must be either 'rider', 'driver', or 'admin'.",
         } )
         .default( UserRole.RIDER ).optional(),
-    isApproved: z.boolean( { invalid_type_error: "approval decision must be boolean" } ).optional(),
-    isOnline: z.boolean( { invalid_type_error: "online decision must be boolean" } ).optional(),
     vehicleInfo: vehicleInfoSchema.optional(),
     driverStatus: z.string( { invalid_type_error: "Driver status must be string" } )
         .transform( ( val ) => val.toUpperCase() )
@@ -42,9 +40,6 @@ export const zodUserSchema = z.object( {
             message: "Driver status must be either 'AVAILABLE', 'UNAVAILABLE', or 'SUSPENDED'.",
         } )
         .default( DriverStatus.AVAILABLE ).optional(),
-    isBlocked: z.boolean( { invalid_type_error: "isBlocked must be boolean" } ).default( false ).optional(),
-    riderId: z.string( { invalid_type_error: "Rider ID must be a valid ObjectId" } ).optional(),
-    username: z.string( { invalid_type_error: "Username must be string" } ).min( 3, { message: "Username must be at least 3 characters long." } ).optional(),
 } ).superRefine( ( data, ctx ) =>
 {
     if ( data.role === UserRole.DRIVER && !data.vehicleInfo )

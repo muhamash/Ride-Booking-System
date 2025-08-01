@@ -21,7 +21,7 @@ export const driverSchema = new Schema<IDriver>( {
     driverStatus: {
         type: String,
         enum: DriverStatus,
-        default: DriverStatus.AVAILABLE,
+        default: DriverStatus.UNAVAILABLE,
     },
     rating: {
         averageRating: { type: Number, default: 0 },

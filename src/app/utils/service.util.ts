@@ -7,14 +7,14 @@ import { generateToken } from "./middleware.util";
 export const userTokens = async ( user: Partial<IUser> ) =>
 {
     const jwtPayload = {
-        userId: user.id,
+        userId: user.user?.id || user.id,
         username: user.username,
-        email: user.email,
-        role: user.role,
-        name: user.name
+        email: user.email || user.user.email,
+        role: user.role || user.user.role,
+        name: user.name || user.user.name
     };
 
-    // console.log(jwtPayload, user)
+    // console.log(jwtPayload, user)   
 
     try
     {

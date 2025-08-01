@@ -19,9 +19,9 @@ export const checkAuth = (...authRoles: string[]) => async ( req: Request, res: 
 
         const verifiedToken = verifyToken( accessToken, envStrings.ACCESS_TOKEN_SECRET ) as JwtPayload;
 
-        const user = await User.findOne( { email: verifiedToken.email } );
+        const user = await User.findOne( { username: verifiedToken.username } );
 
-        console.log("verified token user", verifiedToken );
+        // console.log("verified token user", verifiedToken );
 
         if ( !user )
         {

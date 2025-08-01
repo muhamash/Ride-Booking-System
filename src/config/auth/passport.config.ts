@@ -1,6 +1,9 @@
 import bcrypt from "bcryptjs";
 import passport from "passport";
 import { Strategy as LocalStrategy } from "passport-local";
+import { Driver } from "../../app/modules/driver/driver.model";
+import { DriverStatus } from "../../app/modules/driver/river.interface";
+import { UserRole } from "../../app/modules/user/user.interface";
 import { User } from "../../app/modules/user/user.model";
 
 passport.use(
@@ -22,6 +25,7 @@ passport.use(
 
                 // console.log(locationPayload, "from login passport")
                 const user = await User.findOne( { email } );
+                let response
 
                 if ( !user )
                 {
@@ -41,22 +45,41 @@ passport.use(
                     return done( null, false, { message: "Invalid email or password" } );
                 }
 
-                const response = await User.findOneAndUpdate(
+                response = await User.findOneAndUpdate(
                     { _id: user._id },
-                    { $set: { isOnline: true, location: req.userLocation, lastOnlineAt: new Date() } },
+                    {
+                        $set: {
+                            isOnline: true,
+                            location: req.userLocation,
+                            lastOnlineAt: new Date(),
+                        },
+                    },
                     { new: true }
-                ).populate( "driver" );
+                )
+                    .populate( "driver" )
+                    .select( "-password" );
+
+                if ( response?.role === UserRole.DRIVER )
+                {
+
+                    response = await Driver.findOneAndUpdate(
+                        { user: user._id },
+                        { $set: { driverStatus: DriverStatus.AVAILABLE } },
+                        { new: true },
+                    ).populate( "user", "email name role location lastOnlineAt" );
+
+                }
 
                 // console.log("User logged in:", response, req.userLocation);
                 return done( null, response );
             }
             catch ( error: unknown )
             {
-                return done(error)
+                return done( error )
             }
         }
     )
-)
+);
 
 passport.serializeUser( ( user: Express.User, done: ( error: unknown, id?: unknown ) => void ) =>
 {
