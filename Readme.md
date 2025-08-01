@@ -175,8 +175,7 @@ curl -X POST http://localhost:5000/api/user/create \
   "name": "Ashraful",
   "email": "ashraful.rider@example.com",
   "password": "SecurePass1",
-  "role": "rider",
-  "username": "ash_rider_1"
+  "role": "rider"
 }
 '
 # driver
@@ -184,8 +183,7 @@ curl -X POST http://localhost:5000/api/user/create \
   "name": "Rafsan the Driver",
   "email": "driver.rafsan@example.com",
   "password": "DriveSafe2024",
-  "role": "driver",
-  "username": "rafsan_driver_7",
+  "role": "driver"
   "vehicleInfo": {
     "license": "ABC123456",
     "model": "Toyota Corolla",
@@ -199,8 +197,7 @@ curl -X POST http://localhost:5000/api/user/create \
   "name": "System Admin",
   "email": "admin@example.com",
   "password": "AdminSecurePass1",
-  "role": "admin",
-  "username": "admin_ashraful"
+  "role": "admin"
 }
 `
 
