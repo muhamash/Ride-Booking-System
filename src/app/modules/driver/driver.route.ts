@@ -20,7 +20,6 @@ router.patch( "/complete-ride/:id", checkAuth( UserRole.DRIVER ), updateUserLoca
 
 
 router.patch( "/driver-update/:id", checkAuth( UserRole.DRIVER, UserRole.ADMIN ) )
-
 router.get("/driver-state/:id", checkAuth( UserRole.DRIVER, UserRole.ADMIN ))
 
 

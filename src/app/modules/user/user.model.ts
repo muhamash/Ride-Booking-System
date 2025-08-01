@@ -2,6 +2,7 @@ import bcrypt from 'bcryptjs';
 import { model, Schema } from "mongoose";
 import { envStrings } from "../../../config/env.config";
 import { generateSlug } from '../../utils/helperr.util';
+import { Driver } from '../driver/driver.model';
 import { ILocation, IUser, UserRole } from "./user.interface";
 
 export const locationSchema = new Schema<ILocation>({
@@ -86,6 +87,25 @@ userSchema.pre<IUser>( "save", async function ( next )
 
     next();
 } );
+
+userSchema.pre( "findOneAndDelete", async function ( next )
+{
+    const userId = this.getQuery()._id;
+
+    if ( userId )
+    {
+        await Driver.deleteMany( { user: userId } );
+        // await Ride.deleteMany( {
+        //     $or: [
+        //         { rider: userId },
+        //         { driver: await Driver.findOne( { user: userId } ).select( '_id' ) }
+        //     ]
+        // } );
+    }
+
+    next();
+} );
+
 
 // userSchema.virtual( "wasRecentlyOnline" ).get( function ()
 // {
