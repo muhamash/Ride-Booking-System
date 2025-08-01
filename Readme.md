@@ -166,6 +166,49 @@ const authLogin = z.object({
 
 ## 🧪 Sample cURL Request
 
+### Registration
+
+```bash
+curl -X POST http://localhost:5000/api/user/create \
+  -H "Content-Type: application/json" \
+  -d '{
+  "name": "Ashraful",
+  "email": "ashraful.rider@example.com",
+  "password": "SecurePass1",
+  "role": "rider",
+  "username": "ash_rider_1"
+}
+'
+# driver
+`{
+  "name": "Rafsan the Driver",
+  "email": "driver.rafsan@example.com",
+  "password": "DriveSafe2024",
+  "role": "driver",
+  "username": "rafsan_driver_7",
+  "vehicleInfo": {
+    "license": "ABC123456",
+    "model": "Toyota Corolla",
+    "plateNumber": "DHK1234"
+  },
+  "driverStatus": "AVAILABLE"
+}`
+
+# admin
+`{
+  "name": "System Admin",
+  "email": "admin@example.com",
+  "password": "AdminSecurePass1",
+  "role": "admin",
+  "username": "admin_ashraful"
+}
+`
+
+
+
+```
+
+
 ### Login
 ```bash
 curl -X POST http://localhost:5000/api/auth/login \
