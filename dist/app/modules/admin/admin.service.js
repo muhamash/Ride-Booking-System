@@ -184,9 +184,12 @@ const deleteBlockedUserService = async (userId) => {
 };
 exports.deleteBlockedUserService = deleteBlockedUserService;
 const deleteRideService = async (rideId) => {
-    const findRide = await ride_model_1.Ride.findOne({ _id: rideId }, { $ne: { status: ride_interface_1.RideStatus.REQUESTED } });
+    const findRide = await ride_model_1.Ride.findOne({ _id: rideId });
     if (!findRide) {
         throw new App_error_1.AppError(http_status_codes_1.default.NOT_FOUND, "ride not found");
+    }
+    if (findRide.status !== ride_interface_1.RideStatus.COMPLETED) {
+        throw new App_error_1.AppError(http_status_codes_1.default.FORBIDDEN, `Cannot delete ride with status: ${findRide.status}. Only COMPLETED rides can be deleted.`);
     }
     if (findRide) {
         await ride_model_1.Ride.deleteOne({ _id: rideId });

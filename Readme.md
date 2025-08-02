@@ -23,7 +23,9 @@ A **scalable ride-booking backend system** built with **TypeScript, Express.js, 
 
 # filters and search query
 # rider and driver and user states
-
+# what driver can do?
+# what rider can do?
+# what admin can do? 
 
 
 ## 📁 Project Structure

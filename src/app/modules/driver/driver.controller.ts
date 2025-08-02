@@ -124,7 +124,7 @@ export const driverState = asyncHandler( async ( req: Request, res: Response ) =
     }
 
     responseFunction( res, {
-        message: "Vehicle updated!!",
+        message: "Driver states fetched!!",
         statusCode: httpStatus.ACCEPTED,
         data: states
     } );

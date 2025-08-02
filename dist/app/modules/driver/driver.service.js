@@ -153,10 +153,12 @@ const completeRideService = async (id, user) => {
             }, { new: true });
             await user_model_1.User.findByIdAndUpdate(new mongoose_1.default.Types.ObjectId(searchRide.rider), {
                 $addToSet: {
-                    ridings: searchRide.rider,
-                    rides: completedRide._id,
-                }
-            });
+                    ridings: {
+                        rideId: completedRide._id,
+                        driverId: completedRide.driver,
+                    },
+                },
+            }, { new: true });
         }
         else {
             throw new App_error_1.AppError(http_status_codes_1.default.NOT_FOUND, "Driver not. found!!");
@@ -177,16 +179,30 @@ exports.updateVehicleService = updateVehicleService;
 const driverStateService = async (userId) => {
     const user = await user_model_1.User.findById(userId);
     if (!user) {
-        throw new App_error_1.AppError(http_status_codes_1.default.NOT_FOUND, "user not found!!");
+        throw new App_error_1.AppError(http_status_codes_1.default.NOT_FOUND, "User not found!!");
     }
     const driver = await driver_model_1.Driver.findOne({ user: user._id });
     if (!driver) {
-        throw new App_error_1.AppError(http_status_codes_1.default.CONFLICT, "this user is not a driver!!");
+        throw new App_error_1.AppError(http_status_codes_1.default.CONFLICT, "This user is not a driver!!");
     }
     const rides = await ride_model_1.Ride.find({ driver: driver._id }).populate("driver");
     if (rides.length < 1) {
-        throw new App_error_1.AppError(http_status_codes_1.default.NOT_FOUND, "no ride  found!!");
+        throw new App_error_1.AppError(http_status_codes_1.default.NOT_FOUND, "No rides found!!");
     }
-    return rides;
+    const totalEarnings = rides.reduce((sum, ride) => sum + (ride.fare || 0), 0);
+    const totalRides = rides.length;
+    const totalTravelledInKm = rides.reduce((sum, ride) => sum + (ride.distanceInKm || 0), 0);
+    return {
+        driver: {
+            id: driver._id,
+            name: user.name,
+            email: user.email,
+            isOnline: user.isOnline,
+        },
+        totalRides,
+        totalEarnings,
+        totalTravelledInKm,
+        rides,
+    };
 };
 exports.driverStateService = driverStateService;

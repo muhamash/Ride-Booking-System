@@ -260,11 +260,19 @@ export const deleteBlockedUserService = async ( userId: string ) =>
 
 export const deleteRideService = async ( rideId: string ) =>
 {
-    const findRide = await Ride.findOne( { _id: rideId }, { $ne: { status: RideStatus.REQUESTED } } );
+    const findRide = await Ride.findOne( { _id: rideId } );
     
     if ( !findRide )
     {
         throw new AppError( httpStatus.NOT_FOUND, "ride not found" )
+    }
+
+    if ( findRide.status !== RideStatus.COMPLETED )
+    {
+        throw new AppError(
+            httpStatus.FORBIDDEN,
+            `Cannot delete ride with status: ${ findRide.status }. Only COMPLETED rides can be deleted.`
+        );
     }
 
     if ( findRide )

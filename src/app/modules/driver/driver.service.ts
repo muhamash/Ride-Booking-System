@@ -245,12 +245,18 @@ export const completeRideService = async ( id: string, user: Partial<IUser> ) =>
                 { new: true }
             );
 
-            await User.findByIdAndUpdate( new mongoose.Types.ObjectId( searchRide.rider ), {
-                $addToSet: {
-                    ridings: searchRide.rider,
-                    rides: completedRide._id,
-                }
-            } );
+            await User.findByIdAndUpdate(
+                new mongoose.Types.ObjectId( searchRide.rider ),
+                {
+                    $addToSet: {
+                        ridings: {
+                            rideId: completedRide._id,
+                            driverId: completedRide.driver,
+                        },
+                    },
+                },
+                { new: true }
+            );
         }
         else
         {
@@ -281,21 +287,37 @@ export const driverStateService = async ( userId: string ) =>
 
     if ( !user )
     {
-        throw new AppError( httpStatus.NOT_FOUND, "user not found!!" )
+        throw new AppError( httpStatus.NOT_FOUND, "User not found!!" );
     }
 
     const driver = await Driver.findOne( { user: user._id } );
+
     if ( !driver )
     {
-        throw new AppError( httpStatus.CONFLICT, "this user is not a driver!!" )
+        throw new AppError( httpStatus.CONFLICT, "This user is not a driver!!" );
     }
 
     const rides = await Ride.find( { driver: driver._id } ).populate( "driver" );
 
     if ( rides.length < 1 )
     {
-        throw new AppError( httpStatus.NOT_FOUND, "no ride  found!!" )
+        throw new AppError( httpStatus.NOT_FOUND, "No rides found!!" );
     }
 
-    return rides
+    const totalEarnings = rides.reduce( ( sum, ride ) => sum + ( ride.fare || 0 ), 0 );
+    const totalRides = rides.length;
+    const totalTravelledInKm = rides.reduce( ( sum, ride ) => sum + ( ride.distanceInKm || 0 ), 0 );
+
+    return {
+        driver: {
+            id: driver._id,
+            name: user.name,
+            email: user.email,
+            isOnline: user.isOnline,
+        },
+        totalRides,
+        totalEarnings,
+        totalTravelledInKm,
+        rides,
+    };
 };
