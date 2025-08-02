@@ -48,6 +48,11 @@ export const acceptRideRequestService = async ( rideId: string, user: Partial<IU
         throw new AppError(httpStatus.NON_AUTHORITATIVE_INFORMATION, "Ride already cancelled!!")
     }
 
+    if ( searchRide.status === RideStatus.ACCEPTED  )
+    {
+        throw new AppError(httpStatus.NON_AUTHORITATIVE_INFORMATION, `Ride already moved to from requested state!!! :: to :: ${searchRide.status}`)
+    }
+
     const acceptedRide = await Ride.findOneAndUpdate(
         { _id: new mongoose.Types.ObjectId( rideId ) },
         { $set: { status: RideStatus.ACCEPTED, acceptedAt: Date.now(), expiresAt: null } },
@@ -90,6 +95,7 @@ export const cancelRideRequestService = async ( rideId: string, user: Partial<IU
         throw new AppError(httpStatus.NON_AUTHORITATIVE_INFORMATION, "Ride already cancelled!!")
     }
 
+
     const cancelRide = await Ride.findOneAndUpdate(
         { _id: new mongoose.Types.ObjectId( rideId ) },
         { $set: { status: RideStatus.CANCELLED, cancelledAt: Date.now(), cancelledBy: user.role , expiresAt: null } },
@@ -101,11 +107,11 @@ export const cancelRideRequestService = async ( rideId: string, user: Partial<IU
     return cancelRide;
 }
 
-export const pickUpService = async (id: string) =>
+export const pickUpService = async ( id: string ) =>
 {
     if ( !id )
     {
-        throw new AppError(httpStatus.BAD_REQUEST, "wrong ride id!!")
+        throw new AppError( httpStatus.BAD_REQUEST, "wrong ride id!!" )
     }
 
     const searchRide = await Ride.findOne( {
@@ -115,19 +121,25 @@ export const pickUpService = async (id: string) =>
 
     if ( !searchRide )
     {
-        throw new AppError(httpStatus.NOT_FOUND, "Ride not found or ride is been expired!!")
+        throw new AppError( httpStatus.NOT_FOUND, "Ride not found or ride is been expired!!" )
+    }
+
+
+    if ( searchRide.status === RideStatus.PICKED_UP )
+    {
+        throw new AppError( httpStatus.NOT_FOUND, "Ride not found or ride is been picked!!" )
     }
 
     const pickedUp = await Ride.findOneAndUpdate(
         { _id: new mongoose.Types.ObjectId( id ) },
-        { $set: { status: RideStatus.PICKED_UP, pickedUpAt: Date.now()} },
+        { $set: { status: RideStatus.PICKED_UP, pickedUpAt: Date.now() } },
         { new: true }
     );
 
     console.log( pickedUp )
     
     return pickedUp
-}
+};
 
 export const inTransitRideService = async (id: string) =>
 {
@@ -144,6 +156,11 @@ export const inTransitRideService = async (id: string) =>
     if ( !searchRide )
     {
         throw new AppError(httpStatus.NOT_FOUND, "Ride not found or ride is been expired!!")
+    }
+
+        if ( searchRide.status === RideStatus.IN_TRANSIT )
+    {
+        throw new AppError(httpStatus.NOT_FOUND, "Ride not found or ride is been in transit!!")
     }
 
     const inTransit = await Ride.findOneAndUpdate(
@@ -172,6 +189,11 @@ export const completeRideService = async ( id: string, user: Partial<IUser> ) =>
     if ( !searchRide )
     {
         throw new AppError( httpStatus.NOT_FOUND, "Ride not found or ride is been expired!!" )
+    }
+
+        if ( searchRide.status === RideStatus.COMPLETED )
+    {
+        throw new AppError(httpStatus.NOT_FOUND, "Ride not found or ride is been completed!!")
     }
 
     const completedRide = await Ride.findOneAndUpdate(

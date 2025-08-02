@@ -75,13 +75,13 @@ export class QueryBuilder<T extends Document> {
     };
   };
 
-  populate(fields: string): this {
-      this.modelQuery = this.modelQuery.populate(fields);
-        return this;
-  };
+  // populate(fields: string): this {
+  //     this.modelQuery = this.modelQuery.populate(fields);
+  //       return this;
+  // };
 
-    lean(): this {
-      this.modelQuery = this.modelQuery.lean();
-      return this;
-    };
+  //   lean(): this {
+  //     this.modelQuery = this.modelQuery.lean();
+  //     return this;
+  //   };
 };
