@@ -8,8 +8,9 @@ export const vehicleInfoSchema = new Schema({
 } );
 
 export const ratingSchema = new Schema({
-    riderId: { type: Schema.Types.ObjectId, ref: "Ride" },
+    riderId: { type: Schema.Types.ObjectId, ref: "User" },
     rating: { type: Number, min: 1, max: 5 },
+    rideId: { type: Schema.Types.ObjectId, ref: "Ride" }
 });
 
 export const driverSchema = new Schema<IDriver>( {

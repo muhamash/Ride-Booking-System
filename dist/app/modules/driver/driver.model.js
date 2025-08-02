@@ -9,8 +9,9 @@ exports.vehicleInfoSchema = new mongoose_1.Schema({
     plateNumber: { type: String, unique: true },
 });
 exports.ratingSchema = new mongoose_1.Schema({
-    riderId: { type: mongoose_1.Schema.Types.ObjectId, ref: "Ride" },
+    riderId: { type: mongoose_1.Schema.Types.ObjectId, ref: "User" },
     rating: { type: Number, min: 1, max: 5 },
+    rideId: { type: mongoose_1.Schema.Types.ObjectId, ref: "Ride" }
 });
 exports.driverSchema = new mongoose_1.Schema({
     isApproved: {

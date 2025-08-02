@@ -1,7 +1,9 @@
 import haversine from "haversine-distance";
 import httpStatus from 'http-status-codes';
+import mongoose from "mongoose";
 import { AppError } from "../../../config/errors/App.error";
 import { reverseGeocode } from "../../utils/helperr.util";
+import { Driver } from "../driver/driver.model";
 import { ILocation } from "../user/user.interface";
 import { RideStatus } from "./ride.interface";
 import { Ride } from "./ride.model";
@@ -95,35 +97,85 @@ export const requestRideService = async (
  
 };
 
-// export const cancelRideService = async ( rideId: string, user: Record<string, string>) =>
-// {
-//     if ( !rideId )
-//     {
-//         throw new AppError(httpStatus.BAD_REQUEST, "ride id  not found at the request body")
-//     }
+export const ratingRideService = async (
+    user: any,
+    rideId: string,
+    body: { rating: number }
+) =>
+{
+    const { rating } = body;
 
-//     const searchRide = await Ride.findOne( {
-//         _id: rideId,
-//         status: RideStatus.REQUESTED
-//     } );
-    
-//     if ( !searchRide )
-//     {
-//         throw new AppError(httpStatus.NOT_FOUND, "Ride not found or ride is been expired!!")
-//     }
+    if ( !rating || rating < 1 || rating > 5 )
+    {
+        throw new AppError( httpStatus.BAD_REQUEST, "Rating must be between 1 and 5." );
+    }
 
-//     if ( searchRide.status === RideStatus.CANCELLED  )
-//     {
-//         throw new AppError(httpStatus.NON_AUTHORITATIVE_INFORMATION, "Ride already cancelled!!")
-//     }
+    const ride = await Ride.findById( rideId );
+    if ( !ride )
+    {
+        throw new AppError( httpStatus.NOT_FOUND, "Ride not found." );
+    }
 
-//     const cancelRide = await Ride.findOneAndUpdate(
-//         { _id: new mongoose.Types.ObjectId( rideId ) },
-//         { $set: { status: RideStatus.CANCELLED, cancelledAt: Date.now(), cancelledBy: user.role , expiresAt: null } },
-//         { new: true }
-//     );
+    console.log(ride, user)
 
-//     console.log(cancelRide)
+    if ( !ride.rider || !user.userId || ride.rider.toString() !== user.userId )
+    {
+        throw new AppError( httpStatus.FORBIDDEN, "You are not authorized to rate this ride." );
+    }
 
-//     return cancelRide;
-// }
+
+    if ( ride.status !== RideStatus.COMPLETED )
+    {
+        throw new AppError( httpStatus.BAD_REQUEST, "You can only rate a completed ride." );
+    }
+
+    if ( ride.rating && ride.rating.rating )
+    {
+        throw new AppError( httpStatus.BAD_REQUEST, "This ride has already been rated." );
+    }
+
+    //  Save rating to ride
+    ride.rating = {
+        riderId: new mongoose.Types.ObjectId(user.userId),
+        rating,
+        rideId: ride._id,
+    };
+    await ride.save();
+
+    let updatedDriver = null;
+
+    if ( ride.driver )
+    {
+        const driver = await Driver.findById( ride.driver );
+        if ( driver )
+        {
+            const oldTotal = driver.rating?.totalRatings || 0;
+            const oldAverage = driver.rating?.averageRating || 0;
+            const newTotal = oldTotal + 1;
+            const newAverage = ( oldAverage * oldTotal + rating ) / newTotal;
+
+            updatedDriver = await Driver.findByIdAndUpdate(
+                driver._id,
+                {
+                    $set: {
+                        "rating.averageRating": newAverage,
+                        "rating.totalRatings": newTotal,
+                    },
+                    $push: {
+                        "rating.ratings": {
+                            riderId: new mongoose.Types.ObjectId(user.userId),
+                            rating,
+                            rideId: ride._id,
+                        },
+                    },
+                },
+                { new: true }
+            );
+        }
+    }
+
+    return {
+        rideRating: ride.rating,
+        driverRating: updatedDriver?.rating ?? null,
+    };
+};
