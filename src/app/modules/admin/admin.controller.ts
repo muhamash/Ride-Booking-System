@@ -22,7 +22,9 @@ import { approvalParam, blockParam, suspendParam } from './admin.type';
 export const getAllUsers = asyncHandler( async ( req: Request, res: Response ): Promise<void> =>
 {
     const query = req.query as Record<string, string>;
-    const users = await getAllUsersService(query);
+    const users = await getAllUsersService( query );
+    
+    // console.log(users)
 
     if (!users?.data || !Array.isArray(users.data) || users.data.length === 0) {
         throw new AppError(httpStatus.OK, "User dataset is empty!");
@@ -128,21 +130,23 @@ export const suspendDriverById = asyncHandler(async (req: Request, res: Response
     });
 });
 
-export const blockUserById = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+export const blockUserById = asyncHandler( async ( req: Request, res: Response ): Promise<void> =>
+{
     const userId = req.params.id;
     const param = req.params?.blockParam as blockParam;
-    const user = await blockUserByIdService(userId, param);
+    const user = await blockUserByIdService( userId, param );
 
-    if (!user) {
-        throw new AppError(httpStatus.NOT_FOUND, "User not found");
+    if ( !user )
+    {
+        throw new AppError( httpStatus.NOT_FOUND, "User not found" );
     }
 
-    responseFunction(res, {
+    responseFunction( res, {
         message: "User modified",
         statusCode: httpStatus.OK,
         data: user,
-    });
-});
+    } );
+} );
 
 export const deleteBlockedUser = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const userId = req.params.id;

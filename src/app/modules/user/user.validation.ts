@@ -47,6 +47,10 @@ export const zodUserSchema = z.object( {
             message: 'Vehicle info is required for drivers',
         } );
     }
+
+    if (data.role !== UserRole.DRIVER && data.vehicleInfo) {
+        delete data.vehicleInfo;
+    }
 } );
 
 export const locationZodSchema = z.object({

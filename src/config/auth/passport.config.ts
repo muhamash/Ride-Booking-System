@@ -61,7 +61,7 @@ passport.use(
                         { user: user._id },
                         { $set: { driverStatus: DriverStatus.AVAILABLE } },
                         { new: true },
-                    ).populate( "user", "email name role location lastOnlineAt" );
+                    ).populate( "user", "email name role location lastOnlineAt username" );
 
                 }
 

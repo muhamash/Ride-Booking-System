@@ -11,7 +11,7 @@ export const checkUpdatePermission = async (
     next: NextFunction
 ) =>
 {
-    
+    console.log(req.user)
     if (!req.user || !('userId' in req.user) || !('role' in req.user)) {
         throw new AppError(httpStatus.UNAUTHORIZED, "Authentication required");
     }
@@ -42,6 +42,8 @@ export const checkUpdatePermission = async (
             `You are not allowed to update this user!`
         );
     }
+
+    console.log(allowed)
 
     // Attach target user
     req.targetUser = targetUser;

@@ -19,9 +19,11 @@ export const getAllUsersService = async ( query?: Record<string, string> ) =>
     const users = modelQuery.searchableField( searchableFields ).filter( excludeField ).sort().fields().pagination();
 
     const [data, meta] = await Promise.all( [
-        users.build(),
+        users.modelQuery.exec(),
         modelQuery.getMeta()
     ] );
+
+    console.log(users, query)
 
     return {
         data,
@@ -49,7 +51,7 @@ export const getAllDriversServices = async ( query?: Record<string, string> ) =>
     const users = modelQuery.searchableField( driverSearchableFields ).filter( excludeField ).sort().fields().pagination();
 
     const [data, meta] = await Promise.all( [
-        users.build(),
+        users.modelQuery.exec(),
         modelQuery.getMeta()
     ] );
 
@@ -103,10 +105,15 @@ export const getRideByIdService = async ( rideId: string ) =>
     return ride;
 };
 
-export const suspendDriverIdService = async ( userId: string, param: suspendParam ) =>
+export const    suspendDriverIdService = async ( userId: string, param: suspendParam ) =>
 {
-    // console.log( userId );
+    // console.log( userId , param !== 'suspend', param, param !== 'rollback');
     const user = await Driver.findOne( { user: new mongoose.Types.ObjectId( userId ) } );
+
+    if (!param || (param !== 'suspend' && param !== 'rollback')) {
+        throw new AppError(httpStatus.EXPECTATION_FAILED, `invalid suspendParam: ${param}`);
+    }
+
 
     if ( !user )
     {
@@ -178,8 +185,12 @@ export const suspendDriverIdService = async ( userId: string, param: suspendPara
 
 export const blockUserByIdService = async ( userId: string, param: blockParam ) =>
 {
-    // console.log( userId );
+    // console.log( param, !param || param !== 'block' || param !== 'rollback' );
     const user = await User.findById( new mongoose.Types.ObjectId( userId ) );
+
+    if (!param || (param !== 'block' && param !== 'rollback')) {
+        throw new AppError(httpStatus.EXPECTATION_FAILED, `invalid blockParam: ${param}`);
+    }
 
     if ( !user )
     {
@@ -273,6 +284,11 @@ export const approveDriverService = async ( driverId: string, param: approvalPar
 {
     // console.log( userId );
     const driver = await Driver.findOne( { user: new mongoose.Types.ObjectId( driverId ) } );
+
+    
+    if (!param || (param !== 'approved' && param !== 'notApproved')) {
+        throw new AppError(httpStatus.EXPECTATION_FAILED, `invalid approvalParam: ${param}`);
+    }
 
     if ( !driver )
     {

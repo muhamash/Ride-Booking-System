@@ -80,7 +80,8 @@ export const updateUserLocationIntoDb = asyncHandler( async (
         { new: true }
     );
 
-    if ( !( '_id' in user ) || !( 'username' in user ) || !( 'role' in user ) )
+    console.log(user)
+    if ( !( 'userId' in user ) || !( 'username' in user ) || !( 'role' in user ) )
     {
         throw new Error( "User object is missing required properties" );
     };
@@ -88,7 +89,7 @@ export const updateUserLocationIntoDb = asyncHandler( async (
     if ( user.role === UserRole.DRIVER )
     {
         await Ride.findOneAndUpdate(
-            { driver: new mongoose.Types.ObjectId( user?._id as string ) },
+            { driver: new mongoose.Types.ObjectId( user?.userId as string ) },
             { $set: { driverLocation: userLocation } },
             { new: true }
         );

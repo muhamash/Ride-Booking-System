@@ -7,26 +7,30 @@ import { userTokens } from "../../utils/service.util";
 import { getNewAccessTokenService, userLogoutService } from "./auth.service";
 
 
-export const userLogin = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
-  passport.authenticate("local", { session: false }, async (error, user: any, info: { message?: string }) => {
-    if (error) {
-      console.error("Authentication error:", error);
-      return next(new AppError(httpStatus.INTERNAL_SERVER_ERROR, typeof error === 'string' ? error : 'Authentication failed'));
+export const userLogin = asyncHandler( async ( req: Request, res: Response, next: NextFunction ) =>
+{
+  passport.authenticate( "local", { session: false }, async ( error, user: any, info: { message?: string } ) =>
+  {
+    if ( error )
+    {
+      console.error( "Authentication error:", error );
+      return next( new AppError( httpStatus.INTERNAL_SERVER_ERROR, typeof error === 'string' ? error : 'Authentication failed' ) );
     }
 
-    if (!user) {
-      return next(new AppError(httpStatus.UNAUTHORIZED, info?.message || "Unauthorized"));
+    if ( !user )
+    {
+      return next( new AppError( httpStatus.UNAUTHORIZED, info?.message || "Unauthorized" ) );
     }
 
-    const loginData = await userTokens(user);
+    const loginData = await userTokens( user );
 
-    await setCookie(res, "refreshToken", loginData.refreshToken, 4 * 60 * 60 * 1000);
-    await setCookie(res, "accessToken", loginData.accessToken, 7 * 24 * 60 * 1000);
+    await setCookie( res, "refreshToken", loginData.refreshToken, 4 * 60 * 60 * 1000 );
+    await setCookie( res, "accessToken", loginData.accessToken, 7 * 24 * 60 * 1000 );
 
     const responseData = user?.toObject();
     delete responseData.password;
 
-    responseFunction(res, {
+    responseFunction( res, {
       message: "User logged in successfully",
       statusCode: httpStatus.ACCEPTED,
       data: {
@@ -34,9 +38,9 @@ export const userLogin = asyncHandler(async (req: Request, res: Response, next: 
         userId: user?._id,
         user: responseData,
       },
-    });
-  })(req, res, next);
-});
+    } );
+  } )( req, res, next );
+} );
 
 export const userLogout = asyncHandler(async (req: Request, res: Response) => {
   await setCookie(res, "refreshToken", "", 0);

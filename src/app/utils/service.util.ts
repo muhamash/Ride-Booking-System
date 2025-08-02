@@ -19,7 +19,7 @@ export const userTokens = async ( user: UserLike ) =>
     const name = userData.name;
     const username = userData.username || '';
 
-    console.log(user, userData, username)
+    console.log( userData );
 
     if ( !userId || !email || !role || !name )
     {
