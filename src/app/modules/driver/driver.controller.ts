@@ -46,7 +46,7 @@ export const cancelRideRequest = asyncHandler( async ( req: Request, res: Respon
 
     responseFunction( res, {
         message: `Ride cancelled!!!`,
-        statusCode: httpStatus.ok,
+        statusCode: httpStatus.OK,
         data: cancelRide
     } )
 } );

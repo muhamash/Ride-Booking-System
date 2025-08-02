@@ -1,4 +1,5 @@
 import { NextFunction, Request, Response } from "express";
+import { ILocation } from "../modules/user/user.interface";
 import { asyncHandler } from "../utils/controller.util";
 import { reverseGeocode } from "../utils/helperr.util";
 import { generateRandomDhakaLocations } from "../utils/middleware.util";
@@ -7,25 +8,24 @@ export const trackLocationByLatLng = asyncHandler( async ( req: Request, res: Re
 {
     const { lat, lng } = await generateRandomDhakaLocations();
 
-    // console.log(lat, lng)
-
     if ( !lat || !lng ) return next();
 
-    const latNum = parseFloat( lat as string );
-    const lngNum = parseFloat( lng as string );
+    // Convert to numbers safely
+    const latNum = typeof lat === 'string' ? parseFloat( lat ) : Number( lat );
+    const lngNum = typeof lng === 'string' ? parseFloat( lng ) : Number( lng );
 
     if ( isNaN( latNum ) || isNaN( lngNum ) ) return next();
 
     const geo = await reverseGeocode( latNum, lngNum );
-
-    // console.log( geo, lat, lng ,"tracker middleware");
     
     if ( geo )
     {
-        const locationPayload: Record<string, unknown> = {
-            coordinates: [ geo.lat, geo.lng ],
+        const locationPayload: ILocation = {
+            type: 'Point',
+            coordinates: [ lngNum, latNum ],
             address: geo.displayName
-        }
+        };
+        
         req.userLocation = locationPayload;
         req.headers[ "x-user-location" ] = JSON.stringify( geo );
     }

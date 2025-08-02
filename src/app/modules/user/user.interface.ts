@@ -1,8 +1,11 @@
+import { Document, Schema } from 'mongoose';
+
 export enum UserRole {
   RIDER = "RIDER",
   ADMIN = "ADMIN",
   DRIVER = "DRIVER"
 }
+
 export interface ILocation {
   type: 'Point';
   coordinates: [number, number];
@@ -15,15 +18,19 @@ export interface VehicleInfo {
   plateNumber: string;
 }
 
-export interface IUser
-{
-  username: string;  
-  lastOnlineAt?: Date;
+export interface IUser extends Document {
   name: string;
   email: string;
+  username?: string;
   password: string;
   role: UserRole;
-  isBlocked?: boolean;  
-  isOnline?: boolean;     
+  isBlocked: boolean;
+  isOnline: boolean;
+  driver?: Schema.Types.ObjectId;
+  lastOnlineAt?: Date;
   location?: ILocation;
+  vehicleInfo?: VehicleInfo;  
+  
+  isModified(path?: string): boolean;
+  isNew?: boolean;
 }

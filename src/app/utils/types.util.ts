@@ -1,3 +1,6 @@
+import { NextFunction, Request, Response } from "express";
+import { ILocation } from "../modules/user/user.interface";
+
 export type AsyncHandlerType = ( req: Request, res: Response, next: NextFunction ) => Promise<void>;
 
 export interface TMeta
@@ -27,4 +30,15 @@ export interface ActiveDriver {
 }
 
 export type ParsedZodIssue = Record<string, string>;
-export type ErrorResponsePayload = Record<string, unknown>;
+export interface ErrorResponsePayload {
+  name: string;
+  message: string;
+  status: number;
+  success: boolean;
+  stack?: string;
+  errors?: Array<{
+    field?: string;
+    message?: string;
+    path?: string[];
+  }>;
+}

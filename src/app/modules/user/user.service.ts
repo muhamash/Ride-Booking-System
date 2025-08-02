@@ -4,15 +4,16 @@ import mongoose from 'mongoose';
 import { envStrings } from '../../../config/env.config';
 import { AppError } from "../../../config/errors/App.error";
 import { Driver } from '../driver/driver.model';
+import { VehicleInfo } from "../driver/river.interface";
 import { IUser, UserRole } from './user.interface';
 import { User } from "./user.model";
 
-export const createUserService = async ( payload: Partial<IUser> ) =>
+export const createUserService = async ( payload: IUser ) =>
 {
     const session = await mongoose.startSession();
     await session.startTransaction();
 
-    const { email, vehicleInfo, ...rest } = payload;
+    const { email, ...rest } = payload;
 
     const existingUser = await User.findOne( { email } ).session( session );
     if ( existingUser )
@@ -31,11 +32,7 @@ export const createUserService = async ( payload: Partial<IUser> ) =>
         const driverDocs = await Driver.create( [ {
             user: createdUser._id,
             username: createdUser.username,
-            vehicleInfo: {
-                license: vehicleInfo?.license || "",
-                model: vehicleInfo?.model || "",
-                plateNumber: vehicleInfo?.plateNumber || "",
-            },
+            vehicleInfo: payload.vehicleInfo as VehicleInfo,
         } ], { session } );
 
         if ( !driverDocs?.length )

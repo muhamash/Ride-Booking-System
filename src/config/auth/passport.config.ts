@@ -1,9 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import bcrypt from "bcryptjs";
 import passport from "passport";
 import { Strategy as LocalStrategy } from "passport-local";
 import { Driver } from "../../app/modules/driver/driver.model";
 import { DriverStatus } from "../../app/modules/driver/river.interface";
-import { ILocation, UserRole } from "../../app/modules/user/user.interface";
+import { UserRole } from "../../app/modules/user/user.interface";
 import { User } from "../../app/modules/user/user.model";
 
 passport.use(
@@ -50,7 +51,7 @@ passport.use(
                     {
                         $set: {
                             isOnline: true,
-                            location: req.userLocation as ILocation,
+                            location: req.userLocation,
                             lastOnlineAt: new Date(),
                         },
                     },
@@ -70,6 +71,11 @@ passport.use(
 
                 }
 
+                if ( !response )
+                    {
+                        return done( null, false, { message: "User not found" } );
+                    }
+
                 // console.log("User logged in:", response, req.userLocation);
                 return done( null, response );
             }
@@ -81,20 +87,21 @@ passport.use(
     )
 );
 
-passport.serializeUser( ( user: Express.User, done: ( error: unknown, id?: unknown ) => void ) =>
+
+passport.serializeUser( ( user: any, done: ( error: any, id?: any ) => void ) =>
 {
     console.log("serializing the user", user)
     done( null, user._id );
 } );
 
-passport.deserializeUser(async (id: string, done: (err: never, user?: unknown) => void) =>
+passport.deserializeUser(async (id: string, done: (err: any, user?: any) => void) =>
 {
     try
     {
         console.log( id );
         const user = await User.findById( id )
         
-        done( null, user );
+        done( null, user || false );
         
     } catch ( error )
     {

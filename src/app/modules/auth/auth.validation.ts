@@ -1,16 +1,12 @@
 import z from "zod";
 
 export const authLogin = z.object( {
-    email: z
-        .string( { invalid_type_error: "Email must be string" } )
-        .email( { message: "Invalid email address format." } )
-        .min( 5, { message: "Email must be at least 5 characters long." } )
-        .max( 100, { message: "Email cannot exceed 100 characters." } ),
-    
-    password: z
-        .string( { invalid_type_error: "Password must be string" } )
-        .min( 8, { message: "Password must be at least 8 characters long." } )
-        .regex( /^(?=.*[A-Z])/, {
-            message: "Password must contain at least 1 uppercase letter.",
-        } ),
+    email: z.string()
+        .email( "Invalid email address" )
+        .min( 5, "Email must be at least 5 characters" )
+        .max( 100, "Email cannot exceed 100 characters" ),
+  
+    password: z.string()
+        .min( 8, "Password must be at least 8 characters" )
+        .regex( /^(?=.*[A-Z])/, "Password must contain at least 1 uppercase letter" )
 } );

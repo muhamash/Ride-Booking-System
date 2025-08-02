@@ -1,58 +1,64 @@
 import httpStatus from 'http-status-codes';
+import type { StringValue } from "ms";
 import { envStrings } from "../../config/env.config";
 import { AppError } from "../../config/errors/App.error";
-import { IUser } from "../modules/user/user.interface";
+import { UserRole } from "../modules/user/user.interface";
 import { generateToken } from "./middleware.util";
 
-export const userTokens = async ( user: Partial<IUser> ) =>
-{
-    const jwtPayload = {
-        userId: user.user?.id || user.id,
-        username: user.username,
-        email: user.email || user.user.email,
-        role: user.role || user.user.role,
-        name: user.name || user.user.name
-    };
+export type UserLike =
+    | { id?: string; _id?: any; email: string; role: UserRole; name: string; username?: string }
+    | { user: { id?: string; _id?: any; email: string; role: UserRole; name: string; username?: string } };
 
-    // console.log(jwtPayload, user)   
+export const userTokens = async ( user: UserLike ) =>
+{
+    const userData = 'user' in user ? user.user : user;
+
+    const userId = userData.id || userData._id?.toString();
+    const email = userData.email;
+    const role = userData.role;
+    const name = userData.name;
+    const username = userData.username || '';
+
+    if ( !userId || !email || !role || !name )
+    {
+        throw new AppError( httpStatus.BAD_REQUEST, "Missing required user info for token generation." );
+    }
+
+    const jwtPayload = {
+        userId,
+        username,
+        email,
+        role,
+        name,
+    };
 
     try
     {
-        const accessToken = generateToken( jwtPayload, envStrings.ACCESS_TOKEN_SECRET as string, {
-            expiresIn: envStrings.ACCESS_TOKEN_EXPIRE
-        } );
+        const accessToken = generateToken(
+            jwtPayload,
+            envStrings.ACCESS_TOKEN_SECRET,
+            {
+                expiresIn: envStrings.ACCESS_TOKEN_EXPIRE as StringValue | number,
+            }
+        );
 
-        const refreshToken = generateToken( jwtPayload, envStrings.REFRESH_TOKEN_SECRET as string, {
-            expiresIn: envStrings.REFRESH_TOKEN_EXPIRE
-        } );
+        const refreshToken = generateToken(
+            jwtPayload,
+            envStrings.REFRESH_TOKEN_SECRET,
+            {
+                expiresIn: envStrings.REFRESH_TOKEN_EXPIRE as StringValue | number,
+            }
+        );
 
         return {
             accessToken,
-            refreshToken
-        }
-    }
-    catch ( error: unknown )
+            refreshToken,
+        };
+    } catch ( error: unknown )
     {
-        throw new AppError( httpStatus.INTERNAL_SERVER_ERROR, error as string || "Failed to generate tokens" );
+        throw new AppError(
+            httpStatus.INTERNAL_SERVER_ERROR,
+            error instanceof Error ? error.message : "Failed to generate tokens"
+        );
     }
-};
-
-export const haversineDistance = async( coord1: number[], coord2: number[] ): number =>
-{
-    const toRad = ( deg: number ) => ( deg * Math.PI ) / 180;
-    const [ lat1, lon1 ] = coord1;
-    const [ lat2, lon2 ] = coord2;
-
-    const R = 6371; 
-    const dLat = toRad( lat2 - lat1 );
-    const dLon = toRad( lon2 - lon1 );
-
-    const a =
-        Math.sin( dLat / 2 ) ** 2 +
-        Math.cos( toRad( lat1 ) ) *
-        Math.cos( toRad( lat2 ) ) *
-        Math.sin( dLon / 2 ) ** 2;
-
-    const c = 2 * Math.atan2( Math.sqrt( a ), Math.sqrt( 1 - a ) );
-    return R * c; 
 };

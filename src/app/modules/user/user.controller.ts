@@ -30,7 +30,12 @@ export const createUser = asyncHandler( async ( req: Request, res: Response ): P
 
 export const getMe = asyncHandler( async ( req: Request, res: Response ): Promise<void> =>
 {
-    const user = await getUserByIdService( req.user?.userId );
+    if ( !req.user || !( 'userId' in req.user ) )
+    {
+        throw new AppError( httpStatus.UNAUTHORIZED, "User not authenticated" );
+    }
+    const userId: any = req.user?.userId;
+    const user = await getUserByIdService( userId );
 
     responseFunction( res, {
         message: "User retrieved successfully",

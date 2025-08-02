@@ -1,17 +1,16 @@
 import { NextFunction, Request, Response } from "express";
-import { AnyZodObject } from "zod";
+import { ZodType } from "zod";
 
-export const validateRequest = ( zodSchema: AnyZodObject ) => async ( req: Request, res: Response, next: NextFunction ) => 
-{
-    try 
-    {
-        console.log(req.body)
-        req.body = await zodSchema.parseAsync( req.body );
-        next()
+export const validateRequest = (zodSchema: ZodType) => async (
+    req: Request, 
+    res: Response, 
+    next: NextFunction
+) => {
+    try {
+        console.log(req.body);
+        req.body = await zodSchema.parseAsync(req.body);
+        next();
+    } catch (error: unknown) {
+        next(error);
     }
-    catch ( error: unknown )
-    {
-        // console.log(error.format())
-        next(error)
-    }
-}
+};

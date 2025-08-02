@@ -1,12 +1,39 @@
 import { NextFunction, Request, Response } from "express";
 import mongoose from "mongoose";
-import { DriverStatus } from "../modules/driver/river.interface";
+import { DriverStatus, VehicleInfo } from "../modules/driver/river.interface";
 import { Ride } from "../modules/ride/ride.model";
-import { UserRole } from "../modules/user/user.interface";
-import { User } from "../modules/user/user.model";
+import { ILocation, UserRole } from "../modules/user/user.interface";
+import { User, UserDocument } from "../modules/user/user.model";
 import { asyncHandler } from "../utils/controller.util";
 
-export const updateUserLocationIntoDb = asyncHandler( async ( req: Request, res: Response, next: NextFunction ) =>
+// Extend Express Request interface
+declare global {
+  namespace Express {
+    interface Request {
+      user?: UserDocument;
+      userLocation?: ILocation;
+      activeDriverPayload?: ActiveDriverPayload[];
+    }
+  }
+}
+
+export interface ActiveDriverPayload extends Record<string, string | number | object | any> {
+  driverId: string;
+  userId: string;
+  name: string;
+  email: string;
+  username: string;
+  location: ILocation;
+  isApproved: boolean;
+  avgRating: number;
+  vehicleInfo: VehicleInfo;
+}
+
+export const updateUserLocationIntoDb = asyncHandler( async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) =>
 {
     const userLocation = req.userLocation;
     const user = req.user;
@@ -16,33 +43,44 @@ export const updateUserLocationIntoDb = asyncHandler( async ( req: Request, res:
         return next();
     }
 
+    // Type guard to ensure user has required properties
+    if ( !( 'username' in user )) {
+        throw new Error( "User object is missing required properties" );
+    }
+
     const activeDrivers = await User.find(
         { isOnline: true, role: UserRole.DRIVER },
         { location: 1, username: 1, _id: 1, name: 1, email: 1 }
     )
         .select( "-password" )
-        .populate( "driver", "driverStatus isApproved vehicleInfo rating _id" )
+        .populate<{
+            driver: {
+                _id: mongoose.Types.ObjectId;
+                driverStatus: DriverStatus;
+                isApproved: boolean;
+                vehicleInfo: VehicleInfo;
+                rating?: { averageRating?: number };
+            }
+        }>( "driver", "driverStatus isApproved vehicleInfo rating _id" )
         .lean();
 
-    // Now filter for AVAILABLE drivers only
+    // Filter for AVAILABLE drivers only
     const availableDrivers = activeDrivers.filter(
         ( user ) => user.driver?.driverStatus === DriverStatus.AVAILABLE
     );
 
-    // final payload
-    const activeDriverPayload: Record<string, string | number | object>[] = availableDrivers.map( ( user ) => ( {
+    // Create final payload with proper typing
+    const activeDriverPayload: ActiveDriverPayload[] = availableDrivers.map( ( user ) => ( {
         driverId: user.driver._id.toString(),
         userId: user._id.toString(),
         name: user.name,
         email: user.email,
         username: user.username,
-        location: user.location,
+        location: user.location as ILocation,
         isApproved: user.driver.isApproved,
         avgRating: user.driver.rating?.averageRating || 0,
-        vehicleInfo: user.driver.vehicleInfo || {},
+        vehicleInfo: user.driver.vehicleInfo || {} as VehicleInfo,
     } ) );
-
-    // console.log( activeDriverPayload );
 
     req.activeDriverPayload = activeDriverPayload;
 
@@ -55,13 +93,11 @@ export const updateUserLocationIntoDb = asyncHandler( async ( req: Request, res:
     if ( user.role === UserRole.DRIVER )
     {
         await Ride.findOneAndUpdate(
-            { driver: new mongoose.Types.ObjectId( user.userId ) },
+            { driver: new mongoose.Types.ObjectId( user._id ) },
             { $set: { driverLocation: userLocation } },
             { new: true }
         );
     }
-
-
 
     return next();
 } );

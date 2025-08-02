@@ -1,8 +1,8 @@
 import haversine from "haversine-distance";
 import httpStatus from 'http-status-codes';
+import mongoose from "mongoose";
 import { AppError } from "../../../config/errors/App.error";
 import { reverseGeocode } from "../../utils/helperr.util";
-import { ActiveDriver } from "../../utils/types.util";
 import { ILocation, IUser } from "../user/user.interface";
 import { RideStatus } from "./ride.interface";
 import { Ride } from "./ride.model";
@@ -10,7 +10,7 @@ import { Ride } from "./ride.model";
 export const requestRideService = async (
     pickUpLocation: ILocation,
     user: Partial<IUser>,
-    activeDrivers: ActiveDriver[],
+    activeDrivers: Record<string, string | number | object>[],
     dropLat: number,
     dropLng: number
 ) =>
@@ -25,8 +25,9 @@ export const requestRideService = async (
         throw new AppError(httpStatus.EXPECTATION_FAILED, "Missing data: user location, or destination" );
     }
 
+    const riderId : any = user.userId
     const isExistRequest = await Ride.find( {
-        rider: user.userId,
+        rider: riderId,
         status: { $eq: RideStatus.REQUESTED }
     } );
 
@@ -69,7 +70,7 @@ export const requestRideService = async (
     const estimatedFare = 50 + 25 * matchedDriver.distanceInKm;
 
     const newRide = await Ride.create( {
-        rider: user.userId,
+        rider: riderId,
         driver: matchedDriver.driverId,
         pickUpLocation,
         dropOffLocation,

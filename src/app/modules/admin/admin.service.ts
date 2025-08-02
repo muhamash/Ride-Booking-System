@@ -128,7 +128,7 @@ export const suspendDriverIdService = async ( userId: string, param: suspendPara
         throw new AppError( httpStatus.CONFLICT, " driver already working!! wait to be available first!!" );
     }
 
-    console.log(user, param, !user.driverStatus === DriverStatus.AVAILABLE)
+    console.log(user, param, user.driverStatus !== DriverStatus.AVAILABLE)
     let updateDriver;
 
     if ( param === "rollback" && user.driverStatus !== DriverStatus.AVAILABLE )
@@ -256,7 +256,7 @@ export const deleteRideService = async ( rideId: string ) =>
         throw new AppError( httpStatus.NOT_FOUND, "ride not found" )
     }
 
-    if ( findRide?.isBlocked )
+    if ( findRide )
     {
         await Ride.deleteOne( { _id: rideId } );
         

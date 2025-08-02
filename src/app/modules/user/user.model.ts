@@ -18,7 +18,7 @@ export const locationSchema = new Schema<ILocation>({
   address: {
     type: String
   }
-} );
+});
 
 export const userSchema = new Schema<IUser>( {
     name: {
@@ -38,7 +38,6 @@ export const userSchema = new Schema<IUser>( {
         type: String,
         required: true,
         minlength: [ 5, 'Password must be at least 5 characters long' ],
-        // select: false
     },
     role: {
         type: String,
@@ -46,9 +45,13 @@ export const userSchema = new Schema<IUser>( {
         enum: Object.values( UserRole ),
         default: UserRole.RIDER
     },
-    isBlocked: { type: Boolean, default: false },
+    isBlocked: {
+        type: Boolean,
+        default: false
+    },
     isOnline: {
-        type: Boolean, default: false,
+        type: Boolean,
+        default: false
     },
     driver: {
         type: Schema.Types.ObjectId,
@@ -57,61 +60,43 @@ export const userSchema = new Schema<IUser>( {
     },
     lastOnlineAt: {
         type: Date,
-        default: Date.now(),
+        default: Date.now,
     },
     location: locationSchema,
-},
-    {
-        timestamps: true,
-        versionKey: false,
-        toJSON: { virtuals: true },
-        toObject: { virtuals: true },
+    vehicleInfo: {  
+        type: Schema.Types.Mixed,
+        default: null
     }
-);
+}, {
+    timestamps: true,
+    versionKey: false,
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true },
+} );
 
-// hash password and generate username before saving!
-userSchema.pre<IUser>( "save", async function ( next )
-{
-    if ( this.isModified( "password" ) )
-    {
+userSchema.pre<UserDocument>("save", async function (next) {
+    if (this.isModified("password")) {
         this.password = await bcrypt.hash(
             this.password,
-            Number( envStrings.BCRYPT_SALT )
+            Number(envStrings.BCRYPT_SALT)
         );
     }
 
-    if ( this.isModified( "email" ) || this.isNew )
-    {
-        this.username = generateSlug( this.email, this.role );
+    if (this.isModified("email") || this.isNew) {
+        this.username = generateSlug(this.email, this.role);
     }
 
     next();
-} );
+});
 
-userSchema.pre( "findOneAndDelete", async function ( next )
-{
+userSchema.pre("findOneAndDelete", async function (next) {
     const userId = this.getQuery()._id;
 
-    if ( userId )
-    {
-        await Driver.deleteMany( { user: userId } );
-        // await Ride.deleteMany( {
-        //     $or: [
-        //         { rider: userId },
-        //         { driver: await Driver.findOne( { user: userId } ).select( '_id' ) }
-        //     ]
-        // } );
+    if (userId) {
+        await Driver.deleteMany({ user: userId });
     }
 
     next();
-} );
+});
 
-
-// userSchema.virtual( "wasRecentlyOnline" ).get( function ()
-// {
-//     const cutoff = new Date( Date.now() - 4 * 60 * 60 * 1000 );
-//     return this.lastOnlineAt > cutoff;
-// } );
-
-
-export const User = model<IUser>( "User", userSchema );
+export const User = model<UserDocument>("User", userSchema);
