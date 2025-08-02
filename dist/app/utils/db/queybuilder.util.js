@@ -59,6 +59,16 @@ class QueryBuilder {
         };
     }
     ;
+    populate(fields) {
+        this.modelQuery = this.modelQuery.populate(fields);
+        return this;
+    }
+    ;
+    lean() {
+        this.modelQuery = this.modelQuery.lean();
+        return this;
+    }
+    ;
 }
 exports.QueryBuilder = QueryBuilder;
 ;

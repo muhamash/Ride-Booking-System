@@ -72,7 +72,7 @@ export const inTransitRide = asyncHandler( async ( req: Request, res: Response )
     const inTransit = await inTransitRideService( id );
 
     responseFunction( res, {
-        message: "Picked up the user!",
+        message: "In transit the the user!",
         statusCode: httpStatus.OK,
         data: inTransit
     })
@@ -86,7 +86,7 @@ export const completeRide = asyncHandler( async ( req: Request, res: Response ) 
     const completedRide = await completeRideService( id, user );
 
     responseFunction( res, {
-        message: "Picked up the user!",
+        message: "Completed the ride!!!",
         statusCode: httpStatus.OK,
         data: completedRide
     })

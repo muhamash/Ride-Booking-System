@@ -26,4 +26,5 @@ router.delete( "/delete-blocked-user/:id",  checkAuth( UserRole.ADMIN ),checkUpd
 
 router.delete( "/ride/:id", checkAuth( UserRole.ADMIN ), checkUpdatePermission, deleteRide );
 
+
 export const adminRoutes = router;
