@@ -9,22 +9,43 @@ import { Driver } from './driver.model';
 import { DriverStatus, VehicleInfo } from './river.interface';
 
 
-export const checkRideRequestService = async (username: string) =>
+export const checkRideRequestService = async ( username: string ) =>
 {
-        // console.log(userId)
     if ( !username )
     {
-        throw new AppError(httpStatus.BAD_REQUEST, "Wrong username")
+        throw new AppError( httpStatus.BAD_REQUEST, "Driver username is required" );
     }
-    const findRide = await Ride.find({ driverUserName: username, status: RideStatus.REQUESTED });
 
-    if ( findRide.length < 1 )
+    // Check if driver is already handling an ongoing ride
+    const ongoingRide = await Ride.findOne( {
+        driverUserName: username,
+        status: { $in: [ RideStatus.ACCEPTED, RideStatus.PICKED_UP, RideStatus.IN_TRANSIT ] }
+    } );
+
+    if ( ongoingRide )
     {
-        throw new AppError(httpStatus.NOT_FOUND, "No Ride exists!!")
+        throw new AppError(
+            httpStatus.FORBIDDEN,
+            `You are currently on an ongoing ride (${ ongoingRide.status }). Complete it before accepting new requests.`
+        );
     }
 
-    return { rides: findRide, total: findRide.length };
-}
+    // If no ongoing rides, show available ride requests
+    const availableRides = await Ride.find( {
+        driverUserName: username,
+        status: RideStatus.REQUESTED
+    } );
+
+    if ( availableRides.length < 1 )
+    {
+        throw new AppError( httpStatus.NOT_FOUND, "No requested rides available" );
+    }
+
+    return {
+        rides: availableRides,
+        total: availableRides.length
+    };
+};
 
 export const acceptRideRequestService = async ( rideId: string, user: Partial<IUser> ) =>
 {
@@ -208,9 +229,21 @@ export const completeRideService = async ( id: string, user: Partial<IUser> ) =>
 
         if ( findDriver )
         {
-            await Driver.findOneAndUpdate( { username: user.username },
-            { $set: { driverStatus: DriverStatus.AVAILABLE, totalRides : findDriver.totalRides + 1, totalEarnings: findDriver.totalEarnings + completedRide.fare } },
-            { new: true } );
+            await Driver.findOneAndUpdate(
+                { username: user.username },
+                {
+                    $set: {
+                        driverStatus: DriverStatus.AVAILABLE,
+                        totalRides: findDriver.totalRides + 1,
+                        totalEarnings: findDriver.totalEarnings + completedRide.fare,
+                    },
+                    $addToSet: {
+                        rider: searchRide.rider,
+                        rides: completedRide._id,
+                    }
+                },
+                { new: true }
+            );
         }
         else
         {
@@ -230,7 +263,9 @@ export const updateVehicleService = async ( userId: string, payload:Partial<Vehi
          throw new AppError( httpStatus.NOT_FOUND, "failed to find the target vehicle!!" )
     }
 
-    const updatedDriver = await Driver.findByIdAndUpdate( driver._id, payload, { new: true, runValidators: true } );
+    const updatedDriver = await Driver.findByIdAndUpdate( driver._id, { vehicleInfo: payload }, { new: true, runValidators: true } );
+
+        // console.log(driver, updatedDriver)
 
     return updatedDriver
 }

@@ -100,7 +100,7 @@ export const updateVehicleInfo = asyncHandler( async ( req: Request, res: Respon
 
     const updatedVehicle = await updateVehicleService( driverId, body );
 
-    if ( updatedVehicle )
+    if ( !updatedVehicle )
     {
         throw new AppError( httpStatus.EXPECTATION_FAILED, "failed to update the target vehicle!!" )
     }
@@ -130,3 +130,4 @@ export const driverState = asyncHandler( async ( req: Request, res: Response ) =
         data: states
     } );
 } );
+

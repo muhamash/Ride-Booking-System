@@ -80,7 +80,7 @@ export class QueryBuilder<T extends Document> {
   //       return this;
   // };
 
-  //   lean(): this {
+  //   lean(): this {åß
   //     this.modelQuery = this.modelQuery.lean();
   //     return this;
   //   };

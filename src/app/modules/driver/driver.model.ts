@@ -8,7 +8,7 @@ export const vehicleInfoSchema = new Schema({
 } );
 
 export const ratingSchema = new Schema({
-    riderId: { type: Schema.Types.ObjectId, ref: "User" },
+    riderId: { type: Schema.Types.ObjectId, ref: "Ride" },
     rating: { type: Number, min: 1, max: 5 },
 });
 
@@ -23,14 +23,25 @@ export const driverSchema = new Schema<IDriver>( {
         enum: DriverStatus,
         default: DriverStatus.UNAVAILABLE,
     },
+    rides: [
+        {
+            type: Schema.Types.ObjectId,
+            ref: "Ride",
+        },
+    ],
     rating: {
         averageRating: { type: Number, default: 0 },
         totalRatings: { type: Number, default: 0 },
-        ratings: [ ratingSchema ],
+        ratings: [ ratingSchema ]
     },
     totalEarnings: { type: Number, default: 0 },
     totalRides: { type: Number, default: 0 },
-    // rider: { type: Schema.Types.ObjectId, ref: "User" },
+    rider: [
+        {
+            type: Schema.Types.ObjectId,
+            ref: "User",
+        },
+    ],
     user: { type: Schema.Types.ObjectId, ref: "User", required: true },
     username: {
         type: String,

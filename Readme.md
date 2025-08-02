@@ -12,6 +12,16 @@ A **scalable ride-booking backend system** built with **TypeScript, Express.js, 
 
 ---
 
+## Role based access
+
+## Business logics
+
+## validations and permission
+
+## Extra features
+
+
+
 ## 📁 Project Structure
 
 ```
@@ -58,7 +68,7 @@ src/
 
 1. 🔐 **Auth**
    - Login & receive JWT
-   - JWT attached to protected requests via `Authorization: Bearer <token>`
+   - JWT attached to protected requests via `cookie`
 
 2. 🧍 **Rider Flow**
    - Rider logs in
@@ -145,7 +155,7 @@ src/
 
 Each protected route uses `updateUserLocationIntoDb` to:
 
-- Reverse geocode IP to city
+- Reverse geocode with Mock IP's
 - Track location changes (admin analytics / driver tracking)
 
 ---
@@ -219,6 +229,13 @@ curl -X POST http://localhost:5000/api/ride/request \
   -H "Authorization: Bearer <token>" \
   -H "Content-Type: application/json" \
   -d '{"lat": "34.56", "lng": "34.343"}'
+
+# dhaka nearby lat,lng
+  {
+    "lat": 23.81,
+    "lng":  90.41
+}
+
 ```
 
 ---

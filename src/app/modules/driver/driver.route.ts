@@ -10,7 +10,7 @@ const router = Router();
 
 router.post( "/check-ride-request", checkAuth(  UserRole.DRIVER ), updateUserLocationIntoDb, checkRideRequest );
 
-router.post( "/accept-ride-request/:id", checkAuth( UserRole.DRIVER ), updateUserLocationIntoDb, acceptRideRequest );
+router.post( "/accept-ride-request/:id", checkAuth( UserRole.DRIVER, UserRole.ADMIN ), updateUserLocationIntoDb, acceptRideRequest );
 
 router.post( "/cancel-ride-request/:id", checkAuth( UserRole.ADMIN, UserRole.DRIVER, UserRole.RIDER ), updateUserLocationIntoDb, cancelRideRequest );
 
