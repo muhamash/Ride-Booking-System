@@ -18,13 +18,7 @@ passport.use(
         {
             try
             {
-                // const userLocation = req.userLocation;
-                // const locationPayload:Record<string, unknown> = {
-                //     coordinates: [ userLocation.lat, userLocation.lng ],
-                //     address: userLocation.displayName
-                // }   
 
-                // console.log(locationPayload, "from login passport")
                 const user = await User.findOne( { email } );
                 let response
 

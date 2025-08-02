@@ -15,6 +15,7 @@ const userTokens = async (user) => {
     const role = userData.role;
     const name = userData.name;
     const username = userData.username || '';
+    console.log(user, userData, username);
     if (!userId || !email || !role || !name) {
         throw new App_error_1.AppError(http_status_codes_1.default.BAD_REQUEST, "Missing required user info for token generation.");
     }

@@ -17,6 +17,7 @@ const checkAuth = (...authRoles) => async (req, res, next) => {
             throw new App_error_1.AppError(http_status_codes_1.default.FORBIDDEN, "No Token Received!");
         }
         const verifiedToken = (0, middleware_util_1.verifyToken)(accessToken, env_config_1.envStrings.ACCESS_TOKEN_SECRET);
+        // console.log(verifiedToken, accessToken)
         if (!verifiedToken.username) {
             throw new App_error_1.AppError(http_status_codes_1.default.UNAUTHORIZED, "Invalid token payload");
         }

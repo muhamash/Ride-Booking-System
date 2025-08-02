@@ -10,39 +10,44 @@ export const vehicleInfoSchema = z.object({
         .min(3, "Plate number must be at least 3 characters long")
 });
 
-export const zodUserSchema = z.object({
+export const zodUserSchema = z.object( {
     name: z.string()
-        .min(2, "Name must be at least 2 characters long")
-        .max(50, "Name cannot exceed 50 characters"),
+        .min( 2, "Name must be at least 2 characters long" )
+        .max( 50, "Name cannot exceed 50 characters" ),
 
     email: z.string()
-        .email("Invalid email address format")
-        .min(5, "Email must be at least 5 characters long")
-        .max(100, "Email cannot exceed 100 characters"),
+        .email( "Invalid email address format" )
+        .min( 5, "Email must be at least 5 characters long" )
+        .max( 100, "Email cannot exceed 100 characters" ),
 
     password: z.string()
-        .min(8, "Password must be at least 8 characters long")
-        .regex(/^(?=.*[A-Z])/, "Password must contain at least 1 uppercase letter"),
+        .min( 8, "Password must be at least 8 characters long" )
+        .regex( /^(?=.*[A-Z])/, "Password must contain at least 1 uppercase letter" ),
 
-    role: z.nativeEnum(UserRole)
-        .default(UserRole.RIDER)
-        .optional(),
+    role: z.string()
+        .transform( ( val ) => val.toUpperCase() )
+        .refine( ( val ) => Object.values( UserRole ).includes( val as UserRole ), {
+            message: "role must be ADMIN | RIDER | DRIVER",
+        } )
+        .transform( ( val ) => val as UserRole ),
 
     vehicleInfo: vehicleInfoSchema.optional(),
 
-    driverStatus: z.nativeEnum(DriverStatus)
-        .default(DriverStatus.AVAILABLE)
+    driverStatus: z.nativeEnum( DriverStatus )
+        .default( DriverStatus.AVAILABLE )
         .optional()
 
-}).superRefine((data, ctx) => {
-    if (data.role === UserRole.DRIVER && !data.vehicleInfo) {
-        ctx.addIssue({
-            path: ['vehicleInfo'],
+} ).superRefine( ( data, ctx ) =>
+{
+    if ( data.role === UserRole.DRIVER && !data.vehicleInfo )
+    {
+        ctx.addIssue( {
+            path: [ 'vehicleInfo' ],
             code: z.ZodIssueCode.custom,
             message: 'Vehicle info is required for drivers',
-        });
+        } );
     }
-});
+} );
 
 export const locationZodSchema = z.object({
     type: z.literal("Point").default("Point"),

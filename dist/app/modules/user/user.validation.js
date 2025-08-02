@@ -25,9 +25,12 @@ exports.zodUserSchema = zod_1.default.object({
     password: zod_1.default.string()
         .min(8, "Password must be at least 8 characters long")
         .regex(/^(?=.*[A-Z])/, "Password must contain at least 1 uppercase letter"),
-    role: zod_1.default.nativeEnum(user_interface_1.UserRole)
-        .default(user_interface_1.UserRole.RIDER)
-        .optional(),
+    role: zod_1.default.string()
+        .transform((val) => val.toUpperCase())
+        .refine((val) => Object.values(user_interface_1.UserRole).includes(val), {
+        message: "role must be ADMIN | RIDER | DRIVER",
+    })
+        .transform((val) => val),
     vehicleInfo: exports.vehicleInfoSchema.optional(),
     driverStatus: zod_1.default.nativeEnum(river_interface_1.DriverStatus)
         .default(river_interface_1.DriverStatus.AVAILABLE)

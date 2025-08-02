@@ -17,12 +17,6 @@ passport_1.default.use(new passport_local_1.Strategy({
     passReqToCallback: true,
 }, async (req, email, password, done) => {
     try {
-        // const userLocation = req.userLocation;
-        // const locationPayload:Record<string, unknown> = {
-        //     coordinates: [ userLocation.lat, userLocation.lng ],
-        //     address: userLocation.displayName
-        // }   
-        // console.log(locationPayload, "from login passport")
         const user = await user_model_1.User.findOne({ email });
         let response;
         if (!user) {

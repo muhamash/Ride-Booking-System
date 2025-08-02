@@ -19,6 +19,8 @@ export const userTokens = async ( user: UserLike ) =>
     const name = userData.name;
     const username = userData.username || '';
 
+    console.log(user, userData, username)
+
     if ( !userId || !email || !role || !name )
     {
         throw new AppError( httpStatus.BAD_REQUEST, "Missing required user info for token generation." );

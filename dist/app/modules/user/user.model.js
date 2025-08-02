@@ -69,7 +69,10 @@ exports.userSchema = new mongoose_1.Schema({
     location: exports.locationSchema,
     vehicleInfo: {
         type: mongoose_1.Schema.Types.Mixed,
-        default: null
+        default: null,
+        required: function () {
+            return this.role === user_interface_1.UserRole.DRIVER;
+        },
     }
 }, {
     timestamps: true,

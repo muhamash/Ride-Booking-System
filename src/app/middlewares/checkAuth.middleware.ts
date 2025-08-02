@@ -24,7 +24,9 @@ export const checkAuth = (...authRoles: UserRole[]) =>
             throw new AppError(httpStatus.FORBIDDEN, "No Token Received!");
         }
 
-        const verifiedToken = verifyToken(accessToken, envStrings.ACCESS_TOKEN_SECRET) as CustomJwtPayload;
+        const verifiedToken = verifyToken( accessToken, envStrings.ACCESS_TOKEN_SECRET ) as CustomJwtPayload;
+        
+        // console.log(verifiedToken, accessToken)
 
         if (!verifiedToken.username) {
             throw new AppError(httpStatus.UNAUTHORIZED, "Invalid token payload");

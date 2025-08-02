@@ -63,9 +63,13 @@ export const userSchema = new Schema<IUser>( {
         default: Date.now,
     },
     location: locationSchema,
-    vehicleInfo: {  
+    vehicleInfo: {
         type: Schema.Types.Mixed,
-        default: null
+        default: null,
+        required: function ( this: any )
+        {
+            return this.role === UserRole.DRIVER;
+        },
     }
 }, {
     timestamps: true,
