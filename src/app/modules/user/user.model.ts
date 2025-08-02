@@ -56,8 +56,18 @@ export const userSchema = new Schema<IUser>( {
     driver: {
         type: Schema.Types.ObjectId,
         ref: "Driver",
-        default: null
+        default: null,
+        required: function ( this: any )
+        {
+            return this.role === UserRole.DRIVER;
+        },
     },
+    ridings: [
+        {
+            rideId: { type: Schema.Types.ObjectId, ref: "Ride", required: true },
+            driverId: { type: Schema.Types.ObjectId, ref: "Driver", required: true }
+        }
+    ],
     lastOnlineAt: {
         type: Date,
         default: Date.now,
@@ -76,6 +86,20 @@ export const userSchema = new Schema<IUser>( {
     versionKey: false,
     toJSON: { virtuals: true },
     toObject: { virtuals: true },
+} );
+
+userSchema.virtual( 'rideDetails', {
+    ref: 'Ride',
+    localField: 'ridings.rideId',
+    foreignField: '_id',
+    justOne: false 
+} );
+
+userSchema.virtual( 'driverDetails', {
+    ref: 'Driver',
+    localField: 'ridings.driverId',
+    foreignField: '_id',
+    justOne: false
 } );
 
 userSchema.pre("save", async function (next) {

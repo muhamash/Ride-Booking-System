@@ -10,7 +10,6 @@ const router = Router();
 
 router.post( "/request", checkAuth( UserRole.RIDER, UserRole.ADMIN ), updateUserLocationIntoDb, validateRequest( zodRideRequest ), requestRide );
 
-
 router.post( "/rating/:id", checkAuth( UserRole.RIDER, UserRole.ADMIN ), validateRequest(ratingZodSchema), ratingOwnRide );
 
 export const rideRoutes = router;

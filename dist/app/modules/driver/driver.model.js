@@ -56,4 +56,10 @@ exports.driverSchema = new mongoose_1.Schema({
     toJSON: { virtuals: true },
     toObject: { virtuals: true },
 });
+// userSchema.virtual( 'driverDetails', {
+//     ref: 'Driver',
+//     localField: 'ridings.driverId',
+//     foreignField: '_id',
+//     justOne: false
+// } );
 exports.Driver = (0, mongoose_1.model)("Driver", exports.driverSchema);

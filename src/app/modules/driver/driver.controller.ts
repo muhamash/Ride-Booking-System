@@ -123,7 +123,6 @@ export const driverState = asyncHandler( async ( req: Request, res: Response ) =
         throw new AppError(httpStatus.INTERNAL_SERVER_ERROR, "Something happened when tried to fetch the driver state!!")
     }
 
-
     responseFunction( res, {
         message: "Vehicle updated!!",
         statusCode: httpStatus.ACCEPTED,

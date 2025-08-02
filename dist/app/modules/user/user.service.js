@@ -47,7 +47,8 @@ const createUserService = async (payload) => {
 exports.createUserService = createUserService;
 const getUserByIdService = async (userId) => {
     // console.log("Fetching user by ID:", userId);
-    const user = await user_model_1.User.findById(userId).select("-password").populate("driver").lean();
+    const user = await user_model_1.User.findById(userId).select("-password").populate("driver").populate('rideDetails')
+        .populate('driverDetails').lean();
     if (!user) {
         // console.log("User not found with ID:", userId);
         throw new App_error_1.AppError(http_status_codes_1.default.NOT_FOUND, "User not found");

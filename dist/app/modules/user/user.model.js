@@ -60,8 +60,17 @@ exports.userSchema = new mongoose_1.Schema({
     driver: {
         type: mongoose_1.Schema.Types.ObjectId,
         ref: "Driver",
-        default: null
+        default: null,
+        required: function () {
+            return this.role === user_interface_1.UserRole.DRIVER;
+        },
     },
+    ridings: [
+        {
+            rideId: { type: mongoose_1.Schema.Types.ObjectId, ref: "Ride", required: true },
+            driverId: { type: mongoose_1.Schema.Types.ObjectId, ref: "Driver", required: true }
+        }
+    ],
     lastOnlineAt: {
         type: Date,
         default: Date.now,
@@ -79,6 +88,18 @@ exports.userSchema = new mongoose_1.Schema({
     versionKey: false,
     toJSON: { virtuals: true },
     toObject: { virtuals: true },
+});
+exports.userSchema.virtual('rideDetails', {
+    ref: 'Ride',
+    localField: 'ridings.rideId',
+    foreignField: '_id',
+    justOne: false
+});
+exports.userSchema.virtual('driverDetails', {
+    ref: 'Driver',
+    localField: 'ridings.driverId',
+    foreignField: '_id',
+    justOne: false
 });
 exports.userSchema.pre("save", async function (next) {
     if (this.isModified("password")) {

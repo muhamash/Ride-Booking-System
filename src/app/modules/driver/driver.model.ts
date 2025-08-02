@@ -57,4 +57,11 @@ export const driverSchema = new Schema<IDriver>( {
     toObject: { virtuals: true },
 } );
 
+// userSchema.virtual( 'driverDetails', {
+//     ref: 'Driver',
+//     localField: 'ridings.driverId',
+//     foreignField: '_id',
+//     justOne: false
+// } );
+
 export const Driver = model<IDriver>( "Driver", driverSchema );

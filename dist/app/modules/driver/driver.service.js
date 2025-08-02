@@ -151,6 +151,12 @@ const completeRideService = async (id, user) => {
                     rides: completedRide._id,
                 }
             }, { new: true });
+            await user_model_1.User.findByIdAndUpdate(new mongoose_1.default.Types.ObjectId(searchRide.rider), {
+                $addToSet: {
+                    ridings: searchRide.rider,
+                    rides: completedRide._id,
+                }
+            });
         }
         else {
             throw new App_error_1.AppError(http_status_codes_1.default.NOT_FOUND, "Driver not. found!!");
@@ -165,7 +171,6 @@ const updateVehicleService = async (userId, payload) => {
         throw new App_error_1.AppError(http_status_codes_1.default.NOT_FOUND, "failed to find the target vehicle!!");
     }
     const updatedDriver = await driver_model_1.Driver.findByIdAndUpdate(driver._id, { vehicleInfo: payload }, { new: true, runValidators: true });
-    // console.log(driver, updatedDriver)
     return updatedDriver;
 };
 exports.updateVehicleService = updateVehicleService;
@@ -175,7 +180,7 @@ const driverStateService = async (userId) => {
         throw new App_error_1.AppError(http_status_codes_1.default.NOT_FOUND, "user not found!!");
     }
     const driver = await driver_model_1.Driver.findOne({ user: user._id });
-    if (driver) {
+    if (!driver) {
         throw new App_error_1.AppError(http_status_codes_1.default.CONFLICT, "this user is not a driver!!");
     }
     const rides = await ride_model_1.Ride.find({ driver: driver._id }).populate("driver");

@@ -29,7 +29,12 @@ export interface IUser {
   driver?: Schema.Types.ObjectId;
   lastOnlineAt?: Date;
   location?: ILocation;
-  vehicleInfo?: VehicleInfo;  
+  vehicleInfo?: VehicleInfo; 
+  
+  ridings?: {
+    rideId?: Schema.Types.ObjectId;
+    driverId?: Schema.Types.ObjectId;
+  };
   
   isModified(path?: string): boolean;
   isNew?: boolean;

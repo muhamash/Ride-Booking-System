@@ -98,7 +98,7 @@ export const cancelRideRequestService = async ( rideId: string, user: Partial<IU
 {
     if ( !rideId )
     {
-        throw new AppError(httpStatus.BAD_REQUEST, "ride id  not found at the request body")
+        throw new AppError( httpStatus.BAD_REQUEST, "ride id  not found at the request body" )
     }
 
     const searchRide = await Ride.findOne( {
@@ -108,25 +108,25 @@ export const cancelRideRequestService = async ( rideId: string, user: Partial<IU
     
     if ( !searchRide )
     {
-        throw new AppError(httpStatus.NOT_FOUND, "Ride not found or ride is been expired!!")
+        throw new AppError( httpStatus.NOT_FOUND, "Ride not found or ride is been expired!!" )
     }
 
-    if ( searchRide.status === RideStatus.CANCELLED  )
+    if ( searchRide.status === RideStatus.CANCELLED )
     {
-        throw new AppError(httpStatus.NON_AUTHORITATIVE_INFORMATION, "Ride already cancelled!!")
+        throw new AppError( httpStatus.NON_AUTHORITATIVE_INFORMATION, "Ride already cancelled!!" )
     }
 
 
     const cancelRide = await Ride.findOneAndUpdate(
         { _id: new mongoose.Types.ObjectId( rideId ) },
-        { $set: { status: RideStatus.CANCELLED, cancelledAt: Date.now(), cancelledBy: user.role , expiresAt: null } },
+        { $set: { status: RideStatus.CANCELLED, cancelledAt: Date.now(), cancelledBy: user.role, expiresAt: null } },
         { new: true }
     );
 
-    console.log(cancelRide)
+    console.log( cancelRide )
 
     return cancelRide;
-}
+};
 
 export const pickUpService = async ( id: string ) =>
 {
@@ -162,11 +162,11 @@ export const pickUpService = async ( id: string ) =>
     return pickedUp
 };
 
-export const inTransitRideService = async (id: string) =>
+export const inTransitRideService = async ( id: string ) =>
 {
     if ( !id )
     {
-        throw new AppError(httpStatus.BAD_REQUEST, "wrong ride id!!")
+        throw new AppError( httpStatus.BAD_REQUEST, "wrong ride id!!" )
     }
 
     const searchRide = await Ride.findOne( {
@@ -176,12 +176,12 @@ export const inTransitRideService = async (id: string) =>
 
     if ( !searchRide )
     {
-        throw new AppError(httpStatus.NOT_FOUND, "Ride not found or ride is been expired!!")
+        throw new AppError( httpStatus.NOT_FOUND, "Ride not found or ride is been expired!!" )
     }
 
-        if ( searchRide.status === RideStatus.IN_TRANSIT )
+    if ( searchRide.status === RideStatus.IN_TRANSIT )
     {
-        throw new AppError(httpStatus.NOT_FOUND, "Ride not found or ride is been in transit!!")
+        throw new AppError( httpStatus.NOT_FOUND, "Ride not found or ride is been in transit!!" )
     }
 
     const inTransit = await Ride.findOneAndUpdate(
@@ -193,7 +193,7 @@ export const inTransitRideService = async (id: string) =>
     console.log( inTransit )
     
     return inTransit
-}
+};
 
 export const completeRideService = async ( id: string, user: Partial<IUser> ) =>
 {
@@ -244,6 +244,13 @@ export const completeRideService = async ( id: string, user: Partial<IUser> ) =>
                 },
                 { new: true }
             );
+
+            await User.findByIdAndUpdate( new mongoose.Types.ObjectId( searchRide.rider ), {
+                $addToSet: {
+                    ridings: searchRide.rider,
+                    rides: completedRide._id,
+                }
+            } );
         }
         else
         {
@@ -254,21 +261,19 @@ export const completeRideService = async ( id: string, user: Partial<IUser> ) =>
     return completedRide
 };
 
-export const updateVehicleService = async ( userId: string, payload:Partial<VehicleInfo> ) =>
+export const updateVehicleService = async ( userId: string, payload: Partial<VehicleInfo> ) =>
 {
     const driver = await Driver.findById( userId );
 
     if ( !driver )
     {
-         throw new AppError( httpStatus.NOT_FOUND, "failed to find the target vehicle!!" )
+        throw new AppError( httpStatus.NOT_FOUND, "failed to find the target vehicle!!" )
     }
 
     const updatedDriver = await Driver.findByIdAndUpdate( driver._id, { vehicleInfo: payload }, { new: true, runValidators: true } );
 
-        // console.log(driver, updatedDriver)
-
     return updatedDriver
-}
+};
 
 export const driverStateService = async ( userId: string ) =>
 {
@@ -276,21 +281,21 @@ export const driverStateService = async ( userId: string ) =>
 
     if ( !user )
     {
-        throw new AppError(httpStatus.NOT_FOUND, "user not found!!")
+        throw new AppError( httpStatus.NOT_FOUND, "user not found!!" )
     }
 
     const driver = await Driver.findOne( { user: user._id } );
-    if ( driver )
+    if ( !driver )
     {
-        throw new AppError(httpStatus.CONFLICT, "this user is not a driver!!")
+        throw new AppError( httpStatus.CONFLICT, "this user is not a driver!!" )
     }
 
-    const rides = await Ride.find( { driver: driver._id } ).populate("driver");
+    const rides = await Ride.find( { driver: driver._id } ).populate( "driver" );
 
     if ( rides.length < 1 )
     {
-        throw new AppError(httpStatus.NOT_FOUND, "no ride  found!!")
+        throw new AppError( httpStatus.NOT_FOUND, "no ride  found!!" )
     }
 
     return rides
-}
+};
