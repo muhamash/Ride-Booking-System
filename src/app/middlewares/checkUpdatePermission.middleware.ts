@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import httpStatus from 'http-status-codes';
 import { AppError } from "../../config/errors/App.error";
+import { UserRole } from "../modules/user/user.interface";
 import { User } from "../modules/user/user.model";
 import { isAllowedToUpdate } from "../utils/middleware.util";
 
@@ -15,7 +16,7 @@ export const checkUpdatePermission = async (
         throw new AppError(httpStatus.UNAUTHORIZED, "Authentication required");
     }
 
-    const currentRole = req.user.role; 
+    const currentRole = req.user.role as UserRole; 
     const currentUserId = req.user.userId;
     const targetUserId = req.params.id;
 

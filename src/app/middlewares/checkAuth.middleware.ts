@@ -11,8 +11,9 @@ import { verifyToken } from "../utils/middleware.util";
 interface CustomJwtPayload extends JwtPayload {
   username: string;
   role: UserRole;
-  userId: string;
-}
+    userId: string;
+     name: string;
+};
 
 export const checkAuth = (...authRoles: UserRole[]) => 
   async (req: Request, res: Response, next: NextFunction): Promise<void> => { 

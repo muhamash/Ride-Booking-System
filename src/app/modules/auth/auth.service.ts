@@ -38,7 +38,7 @@ export const userLogoutService = async ( userId: string ) => {
 export const getNewAccessTokenService = async ( refreshToken: string ) =>
 {
     
-    const refreshTokenVerify = verifyToken( refreshToken, envStrings.REFRESH_TOKEN_SECRET as string );
+    const refreshTokenVerify : any = verifyToken( refreshToken, envStrings.REFRESH_TOKEN_SECRET as string );
 
     const user = await User.findOneAndUpdate(
         { email: refreshTokenVerify?.email },

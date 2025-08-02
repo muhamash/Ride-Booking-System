@@ -1,16 +1,15 @@
 import haversine from "haversine-distance";
 import httpStatus from 'http-status-codes';
-import mongoose from "mongoose";
 import { AppError } from "../../../config/errors/App.error";
 import { reverseGeocode } from "../../utils/helperr.util";
-import { ILocation, IUser } from "../user/user.interface";
+import { ILocation } from "../user/user.interface";
 import { RideStatus } from "./ride.interface";
 import { Ride } from "./ride.model";
 
 export const requestRideService = async (
     pickUpLocation: ILocation,
-    user: Partial<IUser>,
-    activeDrivers: Record<string, string | number | object>[],
+    user: any,
+    activeDrivers: any,
     dropLat: number,
     dropLng: number
 ) =>
@@ -48,15 +47,19 @@ export const requestRideService = async (
     // Add distance to each driver
     const enrichedDrivers = activeDrivers.map( ( driver ) =>
     {
-        const driverCoords = driver.location.coordinates as number[];
-        const riderCoords = pickUpLocation.coordinates as number[];
+        const driverCoords = driver.location.coordinates;
+        const riderCoords = pickUpLocation.coordinates;
         const distanceInMeters = haversine( riderCoords, driverCoords );
         const distanceInKm = Number( ( distanceInMeters / 1000 ).toFixed( 2 ) );
-        return { ...driver, distanceInKm };
+
+        return {
+            ...driver,
+            distanceInKm,
+        };
     } );
 
     // Sort: highest rating first, then closest
-    enrichedDrivers.sort( ( a, b ) =>
+    enrichedDrivers?.sort( ( a, b ) =>
     {
         if ( b.avgRating !== a.avgRating ) return b.avgRating - a.avgRating;
         return a.distanceInKm - b.distanceInKm;
@@ -71,16 +74,16 @@ export const requestRideService = async (
 
     const newRide = await Ride.create( {
         rider: riderId,
-        driver: matchedDriver.driverId,
+        driver: matchedDriver?.driverId,
         pickUpLocation,
         dropOffLocation,
-        driverLocation: matchedDriver.location,
-        distanceInKm: matchedDriver.distanceInKm,
+        driverLocation: matchedDriver?.location,
+        distanceInKm: matchedDriver?.distanceInKm,
         fare: estimatedFare,
         status: RideStatus.REQUESTED,
         requestedAt: new Date(),
         riderUserName: user.username,
-        driverUserName: matchedDriver.username,
+        driverUserName: matchedDriver?.username,
         
     } );
 
@@ -92,35 +95,35 @@ export const requestRideService = async (
  
 };
 
-export const cancelRideService = async ( rideId: string, user: Partial<IUser> ) =>
-{
-    if ( !rideId )
-    {
-        throw new AppError(httpStatus.BAD_REQUEST, "ride id  not found at the request body")
-    }
+// export const cancelRideService = async ( rideId: string, user: Record<string, string>) =>
+// {
+//     if ( !rideId )
+//     {
+//         throw new AppError(httpStatus.BAD_REQUEST, "ride id  not found at the request body")
+//     }
 
-    const searchRide = await Ride.findOne( {
-        _id: rideId,
-        status: RideStatus.REQUESTED
-    } );
+//     const searchRide = await Ride.findOne( {
+//         _id: rideId,
+//         status: RideStatus.REQUESTED
+//     } );
     
-    if ( !searchRide )
-    {
-        throw new AppError(httpStatus.NOT_FOUND, "Ride not found or ride is been expired!!")
-    }
+//     if ( !searchRide )
+//     {
+//         throw new AppError(httpStatus.NOT_FOUND, "Ride not found or ride is been expired!!")
+//     }
 
-    if ( searchRide.status === RideStatus.CANCELLED  )
-    {
-        throw new AppError(httpStatus.NON_AUTHORITATIVE_INFORMATION, "Ride already cancelled!!")
-    }
+//     if ( searchRide.status === RideStatus.CANCELLED  )
+//     {
+//         throw new AppError(httpStatus.NON_AUTHORITATIVE_INFORMATION, "Ride already cancelled!!")
+//     }
 
-    const cancelRide = await Ride.findOneAndUpdate(
-        { _id: new mongoose.Types.ObjectId( rideId ) },
-        { $set: { status: RideStatus.CANCELLED, cancelledAt: Date.now(), cancelledBy: user.role , expiresAt: null } },
-        { new: true }
-    );
+//     const cancelRide = await Ride.findOneAndUpdate(
+//         { _id: new mongoose.Types.ObjectId( rideId ) },
+//         { $set: { status: RideStatus.CANCELLED, cancelledAt: Date.now(), cancelledBy: user.role , expiresAt: null } },
+//         { new: true }
+//     );
 
-    console.log(cancelRide)
+//     console.log(cancelRide)
 
-    return cancelRide;
-}
+//     return cancelRide;
+// }

@@ -5,21 +5,10 @@ import { AppError } from "../../../config/errors/App.error";
 import { asyncHandler, responseFunction, setCookie } from "../../utils/controller.util";
 import { userTokens } from "../../utils/service.util";
 import { getNewAccessTokenService, userLogoutService } from "./auth.service";
-import { IUser } from "../user/user.interface";
 
-// Extend Express Request type to include user property
-declare global {
-  namespace Express {
-    interface Request {
-      user?: {
-        userId: string;
-      };
-    }
-  }
-}
 
 export const userLogin = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
-  passport.authenticate("local", { session: false }, async (error, user: IUser, info: { message?: string }) => {
+  passport.authenticate("local", { session: false }, async (error, user: any, info: { message?: string }) => {
     if (error) {
       console.error("Authentication error:", error);
       return next(new AppError(httpStatus.INTERNAL_SERVER_ERROR, typeof error === 'string' ? error : 'Authentication failed'));
@@ -34,15 +23,15 @@ export const userLogin = asyncHandler(async (req: Request, res: Response, next: 
     await setCookie(res, "refreshToken", loginData.refreshToken, 4 * 60 * 60 * 1000);
     await setCookie(res, "accessToken", loginData.accessToken, 7 * 24 * 60 * 1000);
 
-    const responseData = user.toObject();
+    const responseData = user?.toObject();
     delete responseData.password;
 
     responseFunction(res, {
       message: "User logged in successfully",
       statusCode: httpStatus.ACCEPTED,
       data: {
-        email: user.email,
-        userId: user._id,
+        email: user?.email,
+        userId: user?._id,
         user: responseData,
       },
     });

@@ -1,4 +1,4 @@
-import { Document, Schema } from 'mongoose';
+import { Schema } from 'mongoose';
 
 export enum UserRole {
   RIDER = "RIDER",
@@ -18,7 +18,7 @@ export interface VehicleInfo {
   plateNumber: string;
 }
 
-export interface IUser extends Document {
+export interface IUser {
   name: string;
   email: string;
   username?: string;

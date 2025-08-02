@@ -4,7 +4,6 @@ import { userRoute } from "../modules/user/user.route";
 
 export const firstVersionRouter = Router();
 
-// module routes
 const moduleRouter = [
     {
         path: "/user",

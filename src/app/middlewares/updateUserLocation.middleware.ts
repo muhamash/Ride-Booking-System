@@ -3,19 +3,8 @@ import mongoose from "mongoose";
 import { DriverStatus, VehicleInfo } from "../modules/driver/river.interface";
 import { Ride } from "../modules/ride/ride.model";
 import { ILocation, UserRole } from "../modules/user/user.interface";
-import { User, UserDocument } from "../modules/user/user.model";
+import { User } from "../modules/user/user.model";
 import { asyncHandler } from "../utils/controller.util";
-
-// Extend Express Request interface
-declare global {
-  namespace Express {
-    interface Request {
-      user?: UserDocument;
-      userLocation?: ILocation;
-      activeDriverPayload?: ActiveDriverPayload[];
-    }
-  }
-}
 
 export interface ActiveDriverPayload extends Record<string, string | number | object | any> {
   driverId: string;
@@ -44,7 +33,8 @@ export const updateUserLocationIntoDb = asyncHandler( async (
     }
 
     // Type guard to ensure user has required properties
-    if ( !( 'username' in user )) {
+    if ( !( 'username' in user ) )
+    {
         throw new Error( "User object is missing required properties" );
     }
 
@@ -90,10 +80,15 @@ export const updateUserLocationIntoDb = asyncHandler( async (
         { new: true }
     );
 
+    if ( !( '_id' in user ) || !( 'username' in user ) || !( 'role' in user ) )
+    {
+        throw new Error( "User object is missing required properties" );
+    };
+
     if ( user.role === UserRole.DRIVER )
     {
         await Ride.findOneAndUpdate(
-            { driver: new mongoose.Types.ObjectId( user._id ) },
+            { driver: new mongoose.Types.ObjectId( user?._id as string ) },
             { $set: { driverLocation: userLocation } },
             { new: true }
         );

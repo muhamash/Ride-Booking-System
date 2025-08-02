@@ -74,7 +74,7 @@ export const userSchema = new Schema<IUser>( {
     toObject: { virtuals: true },
 } );
 
-userSchema.pre<UserDocument>("save", async function (next) {
+userSchema.pre("save", async function (next) {
     if (this.isModified("password")) {
         this.password = await bcrypt.hash(
             this.password,
@@ -99,4 +99,4 @@ userSchema.pre("findOneAndDelete", async function (next) {
     next();
 });
 
-export const User = model<UserDocument>("User", userSchema);
+export const User = model<IUser>("User", userSchema);

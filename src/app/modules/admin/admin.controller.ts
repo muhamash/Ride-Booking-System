@@ -16,40 +16,15 @@ import
         getUserByIdService,
         suspendDriverIdService
     } from './admin.service';
-import { approvalParam, blockParam } from './admin.type';
-
-// Interface definitions
-interface IdParam {
-    id: string;
-}
-
-interface RideParams extends IdParam {}
-
-interface SuspendDriverParams extends IdParam {
-    suspendParam: string;
-}
-
-interface BlockUserParams extends IdParam {
-    blockParam: string;
-}
-
-interface ApprovalDriverParams extends IdParam {
-    approveParam: string;
-}
-
-// Extend Express Request types
-declare module 'express' {
-    interface Request {
-        query: any;
-        params: IdParam | RideParams | SuspendDriverParams | BlockUserParams | ApprovalDriverParams;
-    }
-}
+import { approvalParam, blockParam, suspendParam } from './admin.type';
 
 // Controller functions
-export const getAllUsers = asyncHandler(async (req: Request, res: Response): Promise<void> => {
-    const users = await getAllUsersService(req.query);
+export const getAllUsers = asyncHandler( async ( req: Request, res: Response ): Promise<void> =>
+{
+    const query = req.query as Record<string, string>;
+    const users = await getAllUsersService(query);
 
-    if (!users.data.length) {
+    if (!users?.data || !Array.isArray(users.data) || users.data.length === 0) {
         throw new AppError(httpStatus.OK, "User dataset is empty!");
     }
 
@@ -60,10 +35,12 @@ export const getAllUsers = asyncHandler(async (req: Request, res: Response): Pro
     });
 });
 
-export const getAllDrivers = asyncHandler(async (req: Request, res: Response): Promise<void> => {
-    const users = await getAllDriversServices(req.query);
+export const getAllDrivers = asyncHandler( async ( req: Request, res: Response ): Promise<void> =>
+{
+    const query = req.query as Record<string, string>;
+    const users = await getAllDriversServices(query);
 
-    if (!users.data.length) {
+    if (!users?.data || !Array.isArray(users.data) || users.data.length === 0) {
         throw new AppError(httpStatus.OK, "Driver dataset is empty!");
     }
 
@@ -74,7 +51,7 @@ export const getAllDrivers = asyncHandler(async (req: Request, res: Response): P
     });
 });
 
-export const getUserById = asyncHandler(async (req: Request<IdParam>, res: Response): Promise<void> => {
+export const getUserById = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const userId = req.params.id;
     const user = await getUserByIdService(userId);
 
@@ -89,7 +66,7 @@ export const getUserById = asyncHandler(async (req: Request<IdParam>, res: Respo
     });
 });
 
-export const getDriverById = asyncHandler(async (req: Request<IdParam>, res: Response): Promise<void> => {
+export const getDriverById = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const userId = req.params.id;
     const user = await getDriverByIdService(userId);
 
@@ -104,10 +81,12 @@ export const getDriverById = asyncHandler(async (req: Request<IdParam>, res: Res
     });
 });
 
-export const getAllRides = asyncHandler(async (req: Request, res: Response): Promise<void> => {
-    const rides = await allRideService(req.query);
+export const getAllRides = asyncHandler( async ( req: Request, res: Response ): Promise<void> =>
+{
+    const query = req.query as Record<string, string>;
+    const rides = await allRideService(query);
 
-    if (!rides.data.length) {
+    if (!rides?.data || !Array.isArray(rides.data) || rides?.data?.length === 0) {
         throw new AppError(httpStatus.OK, "Rides dataset is empty!");
     }
 
@@ -118,7 +97,7 @@ export const getAllRides = asyncHandler(async (req: Request, res: Response): Pro
     });
 });
 
-export const getRideById = asyncHandler(async (req: Request<RideParams>, res: Response): Promise<void> => {
+export const getRideById = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const rideId = req.params.id;
     const ride = await getRideByIdService(rideId);
 
@@ -133,9 +112,9 @@ export const getRideById = asyncHandler(async (req: Request<RideParams>, res: Re
     });
 });
 
-export const suspendDriverById = asyncHandler(async (req: Request<SuspendDriverParams>, res: Response): Promise<void> => {
-    const userId = req.params.id;
-    const param = req.params.suspendParam;
+export const suspendDriverById = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+    const userId = req.params?.id;
+    const param = req.params?.suspendParam as suspendParam;
     const user = await suspendDriverIdService(userId, param);
 
     if (!user) {
@@ -149,9 +128,9 @@ export const suspendDriverById = asyncHandler(async (req: Request<SuspendDriverP
     });
 });
 
-export const blockUserById = asyncHandler(async (req: Request<BlockUserParams>, res: Response): Promise<void> => {
+export const blockUserById = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const userId = req.params.id;
-    const param: blockParam = req.params.blockParam;
+    const param = req.params?.blockParam as blockParam;
     const user = await blockUserByIdService(userId, param);
 
     if (!user) {
@@ -165,7 +144,7 @@ export const blockUserById = asyncHandler(async (req: Request<BlockUserParams>, 
     });
 });
 
-export const deleteBlockedUser = asyncHandler(async (req: Request<IdParam>, res: Response): Promise<void> => {
+export const deleteBlockedUser = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const userId = req.params.id;
     const user = await deleteBlockedUserService(userId);
 
@@ -176,7 +155,7 @@ export const deleteBlockedUser = asyncHandler(async (req: Request<IdParam>, res:
     });
 });
 
-export const deleteRide = asyncHandler(async (req: Request<RideParams>, res: Response): Promise<void> => {
+export const deleteRide = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const rideId = req.params.id;
     const ride = await deleteRideService(rideId);
 
@@ -187,9 +166,9 @@ export const deleteRide = asyncHandler(async (req: Request<RideParams>, res: Res
     });
 });
 
-export const approvalDriver = asyncHandler(async (req: Request<ApprovalDriverParams>, res: Response): Promise<void> => {
+export const approvalDriver = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const userId = req.params.id;
-    const param: approvalParam = req.params.approveParam;
+    const param = req.params?.approveParam as approvalParam;
     const user = await approveDriverService(userId, param);
 
     if (!user) {

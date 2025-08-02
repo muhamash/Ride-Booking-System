@@ -10,8 +10,9 @@ const controller_util_1 = require("../../utils/controller.util");
 const admin_service_1 = require("./admin.service");
 // Controller functions
 exports.getAllUsers = (0, controller_util_1.asyncHandler)(async (req, res) => {
-    const users = await (0, admin_service_1.getAllUsersService)(req.query);
-    if (!users.data.length) {
+    const query = req.query;
+    const users = await (0, admin_service_1.getAllUsersService)(query);
+    if (!users?.data || !Array.isArray(users.data) || users.data.length === 0) {
         throw new App_error_1.AppError(http_status_codes_1.default.OK, "User dataset is empty!");
     }
     (0, controller_util_1.responseFunction)(res, {
@@ -21,8 +22,9 @@ exports.getAllUsers = (0, controller_util_1.asyncHandler)(async (req, res) => {
     });
 });
 exports.getAllDrivers = (0, controller_util_1.asyncHandler)(async (req, res) => {
-    const users = await (0, admin_service_1.getAllDriversServices)(req.query);
-    if (!users.data.length) {
+    const query = req.query;
+    const users = await (0, admin_service_1.getAllDriversServices)(query);
+    if (!users?.data || !Array.isArray(users.data) || users.data.length === 0) {
         throw new App_error_1.AppError(http_status_codes_1.default.OK, "Driver dataset is empty!");
     }
     (0, controller_util_1.responseFunction)(res, {
@@ -56,8 +58,9 @@ exports.getDriverById = (0, controller_util_1.asyncHandler)(async (req, res) => 
     });
 });
 exports.getAllRides = (0, controller_util_1.asyncHandler)(async (req, res) => {
-    const rides = await (0, admin_service_1.allRideService)(req.query);
-    if (!rides.data.length) {
+    const query = req.query;
+    const rides = await (0, admin_service_1.allRideService)(query);
+    if (!rides?.data || !Array.isArray(rides.data) || rides?.data?.length === 0) {
         throw new App_error_1.AppError(http_status_codes_1.default.OK, "Rides dataset is empty!");
     }
     (0, controller_util_1.responseFunction)(res, {
@@ -79,8 +82,8 @@ exports.getRideById = (0, controller_util_1.asyncHandler)(async (req, res) => {
     });
 });
 exports.suspendDriverById = (0, controller_util_1.asyncHandler)(async (req, res) => {
-    const userId = req.params.id;
-    const param = req.params.suspendParam;
+    const userId = req.params?.id;
+    const param = req.params?.suspendParam;
     const user = await (0, admin_service_1.suspendDriverIdService)(userId, param);
     if (!user) {
         throw new App_error_1.AppError(http_status_codes_1.default.BAD_REQUEST, "Cannot modify the driver!");
@@ -93,7 +96,7 @@ exports.suspendDriverById = (0, controller_util_1.asyncHandler)(async (req, res)
 });
 exports.blockUserById = (0, controller_util_1.asyncHandler)(async (req, res) => {
     const userId = req.params.id;
-    const param = req.params.blockParam;
+    const param = req.params?.blockParam;
     const user = await (0, admin_service_1.blockUserByIdService)(userId, param);
     if (!user) {
         throw new App_error_1.AppError(http_status_codes_1.default.NOT_FOUND, "User not found");
@@ -124,7 +127,7 @@ exports.deleteRide = (0, controller_util_1.asyncHandler)(async (req, res) => {
 });
 exports.approvalDriver = (0, controller_util_1.asyncHandler)(async (req, res) => {
     const userId = req.params.id;
-    const param = req.params.approveParam;
+    const param = req.params?.approveParam;
     const user = await (0, admin_service_1.approveDriverService)(userId, param);
     if (!user) {
         throw new App_error_1.AppError(http_status_codes_1.default.EXPECTATION_FAILED, "Something went wrong during driver approval");

@@ -9,7 +9,7 @@ export const asyncHandler = ( fn: AsyncHandlerType ) =>
             // console.error( error );
             next( error );
         } );
-    };
+};
 
 export interface TResponse<T> {
   message: string;
