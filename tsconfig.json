@@ -23,26 +23,22 @@
 
 {
   "compilerOptions": {
+    "allowJs": true,
+    "checkJs": false,
+    "noImplicitAny": false,
+    "incremental": true,
+    "noEmit": false,
+    "noEmitOnError": false,
+    "isolatedModules": false,
     "target": "ES2020",
     "module": "CommonJS",
     "rootDir": "src",
     "outDir": "dist",
     "esModuleInterop": true,
-    "allowJs": true,
-    "checkJs": false,
-    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
     "strict": false,
-    "noImplicitAny": false,
-    "incremental": true,
-    "noEmit": false,
-    "noEmitOnError": false,
-    "forceConsistentCasingInFileNames": false,
-    "resolveJsonModule": true,
-    "isolatedModules": false,
-    "typeRoots": [
-      "./node_modules/@types",
-      "./src/types"
-    ]
+    "skipLibCheck": false,
+    "resolveJsonModule": true
   },
   "include": [ "src/**/*" ],
   "exclude": [ "node_modules", "dist" ]

@@ -1,9 +1,9 @@
 import { JwtPayload } from "jsonwebtoken";
-import { ILocation } from "../../app/modules/user/user.interface";
+import { ILocation, UserRole } from "../../app/modules/user/user.interface";
 
 declare global {
   namespace Express {
-    interface User {
+    interface User extends JwtPayload {
       userId?: string;
       role?: UserRole;
       username?: string;
@@ -12,10 +12,10 @@ declare global {
     }
 
     interface Request {
-      user?: User | JwtPayload;
+      user?: User;
       userLocation?: ILocation;
       activeDriverPayload?: Record<string, string | number | object>[];
       targetUser?: any;
     }
   }
-};
+}
