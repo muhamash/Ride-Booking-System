@@ -513,33 +513,26 @@ curl -X POST http://localhost:5000/api/auth/login \
 ```bash
 # Rider requests ride
 curl -X POST http://localhost:5000/api/ride/request \
-  -H "Authorization: Bearer <rider-token>" \
   -H "Content-Type: application/json" \
   -d '{"lat": 23.81, "lng": 90.41}'
 
 # Driver checks available requests
 curl -X POST http://localhost:5000/api/driver/check-ride-request \
-  -H "Authorization: Bearer <driver-token>"
 
 # Driver accepts ride
 curl -X POST http://localhost:5000/api/driver/accept-ride-request/RIDE_ID \
-  -H "Authorization: Bearer <driver-token>"
 
 # Driver picks up rider
 curl -X PATCH http://localhost:5000/api/driver/pick-up/RIDE_ID \
-  -H "Authorization: Bearer <driver-token>"
 
 # Driver starts journey
 curl -X PATCH http://localhost:5000/api/driver/in-transit/RIDE_ID \
-  -H "Authorization: Bearer <driver-token>"
 
 # Driver completes ride
 curl -X PATCH http://localhost:5000/api/driver/complete-ride/RIDE_ID \
-  -H "Authorization: Bearer <driver-token>"
 
 # Rider rates the ride
 curl -X POST http://localhost:5000/api/ride/rating/RIDE_ID \
-  -H "Authorization: Bearer <rider-token>" \
   -H "Content-Type: application/json" \
   -d '{"rating": 5}'
 ```
