@@ -8,7 +8,7 @@ import { RideStatus } from '../ride/ride.interface';
 import { Ride } from '../ride/ride.model';
 import { UserRole } from '../user/user.interface';
 import { User } from "../user/user.model";
-import { driverSearchableFields, excludeField, rideSearchableField, searchableFields } from "./admin.constrain";
+import { driverSearchableFields, excludeField, searchableFields } from "./admin.constrain";
 import { approvalParam, blockParam, suspendParam } from './admin.type';
 
 
@@ -50,10 +50,12 @@ export const getAllDriversServices = async ( query?: Record<string, string> ) =>
 
     const users = modelQuery.searchableField( driverSearchableFields ).filter( excludeField ).sort().fields().pagination();
 
-    const [data, meta] = await Promise.all( [
+    const [ data, meta ] = await Promise.all( [
         users.modelQuery.exec(),
         modelQuery.getMeta()
     ] );
+
+    console.log(data)
 
     return {
         data,
@@ -79,10 +81,10 @@ export const allRideService = async ( query?: Record<string, string> ) =>
 {
     const modelQuery = new QueryBuilder( Ride.find().populate( "driver" ).populate( "rider" ).select( "-password" ), query );
 
-    const users = modelQuery.searchableField( rideSearchableField ).filter( excludeField ).sort().fields().pagination();
+    const users = modelQuery.filter( excludeField ).sort().fields().pagination();
 
-    const [ data, meta ] = await Promise.all( [
-        users.build(),
+    const [data, meta] = await Promise.all( [
+        users.modelQuery.exec(),
         modelQuery.getMeta()
     ] );
 
@@ -94,14 +96,15 @@ export const allRideService = async ( query?: Record<string, string> ) =>
 
 export const getRideByIdService = async ( rideId: string ) =>
 {
-    // console.log( userId );
-    const ride = await Driver.findById(new mongoose.Types.ObjectId(rideId) ).populate( "rider" ).populate("driver").populate("driverUserName");
+    // console.log( rideId );
+    const ride = await Ride.findById( rideId ).populate( "rider" ).populate( "driver" ).select( "-password" );
 
     if ( !ride )
     {
         throw new AppError( httpStatus.NOT_FOUND, "ride not found" );
     }
 
+    console.log(ride)
     return ride;
 };
 

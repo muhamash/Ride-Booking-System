@@ -6,4 +6,4 @@ export const searchableFields: string[] = [ "username", "email", "role", "name" 
 
 export const driverSearchableFields: string[] = [ "username", "driverStatus" ];
 
-export const rideSearchableField: string[] = [ "pickUpLocation", "dropOffLocation", "driverUserName", "riderUserName", "cancelledBy" ];
+export const rideSearchableField = ["driver", "rider"];

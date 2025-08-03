@@ -5,293 +5,618 @@ A **scalable ride-booking backend system** built with **TypeScript, Express.js, 
 - 🔐 Role-based Access Control (ADMIN, DRIVER, RIDER)
 - 🛡 JWT + Passport Authentication
 - 🧾 Zod schema validation
-- 📍 `MOCK` Location tracking
+- 📍 Location tracking with geolocation
 - 🧩 Modular route architecture
 - 🛠️ Scheduled jobs (`cron`) for user state updates
 - ✅ Robust error handling
+- ⭐ Rating system for completed rides
+- 🚗 Vehicle management for drivers
 
 ---
-
-## Role based access
-
-## Business logics
-
-## validations and permission
-
-## Extra features
-
-
-# filters and search query
-# rider and driver and user states
-# what driver can do?
-# what rider can do?
-# what admin can do? 
-
 
 ## 📁 Project Structure
 
 ```
 src/
 ├── modules/
-│   ├── auth/
-│   ├── user/
-│   ├── driver/
-│   ├── ride/
-│   ├── admin/
-├── middlewares/
-├── utils/
-├── routes/
-└── config/
+│   ├── auth/          # Authentication logic
+│   ├── user/          # User management
+│   ├── driver/        # Driver operations
+│   ├── ride/          # Ride booking system
+│   ├── admin/         # Admin panel operations
+├── middlewares/       # Auth, validation, location tracking
+├── utils/            # Helper functions
+├── routes/           # Route definitions
+└── config/          # Database and app configuration
 ```
 
 ---
 
 ## ⚙️ Tech Stack
 
-| Tech             | Usage                                      |
-|------------------|---------------------------------------------|
-| **TypeScript**   | Type-safe Node.js runtime                   |
-| **Express.js**   | Backend web framework                       |
-| **MongoDB + Mongoose** | NoSQL database + ODM                   |
-| **Zod**          | Request schema validation                   |
-| **JWT + Passport.js** | Secure user authentication             |
-| **GeoIP & Location** | Track user/device location via IP        |
-| **CRON Jobs**    | Scheduled offline user clean-up             |
+| Technology | Purpose |
+|------------|---------|
+| **TypeScript** | Type-safe Node.js runtime |
+| **Express.js** | Backend web framework |
+| **MongoDB + Mongoose** | NoSQL database + ODM |
+| **Zod** | Request schema validation |
+| **JWT + Passport.js** | Secure authentication |
+| **GeoIP & Location** | Track user/device location |
+| **CRON Jobs** | Scheduled background tasks |
+| **Cookie Parser** | Session management |
+| **CORS** | Cross-origin resource sharing |
 
 ---
 
-## 👥 User Roles
+## 👥 User Roles & Permissions
 
-| Role     | Description                                  |
-|----------|----------------------------------------------|
-| `ADMIN`  | Full access to all data and user control     |
-| `DRIVER` | Accept and complete rides                    |
-| `RIDER`  | Request rides and manage ride status         |
+### 🏠 ADMIN
+- **Full system access** - Can manage all users, drivers, and rides
+- **User Management** - Block/unblock users, delete blocked users
+- **Driver Management** - Suspend/unsuspend drivers, approve driver applications
+- **Ride Management** - View all rides, delete rides
+- **Analytics** - Access to all system data
 
----
+### 🚗 DRIVER
+- **Ride Operations** - Accept, pickup, transit, and complete rides
+- **Vehicle Management** - Update vehicle information
+- **Status Management** - Check ride requests, manage driver state
+- **Profile Updates** - Update personal information
 
-## 🧠 User Journey Overview
-
-1. 🔐 **Auth**
-   - Login & receive JWT
-   - JWT attached to protected requests via `cookie`
-
-2. 🧍 **Rider Flow**
-   - Rider logs in
-   - Requests a ride `/ride/request`
-   - May cancel before it is accepted `/ride/request/cancel/:id`
-
-3. 👨‍✈️ **Driver Flow**
-   - Driver logs in
-   - Checks for ride requests `/driver/check-ride-request`
-   - Accepts `/driver/accept-ride-request/:id`
-   - Marks pick-up ➝ in-transit ➝ complete
-
-4. 👮 **Admin Flow**
-   - Gets all users, rides, drivers
-   - Blocks users, suspends drivers, deletes rides
+### 🧍 RIDER
+- **Ride Booking** - Request rides with location coordinates
+- **Ride Rating** - Rate completed rides (1-5 stars)
+- **Profile Management** - Update personal information
 
 ---
 
-## 📦 API Endpoints
+## 🔄 Complete User Journey
 
-### 🔐 Auth APIs (`/api/auth`)
+### 1. 🔐 Authentication Flow
+```
+1. User registers → Creates account with role
+2. User logs in → Receives JWT token (stored in cookie)
+3. Token validates requests → Middleware checks permissions
+4. User logs out → Token invalidated, location updated
+```
 
-| Method | Endpoint                  | Description                     |
-|--------|---------------------------|---------------------------------|
-| POST   | `/login`                  | User login                      |
-| POST   | `/logout`                 | Logout & update location        |
-| POST   | `/refresh-token`          | Refresh JWT token               |
+### 2. 🧍 Rider Journey
+```
+1. Rider logs in → JWT token issued
+2. Request ride → POST /api/ride/request (lat, lng)
+3. Wait for driver → System matches with available drivers
+4. Ride accepted → Driver picks up rider
+5. Ride completed → Rate the experience
+```
 
----
+### 3. 👨‍✈️ Driver Journey
+```
+1. Driver logs in → Status set to AVAILABLE
+2. Check requests → GET /api/driver/check-ride-request
+3. Accept ride → POST /api/driver/accept-ride-request/:id
+4. Pick up rider → PATCH /api/driver/pick-up/:id
+5. Start journey → PATCH /api/driver/in-transit/:id
+6. Complete ride → PATCH /api/driver/complete-ride/:id
+```
 
-### 👤 User APIs (`/api/user`)
-
-| Method | Endpoint                    | Description              |
-|--------|-----------------------------|--------------------------|
-| POST   | `/create`                   | Register new user       |
-| GET    | `/me`                       | Get current user info   |
-| PATCH  | `/update-user/:id`          | Update user profile     |
-| GET    | `/user-state/:id`           | Get user current state  |
-
----
-
-### 🛺 Ride APIs (`/api/ride`)
-
-| Method | Endpoint                    | Description                        |
-|--------|-----------------------------|------------------------------------|
-| POST   | `/request`                  | Request a new ride (RIDER)         |
-| POST   | `/request/cancel/:id`       | Cancel a ride before pickup        |
-
----
-
-### 🚗 Driver APIs (`/api/driver`)
-
-| Method | Endpoint                          | Description                           |
-|--------|-----------------------------------|---------------------------------------|
-| GET    | `/check-ride-request`             | View available ride requests          |
-| POST   | `/accept-ride-request/:id`        | Accept a ride                         |
-| POST   | `/cancel-ride-request/:id`        | Cancel a ride (any role)              |
-| PATCH  | `/pick-up/:id`                    | Mark ride as picked up                |
-| PATCH  | `/in-transit/:id`                 | Mark ride in progress                 |
-| PATCH  | `/complete-ride/:id`              | Mark ride as completed                |
-| PATCH  | `/driver-update/:id`              | Update driver info                    |
-| GET    | `/driver-state/:id`               | Get driver ride status                |
-
----
-
-### 🛠️ Admin APIs (`/api/admin`)
-
-| Method | Endpoint                            | Description                          |
-|--------|-------------------------------------|--------------------------------------|
-| GET    | `/user/all`                         | List all users                       |
-| GET    | `/user/:id`                         | Get specific user                    |
-| PATCH  | `/block-user/:id/:blockParam`       | Block/unblock user                   |
-| DELETE | `/delete-blocked-user/:id`          | Remove blocked user                  |
-| GET    | `/driver/all`                       | List all drivers                     |
-| GET    | `/driver/:id`                       | Get specific driver                  |
-| PATCH  | `/suspend-driver/:id/:suspendParam` | Suspend/unsuspend driver             |
-| GET    | `/all-rides`                        | Get all ride requests                |
-| GET    | `/ride/:id`                         | Get ride by ID                       |
-| DELETE | `/ride/:id`                         | Delete a ride                        |
-
----
-
-## 📍 Location Tracking
-
-Each protected route uses `updateUserLocationIntoDb` to:
-
-- Reverse geocode with Mock IP's
-- Track location changes (admin analytics / driver tracking)
-
----
-
-## ✅ Validation – Zod
-
-All incoming requests are validated using **Zod schemas** before hitting the business logic layer.
-
-Example:
-```ts
-const authLogin = z.object({
-  email: z.string().email(),
-  password: z.string().min(6)
-});
+### 4. 👮 Admin Journey
+```
+1. Admin logs in → Full system access
+2. Monitor users → GET /api/admin/user/all
+3. Manage drivers → Approve/suspend as needed
+4. Oversee rides → View and manage all ride data
+5. System maintenance → Block problematic users
 ```
 
 ---
 
-## 🧪 Sample cURL Request
+## 📦 Complete API Reference
 
-### Registration
+### 🔐 Authentication APIs (`/api/auth`)
 
+| Method | Endpoint | Access | Description | Request Body |
+|--------|----------|--------|-------------|--------------|
+| `POST` | `/login` | Public | User login with email/password | `{email, password}` |
+| `POST` | `/logout` | Protected | Logout and update location | `{}` |
+| `POST` | `/refresh-token` | Protected | Refresh JWT token | `{}` |
+
+**Sample Login Request:**
 ```bash
-curl -X POST http://localhost:5000/api/user/create \
+curl -X POST http://localhost:5000/api/auth/login \
   -H "Content-Type: application/json" \
   -d '{
-  "name": "Ashraful",
-  "email": "ashraful.rider@example.com",
-  "password": "SecurePass1",
+    "email": "driver@example.com",
+    "password": "SecurePass123"
+  }'
+```
+
+---
+
+### 👤 User Management APIs (`/api/user`)
+
+| Method | Endpoint | Access | Description | Request Body |
+|--------|----------|--------|-------------|--------------|
+| `POST` | `/create` | Public | Register new user | `{name, email, password, role, vehicleInfo?, driverStatus?}` |
+| `GET` | `/me` | Protected | Get current user profile | `{}` |
+| `PATCH` | `/update-user/:id` | Protected | Update user information | `{name?, password?}` |
+
+**Sample Registration Requests:**
+
+*Rider Registration:*
+```json
+{
+  "name": "John Doe",
+  "email": "john.rider@example.com",
+  "password": "SecurePass123",
   "role": "rider"
 }
-'
-# driver
-`{
-  "name": "Rafsan the Driver",
-  "email": "driver.rafsan@example.com",
+```
+
+*Driver Registration:*
+```json
+{
+  "name": "Mike Driver",
+  "email": "mike.driver@example.com",
   "password": "DriveSafe2024",
-  "role": "driver"
+  "role": "driver",
   "vehicleInfo": {
     "license": "ABC123456",
     "model": "Toyota Corolla",
     "plateNumber": "DHK1234"
   },
   "driverStatus": "AVAILABLE"
-}`
+}
+```
 
-# admin
-`{
+*Admin Registration:*
+```json
+{
   "name": "System Admin",
   "email": "admin@example.com",
-  "password": "AdminSecurePass1",
+  "password": "AdminSecure123",
   "role": "admin"
 }
-`
-
-
-
-```
-
-
-### Login
-```bash
-curl -X POST http://localhost:5000/api/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{"email": "driver@example.com", "password": "123456"}'
-```
-
-### Request Ride (RIDER)
-```bash
-curl -X POST http://localhost:5000/api/ride/request \
-  -H "Authorization: Bearer <token>" \
-  -H "Content-Type: application/json" \
-  -d '{"lat": "34.56", "lng": "34.343"}'
-
-# dhaka nearby lat,lng
-  {
-    "lat": 23.81,
-    "lng":  90.41
-}
-
 ```
 
 ---
 
-## ⏱ Background Jobs
+### 🛺 Ride Management APIs (`/api/ride`)
 
-- 🕛 `scheduleUserOfflineJob()` – Periodically marks users offline if inactive
+| Method | Endpoint | Access | Description | Request Body |
+|--------|----------|--------|-------------|--------------|
+| `POST` | `/request` | Rider/Admin | Request a new ride | `{lat, lng}` |
+| `POST` | `/rating/:id` | Rider/Admin | Rate completed ride | `{rating}` |
+
+**Sample Ride Request:**
+```bash
+curl -X POST http://localhost:5000/api/ride/request \
+  -H "Content-Type: application/json" \
+  -d '{
+    "lat": 23.81,
+    "lng": 90.41
+  }'
+```
+
+**Sample Rating Request:**
+```json
+{
+  "rating": 5
+}
+```
+
+---
+
+### 🚗 Driver Operations APIs (`/api/driver`)
+
+| Method | Endpoint | Access | Description | Request Body |
+|--------|----------|--------|-------------|--------------|
+| `POST` | `/check-ride-request` | Driver | Check available ride requests | `{}` |
+| `POST` | `/accept-ride-request/:id` | Driver/Admin | Accept a ride request | `{}` |
+| `POST` | `/cancel-ride-request/:id` | All Roles | Cancel a ride request | `{}` |
+| `PATCH` | `/pick-up/:id` | Driver | Mark ride as picked up | `{}` |
+| `PATCH` | `/in-transit/:id` | Driver | Mark ride in progress | `{}` |
+| `PATCH` | `/complete-ride/:id` | Driver | Mark ride as completed | `{}` |
+| `PATCH` | `/driver-update-vehicle/:id` | Driver/Admin | Update vehicle information | `{license?, model?, plateNumber?}` |
+| `GET` | `/driver-state/:id` | Driver/Admin | Get driver current state | `{}` |
+
+**Sample Vehicle Update:**
+```json
+{
+  "license": "XYZ789012",
+  "model": "Honda Civic",
+  "plateNumber": "DHK5678"
+}
+```
+
+---
+
+### 🛠️ Admin Panel APIs (`/api/admin`)
+
+#### User Management
+| Method | Endpoint | Access | Description | Parameters |
+|--------|----------|--------|-------------|------------|
+| `GET` | `/user/all` | Admin | List all users | - |
+| `GET` | `/user/:id` | Admin | Get specific user | `id` |
+| `PATCH` | `/block-user/:id/:blockParam` | Admin | Block/unblock user | `block` or `rollback` |
+| `DELETE` | `/delete-blocked-user/:id` | Admin | Delete blocked user | `id` |
+
+#### Driver Management
+| Method | Endpoint | Access | Description | Parameters |
+|--------|----------|--------|-------------|------------|
+| `GET` | `/driver/all` | Admin | List all drivers | - |
+| `GET` | `/driver/:id` | Admin | Get specific driver | `id` |
+| `PATCH` | `/suspend-driver/:id/:suspendParam` | Admin | Suspend/unsuspend driver | `suspend` or `rollback` |
+| `PATCH` | `/approve-driver/:id/:approveParam` | Admin | Approve driver application | `approved` or `notApproved` |
+
+#### Ride Management
+| Method | Endpoint | Access | Description | Parameters |
+|--------|----------|--------|-------------|------------|
+| `GET` | `/all-rides` | Admin | Get all ride requests | - |
+| `GET` | `/ride/:id` | Admin | Get ride by ID | `id` |
+| `DELETE` | `/ride/:id` | Admin | Delete a ride | `id` |
+
+**Sample Admin Operations:**
+```bash
+# Block a user
+curl -X PATCH http://localhost:5000/api/admin/block-user/123/block \
+  -H "Authorization: Bearer <admin-token>"
+
+# Approve a driver
+curl -X PATCH http://localhost:5000/api/admin/approve-driver/456/approved \
+  -H "Authorization: Bearer <admin-token>"
+```
+
+---
+
+## 🔍 Validation Schemas (Zod)
+
+### User Registration Schema
+```typescript
+const zodUserSchema = z.object({
+  name: z.string().min(2).max(50),
+  email: z.string().email(),
+  password: z.string()
+    .min(8)
+    .regex(/^(?=.*[A-Z])/, "Must contain uppercase letter")
+    .regex(/^(?=.*[!@#$%^&*])/, "Must contain special character")
+    .regex(/^(?=.*\d)/, "Must contain number"),
+  role: z.enum(["admin", "driver", "rider"]),
+  vehicleInfo: z.object({
+    license: z.string().min(1),
+    model: z.string().min(1),
+    plateNumber: z.string().min(1)
+  }).optional(),
+  driverStatus: z.enum(["AVAILABLE", "BUSY", "OFFLINE"]).optional()
+});
+```
+
+### Ride Request Schema
+```typescript
+const zodRideRequest = z.object({
+  lat: z.number().min(-90).max(90),
+  lng: z.number().min(-180).max(180)
+});
+```
+
+### Rating Schema
+```typescript
+const ratingZodSchema = z.object({
+  rating: z.number().min(1).max(5)
+});
+```
+
+### Vehicle Update Schema
+```typescript
+const vehicleInfoZodSchema = z.object({
+  license: z.string().min(1).optional(),
+  model: z.string().min(1).optional(),
+  plateNumber: z.string().min(1).optional()
+}).refine(
+  data => Object.keys(data).some(key => data[key] !== undefined),
+  "At least one field must be provided for update"
+);
+```
+
+### User Update Schema
+```typescript
+const updateUserZodSchema = z.object({
+  name: z.string().min(2).max(50).optional(),
+  password: z.string()
+    .min(8)
+    .regex(/^(?=.*[A-Z])/, "Must contain uppercase letter")
+    .regex(/^(?=.*[!@#$%^&*])/, "Must contain special character")
+    .regex(/^(?=.*\d)/, "Must contain number")
+    .optional()
+}).refine(
+  data => Object.values(data).some(val => val !== undefined),
+  "At least one field must be provided for update"
+);
+```
+
+---
+
+## 📍 Location Tracking System
+
+### How It Works
+1. **Automatic Tracking**: Every protected route automatically updates user location
+2. **IP-based Location**: Uses GeoIP to determine approximate location
+3. **Manual Coordinates**: Riders provide exact pickup coordinates
+4. **Real-time Updates**: Location updated on login, logout, and API calls
+
+### Location Middleware
+```typescript
+// Automatically applied to protected routes
+updateUserLocationIntoDb(req, res, next)
+trackLocationByLatLng(req, res, next)
+```
+
+---
+
+## 🛡️ Security Features
+
+### Authentication & Authorization
+- **JWT Tokens**: Secure token-based authentication
+- **Role-based Access**: Different permissions for each user type
+- **Cookie Storage**: Secure token storage in HTTP-only cookies
+- **Session Management**: Passport.js session handling
+
+### Input Validation
+- **Zod Schemas**: Comprehensive request validation
+- **Type Safety**: TypeScript ensures type consistency
+- **Error Handling**: Graceful error responses
+- **SQL Injection Prevention**: MongoDB's natural protection
+
+### Security Middleware
+```typescript
+// Applied to all routes
+app.use(cors());
+app.use(cookieParser());
+app.use(express.json());
+app.use(passport.initialize());
+app.use(passport.session());
+```
+
+---
+
+## ⏱ Background Jobs & Automation
+
+### Scheduled Tasks
+```typescript
+// User offline status management
+scheduleUserOfflineJob(); // Runs via cron
+```
+
+### Features
+- **Auto-offline**: Mark inactive users as offline
+- **Location Updates**: Continuous location tracking
+- **Status Management**: Automatic driver status updates
+- **System Cleanup**: Remove expired sessions
 
 ---
 
 ## 🧰 Error Handling
 
-Custom global error middleware:
-- API-safe errors
-- Consistent response structure
-- Handles Zod, JWT, and DB errors 
+### Global Error Middleware
+- **Consistent Responses**: Standardized error format
+- **Zod Validation Errors**: User-friendly validation messages
+- **JWT Errors**: Authentication error handling
+- **Database Errors**: MongoDB error management
+- **Custom Errors**: Application-specific error types
+
+### Error Response Format
+```json
+{
+  "success": false,
+  "message": "Error description",
+  "errors": ["Detailed error messages"],
+  "statusCode": 400
+}
+```
 
 ---
 
 ## 🚀 Getting Started
 
+### Prerequisites
+- Node.js (v14 or higher)
+- MongoDB (v4.4 or higher)
+- npm or yarn
+
+### Installation
 ```bash
+# Clone the repository
+git clone <repository-url>
+cd ride-system-backend
+
 # Install dependencies
 npm install
 
-# Copy env example
+# Copy environment variables
 cp .env.example .env
 
-# Run dev server
+# Configure your environment
+# Edit .env with your settings
+
+# Start development server
 npm run dev
 ```
 
----
-
-## 📌 .env Example
-
+### Environment Variables
 ```env
+# Server Configuration
 PORT=5000
+NODE_ENV=development
+
+# Database
 MONGO_URI=mongodb://localhost:27017/ride_system
-JWT_SECRET=wt_secret
+
+# Authentication
+JWT_SECRET=your_super_secure_jwt_secret_key_here
 TOKEN_EXPIRES_IN=1d
+
+# Session
+SESSION_SECRET=your_session_secret_here
+
+# Optional: External Services
+GEOIP_API_KEY=your_geoip_api_key
 ```
 
 ---
+
+## 🧪 API Testing Examples
+
+### Complete Testing Flow
+
+#### 1. Register Users
+```bash
+# Register a rider
+curl -X POST http://localhost:5000/api/user/create \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Alice Rider",
+    "email": "alice@example.com",
+    "password": "SecurePass123",
+    "role": "rider"
+  }'
+
+# Register a driver
+curl -X POST http://localhost:5000/api/user/create \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Bob Driver",
+    "email": "bob@example.com",
+    "password": "DriveSafe2024",
+    "role": "driver",
+    "vehicleInfo": {
+      "license": "ABC123456",
+      "model": "Toyota Corolla",
+      "plateNumber": "DHK1234"
+    },
+    "driverStatus": "AVAILABLE"
+  }'
+```
+
+#### 2. Login and Get Tokens
+```bash
+# Login as rider
+curl -X POST http://localhost:5000/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email": "alice@example.com", "password": "SecurePass123"}'
+
+# Login as driver
+curl -X POST http://localhost:5000/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email": "bob@example.com", "password": "DriveSafe2024"}'
+```
+
+#### 3. Complete Ride Flow
+```bash
+# Rider requests ride
+curl -X POST http://localhost:5000/api/ride/request \
+  -H "Authorization: Bearer <rider-token>" \
+  -H "Content-Type: application/json" \
+  -d '{"lat": 23.81, "lng": 90.41}'
+
+# Driver checks available requests
+curl -X POST http://localhost:5000/api/driver/check-ride-request \
+  -H "Authorization: Bearer <driver-token>"
+
+# Driver accepts ride
+curl -X POST http://localhost:5000/api/driver/accept-ride-request/RIDE_ID \
+  -H "Authorization: Bearer <driver-token>"
+
+# Driver picks up rider
+curl -X PATCH http://localhost:5000/api/driver/pick-up/RIDE_ID \
+  -H "Authorization: Bearer <driver-token>"
+
+# Driver starts journey
+curl -X PATCH http://localhost:5000/api/driver/in-transit/RIDE_ID \
+  -H "Authorization: Bearer <driver-token>"
+
+# Driver completes ride
+curl -X PATCH http://localhost:5000/api/driver/complete-ride/RIDE_ID \
+  -H "Authorization: Bearer <driver-token>"
+
+# Rider rates the ride
+curl -X POST http://localhost:5000/api/ride/rating/RIDE_ID \
+  -H "Authorization: Bearer <rider-token>" \
+  -H "Content-Type: application/json" \
+  -d '{"rating": 5}'
+```
+
+---
+
+## 🔧 Development & Deployment
+
+### Available Scripts
+```bash
+# Development
+npm run dev          # Start with nodemon
+npm run build        # Compile TypeScript
+npm run start        # Production start
+
+# Testing
+npm run test         # Run test suite
+npm run test:watch   # Watch mode testing
+
+# Linting
+npm run lint         # ESLint check
+npm run lint:fix     # Auto-fix issues
+```
+
+### Production Deployment
+1. **Environment Setup**: Configure production environment variables
+2. **Database**: Set up MongoDB cluster
+3. **Build**: Compile TypeScript (`npm run build`)
+4. **Process Manager**: Use PM2 for process management
+5. **Reverse Proxy**: Configure Nginx for load balancing
+6. **SSL**: Set up HTTPS certificates
+7. **Monitoring**: Implement logging and monitoring
+
+---
+
+## 📊 Database Schema Overview
+
+### Collections
+- **users**: User profiles and authentication data
+- **rides**: Ride requests and journey information
+- **sessions**: User session management
+- **locations**: Location tracking history
+
+### Key Relationships
+- User → Rides (One-to-Many)
+- Driver → Vehicle Info (One-to-One)
+- Ride → Rating (One-to-One)
+- User → Location History (One-to-Many)
+
+---
+
+## 🎯 Business Logic Summary
+
+### Core Features
+1. **Multi-role System**: Admins, Drivers, and Riders with distinct capabilities
+2. **Real-time Matching**: Connect riders with available drivers
+3. **Location Services**: GPS tracking and location-based matching
+4. **Rating System**: Quality assurance through rider feedback
+5. **Admin Panel**: Complete system management and oversight
+6. **Vehicle Management**: Driver vehicle registration and updates
+7. **Status Tracking**: Real-time ride and user status updates
+
+### Advanced Features
+1. **Background Jobs**: Automated system maintenance
+2. **Permission System**: Granular access control
+3. **Validation Layer**: Comprehensive input validation
+4. **Error Handling**: Robust error management
+5. **Session Management**: Secure user sessions
+6. **Location Tracking**: Continuous location updates
 
 ---
 
 ## 🧑‍💻 Author
 
 **Muhammad Ashraful**  
-Full-Stack Developer 
+Full-Stack Software engineer  
+📧 Contact: muhammad-ashraful@outlook.com 
+🔗 GitHub: github.com/muhamash
 
-----
+---

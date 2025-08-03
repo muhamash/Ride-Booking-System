@@ -13,8 +13,8 @@ router.get( "/user/:id", checkAuth( UserRole.ADMIN ), getUserById );
 router.get( "/driver/all", checkAuth( UserRole.ADMIN ), getAllDrivers );
 router.get( "/driver/:id", checkAuth( UserRole.ADMIN ), getDriverById );
 
-router.get( "/all-rides", checkAuth( UserRole.ADMIN ), getAllRides ); //not tested
-router.get( "/ride/:id", checkAuth( UserRole.ADMIN ), getRideById ); //not tested
+router.get( "/all-rides", checkAuth( UserRole.ADMIN ), getAllRides ); 
+router.get( "/ride/:id", checkAuth( UserRole.ADMIN ), getRideById );
 
 router.patch( "/suspend-driver/:id/:suspendParam", checkAuth( UserRole.ADMIN ),checkUpdatePermission, suspendDriverById );
 

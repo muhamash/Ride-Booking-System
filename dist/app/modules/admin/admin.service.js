@@ -45,6 +45,7 @@ const getAllDriversServices = async (query) => {
         users.modelQuery.exec(),
         modelQuery.getMeta()
     ]);
+    console.log(data);
     return {
         data,
         meta,
@@ -62,9 +63,9 @@ const getDriverByIdService = async (userId) => {
 exports.getDriverByIdService = getDriverByIdService;
 const allRideService = async (query) => {
     const modelQuery = new queybuilder_util_1.QueryBuilder(ride_model_1.Ride.find().populate("driver").populate("rider").select("-password"), query);
-    const users = modelQuery.searchableField(admin_constrain_1.rideSearchableField).filter(admin_constrain_1.excludeField).sort().fields().pagination();
+    const users = modelQuery.filter(admin_constrain_1.excludeField).sort().fields().pagination();
     const [data, meta] = await Promise.all([
-        users.build(),
+        users.modelQuery.exec(),
         modelQuery.getMeta()
     ]);
     return {
@@ -74,11 +75,12 @@ const allRideService = async (query) => {
 };
 exports.allRideService = allRideService;
 const getRideByIdService = async (rideId) => {
-    // console.log( userId );
-    const ride = await driver_model_1.Driver.findById(new mongoose_1.default.Types.ObjectId(rideId)).populate("rider").populate("driver").populate("driverUserName");
+    // console.log( rideId );
+    const ride = await ride_model_1.Ride.findById(rideId).populate("rider").populate("driver").select("-password");
     if (!ride) {
         throw new App_error_1.AppError(http_status_codes_1.default.NOT_FOUND, "ride not found");
     }
+    console.log(ride);
     return ride;
 };
 exports.getRideByIdService = getRideByIdService;
