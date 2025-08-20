@@ -7,8 +7,10 @@ import { createUserService, getUserByIdService, updateUserService } from "./user
 
 export const createUser = asyncHandler( async ( req: Request, res: Response ): Promise<void> =>
 {
-    // console.log(req.userLocation)
+    // console.log(req.body)
     const user = await createUserService( req.body );
+
+    // console.log(user)
 
     if ( !user )
     {

@@ -6,7 +6,6 @@ import passport from 'passport';
 import "../config/auth/passport.config";
 import { globalErrorResponse } from './middlewares/globalError.middleware';
 import { globalNotFoundResponse } from './middlewares/notFoundRoute.middleware';
-import { trackLocationByLatLng } from './middlewares/trackLocation.middleware';
 import { homeRoute } from './modules/home/home.controller';
 import { adminRouter } from './routes/admin.route';
 import { firstVersionRouter } from './routes/module.route';
@@ -25,7 +24,8 @@ app.use( passport.session() );
 app.use( cookieParser() );
 app.use( express.json() );
 app.use( cors( {
-    origin: "*"
+    origin: "http://localhost:5173",
+    credentials: true
 }) );
 
 

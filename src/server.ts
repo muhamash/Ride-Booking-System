@@ -22,7 +22,7 @@ const startServer = async () =>
 
         // Attach Socket.IO
         const io = new SocketIOServer( server, {
-            cors: { origin: "*" },
+            cors: { origin: "http://localhost:5173" },
         } );
 
         io.on( "connection", ( socket: Socket ) =>
@@ -49,7 +49,7 @@ const startServer = async () =>
                         { upsert: true, new: true }
                     );
 
-                    console.log(user, locationPayload)
+                    // console.log(locationPayload)
                 }
                 catch ( err )
                 {
