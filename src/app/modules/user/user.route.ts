@@ -13,8 +13,7 @@ router.post( "/create", validateRequest( zodUserSchema ), createUser );
 
 router.get(
   "/me", 
-  checkAuth(UserRole.ADMIN, UserRole.DRIVER, UserRole.RIDER), 
-  updateUserLocationIntoDb, 
+  checkAuth(UserRole.ADMIN, UserRole.DRIVER, UserRole.RIDER),  
   getMe
 );
 

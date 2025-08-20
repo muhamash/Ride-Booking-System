@@ -9,10 +9,10 @@ import { verifyToken } from "../utils/middleware.util";
 
 // Extend the JwtPayload interface to include your custom token fields
 interface CustomJwtPayload extends JwtPayload {
-  username: string;
-  role: UserRole;
+    username: string;
+    role: UserRole;
     userId: string;
-     name: string;
+    name: string;
 };
 
 export const checkAuth = (...authRoles: UserRole[]) => 
@@ -50,9 +50,12 @@ export const checkAuth = (...authRoles: UserRole[]) =>
         }
 
         req.user = verifiedToken;
+        req.userLocation = user.location;
 
         next();
-    } catch (error: unknown) {
+    }
+    catch ( error: unknown )
+    {
         if (error instanceof AppError) {
             next(error);
         } else if (error instanceof Error) {

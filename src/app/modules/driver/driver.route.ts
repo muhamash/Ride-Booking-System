@@ -8,17 +8,17 @@ import { vehicleInfoZodSchema } from "./driver.validation";
 
 const router = Router();
 
-router.post( "/check-ride-request", checkAuth(  UserRole.DRIVER ), updateUserLocationIntoDb, checkRideRequest );
+router.post( "/check-ride-request", checkAuth(  UserRole.DRIVER ), checkRideRequest );
 
-router.post( "/accept-ride-request/:id", checkAuth( UserRole.DRIVER, UserRole.ADMIN ), updateUserLocationIntoDb, acceptRideRequest );
+router.post( "/accept-ride-request/:id", checkAuth( UserRole.DRIVER, UserRole.ADMIN ), acceptRideRequest );
 
-router.post( "/cancel-ride-request/:id", checkAuth( UserRole.ADMIN, UserRole.DRIVER, UserRole.RIDER ), updateUserLocationIntoDb, cancelRideRequest );
+router.post( "/cancel-ride-request/:id", checkAuth( UserRole.ADMIN, UserRole.DRIVER, UserRole.RIDER ), cancelRideRequest );
 
-router.patch( "/pick-up/:id", checkAuth( UserRole.DRIVER ), updateUserLocationIntoDb, pickUpRide );
+router.patch( "/pick-up/:id", checkAuth( UserRole.DRIVER ), pickUpRide );
 
-router.patch( "/in-transit/:id", checkAuth(UserRole.DRIVER), updateUserLocationIntoDb, inTransitRide );
+router.patch( "/in-transit/:id", checkAuth(UserRole.DRIVER), inTransitRide );
 
-router.patch( "/complete-ride/:id", checkAuth( UserRole.DRIVER ), updateUserLocationIntoDb, completeRide );
+router.patch( "/complete-ride/:id", checkAuth( UserRole.DRIVER ), completeRide );
 
 router.patch( "/driver-update-vehicle/:id", checkAuth( UserRole.DRIVER, UserRole.ADMIN ), validateRequest( vehicleInfoZodSchema ), updateVehicleInfo );
 

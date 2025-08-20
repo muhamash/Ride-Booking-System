@@ -24,17 +24,19 @@ app.use( passport.initialize() );
 app.use( passport.session() );
 app.use( cookieParser() );
 app.use( express.json() );
-app.use( cors() );
+app.use( cors( {
+    origin: "*"
+}) );
 
 
 // user set offline job --> corn
 scheduleUserOfflineJob()
 
 // professional route
-app.get( "/",trackLocationByLatLng, homeRoute )
-app.use( "/api",trackLocationByLatLng, firstVersionRouter )
-app.use( "/api",trackLocationByLatLng, adminRouter );
-app.use( "/api",trackLocationByLatLng, riderRouter );
+app.get( "/", homeRoute )
+app.use( "/api", firstVersionRouter )
+app.use( "/api", adminRouter );
+app.use( "/api", riderRouter );
 
 // global not found routes
 app.use( globalNotFoundResponse )
