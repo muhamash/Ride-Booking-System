@@ -15,7 +15,7 @@ const startServer = async () => {
         const server = http_1.default.createServer(app_1.default);
         // Attach Socket.IO
         const io = new socket_io_1.Server(server, {
-            cors: { origin: "*" },
+            cors: { origin: "http://localhost:5173" },
         });
         io.on("connection", (socket) => {
             console.log("Client connected:", socket.id);
@@ -30,7 +30,7 @@ const startServer = async () => {
                     };
                     // Save/update in DB
                     const user = await user_model_1.User.findOneAndUpdate({ _id: data.userId }, { $set: { location: locationPayload } }, { upsert: true, new: true });
-                    console.log(user, locationPayload);
+                    // console.log(locationPayload)
                 }
                 catch (err) {
                     console.error("Failed to save location:", err);
