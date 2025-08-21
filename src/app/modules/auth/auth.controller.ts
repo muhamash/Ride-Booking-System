@@ -42,23 +42,39 @@ export const userLogin = asyncHandler( async ( req: Request, res: Response, next
   } )( req, res, next );
 } );
 
-export const userLogout = asyncHandler(async (req: Request, res: Response) => {
-  await setCookie(res, "refreshToken", "", 0);
-  await setCookie(res, "accessToken", "", 0);
-  console.log(req.user);
+export const userLogout = asyncHandler( async ( req: Request, res: Response ) =>
+{
+  await setCookie( res, "refreshToken", "", 0 );
+  await setCookie( res, "accessToken", "", 0 );
+  console.log( req.user );
   
-  if (!req.user?.userId) {
-    throw new AppError(httpStatus.BAD_REQUEST, "User ID not found in request");
+  if ( !req.user?.userId )
+  {
+    throw new AppError( httpStatus.BAD_REQUEST, "User ID not found in request" );
   }
-  
-  await userLogoutService(req.user.userId);
 
-  responseFunction(res, {
+  // const clearAccess = res.clearCookie( "accessToken", {
+  //   httpOnly: true,
+  //   sameSite: "lax",
+  //   secure: false
+  // } );
+    
+  // const clearRefresh = res.clearCookie( "refreshToken", {
+  //   httpOnly: true,
+  //   sameSite: "lax",
+  //   secure: false
+  // } );
+
+  // console.log(clearAccess, clearRefresh)
+  
+  await userLogoutService( req.user.userId );
+
+  responseFunction( res, {
     message: "User logged out successfully",
     statusCode: httpStatus.OK,
     data: null,
-  });
-});
+  } );
+} );
 
 export const getNewAccessToken = asyncHandler( async ( req: Request, res: Response ) =>
 {
