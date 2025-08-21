@@ -15,7 +15,7 @@ const startServer = async () => {
         const server = http_1.default.createServer(app_1.default);
         // Attach Socket.IO
         const io = new socket_io_1.Server(server, {
-            cors: { origin: "http://localhost:5173" },
+            cors: { origin: ["http://localhost:5173", "https://ride-system-frontend.vercel.app/"] },
         });
         io.on("connection", (socket) => {
             console.log("Client connected:", socket.id);
