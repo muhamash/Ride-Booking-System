@@ -4,7 +4,6 @@ import app from "./app/app";
 import { ILocation } from "./app/modules/user/user.interface";
 import { User } from "./app/modules/user/user.model";
 import { dbConnect } from "./config/db/mongoos.config";
-
 interface IUserLocation {
   userId: string;
   coordinates: [number, number];
@@ -27,7 +26,7 @@ const startServer = async () =>
 
         io.on( "connection", ( socket: Socket ) =>
         {
-            console.log( "Client connected:", socket.id );
+            console.log( "Client connected 😎 :", socket.id );
 
             // Listen for location updates
             socket.on( "update-location", async ( data: IUserLocation ) =>
