@@ -19,6 +19,7 @@ passport.use(
             try
             {
 
+                const userLocation = req.userLocation;
                 const user = await User.findOne( { email } );
                 let response
 
@@ -45,7 +46,7 @@ passport.use(
                     {
                         $set: {
                             isOnline: true,
-                            location: req.userLocation,
+                            location: userLocation,
                             lastOnlineAt: new Date(),
                         },
                     },

@@ -13,7 +13,7 @@ declare global {
 
     interface Request {
       user?: User;
-      userLocation?: ILocation;
+      userLocation?: ILocation | undefined;
       activeDriverPayload?: Record<string, string | number | object>[];
       targetUser?: any;
     }
