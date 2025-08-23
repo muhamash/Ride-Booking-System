@@ -4,97 +4,132 @@ import mongoose from "mongoose";
 import { AppError } from "../../../config/errors/App.error";
 import { reverseGeocode } from "../../utils/helperr.util";
 import { Driver } from "../driver/driver.model";
-import { ILocation } from "../user/user.interface";
+import { DriverStatus, VehicleInfo } from "../driver/river.interface";
+import { ILocation, UserRole } from "../user/user.interface";
+import { User } from "../user/user.model";
 import { RideStatus } from "./ride.interface";
 import { Ride } from "./ride.model";
+
+interface ActiveDriverPayload extends Record<string, string | number | object | any> {
+  driverId: string;
+  userId: string;
+  name: string;
+  email: string;
+  username: string;
+  location: ILocation;
+  isApproved: boolean;
+  avgRating: number;
+  vehicleInfo: VehicleInfo;
+}
+
 
 export const requestRideService = async (
     pickUpLocation: ILocation,
     user: any,
-    activeDrivers: any,
     dropLat: number,
     dropLng: number
 ) =>
 {
-    if ( !activeDrivers?.length )
+    if ( !pickUpLocation || !dropLat || !dropLng )
     {
-        throw new AppError(httpStatus.EXPECTATION_FAILED, "No drivers are online!!" );
+        throw new AppError( httpStatus.BAD_REQUEST, "Missing data: pickup or destination coordinates" );
     }
 
-    if ( !pickUpLocation ||  !dropLat || !dropLng )
+    // Get all online drivers
+    const driversRaw = await User.find( { isOnline: true, role: UserRole.DRIVER } )
+        .select( "-password username email name location" )
+        .populate<{
+            driver: {
+                _id: mongoose.Types.ObjectId;
+                driverStatus: DriverStatus;
+                isApproved: boolean;
+                vehicleInfo: VehicleInfo;
+                rating?: { averageRating?: number };
+            };
+        }>( "driver", "driverStatus isApproved vehicleInfo rating _id" )
+        .lean();
+
+    // Filter available drivers
+    const availableDrivers = driversRaw.filter(
+        ( u ) => u.driver?.driverStatus === DriverStatus.AVAILABLE
+    );
+
+    const activeDrivers: ActiveDriverPayload[] = availableDrivers.map( ( u ) => ( {
+        driverId: u.driver._id.toString(),
+        userId: u._id.toString(),
+        name: u.name,
+        username: u.username,
+        email: u.email,
+        location: u.location as ILocation,
+        isApproved: u.driver.isApproved,
+        avgRating: u.driver.rating?.averageRating || 0,
+        vehicleInfo: u.driver.vehicleInfo || ( {} as VehicleInfo ),
+    } ) );
+
+    if ( !activeDrivers.length )
     {
-        throw new AppError(httpStatus.EXPECTATION_FAILED, "Missing data: user location, or destination" );
+        throw new AppError( httpStatus.EXPECTATION_FAILED, "No drivers are online!" );
     }
 
-    const riderId : any = user.userId
-    const isExistRequest = await Ride.find( {
-        rider: riderId,
-        status: { $eq: RideStatus.REQUESTED }
+    // Check if the user already has a pending ride
+    const existingRide = await Ride.find( {
+        rider: user.userId,
+        status: RideStatus.REQUESTED,
     } );
-
-    // console.log(isExistRequest)
-    if ( isExistRequest.length > 0 )
+    if ( existingRide.length > 0 )
     {
-        throw new AppError(httpStatus.CONFLICT, "You have pending rides on database!!" );
+        throw new AppError( httpStatus.CONFLICT, "You have pending rides!" );
     }
 
-    // Get address of the destination
-    const dropOffLocationAddress = await reverseGeocode( dropLat, dropLng );
+    // Get destination address
+    const dropOffAddress = await reverseGeocode( dropLat, dropLng );
     const dropOffLocation: ILocation = {
         type: "Point",
         coordinates: [ dropLat, dropLng ],
-        address: dropOffLocationAddress?.displayName || "Unknown",
+        address: dropOffAddress?.displayName || "Unknown",
     };
 
-    // Add distance to each driver
+    // Calculate distance from pickup to each driver
     const enrichedDrivers = activeDrivers.map( ( driver ) =>
     {
-        const driverCoords = driver.location.coordinates;
-        const riderCoords = pickUpLocation.coordinates;
-        const distanceInMeters = haversine( riderCoords, driverCoords );
+        const distanceInMeters = haversine( pickUpLocation.coordinates, driver.location.coordinates );
         const distanceInKm = Number( ( distanceInMeters / 1000 ).toFixed( 2 ) );
-
-        return {
-            ...driver,
-            distanceInKm,
-        };
+        return { ...driver, distanceInKm };
     } );
 
     // Sort: highest rating first, then closest
-    enrichedDrivers?.sort( ( a, b ) =>
+    enrichedDrivers.sort( ( a, b ) =>
     {
         if ( b.avgRating !== a.avgRating ) return b.avgRating - a.avgRating;
-        return a.distanceInKm - b.distanceInKm;
+        return ( a.distanceInKm || 0 ) - ( b.distanceInKm || 0 );
     } );
 
-    // console.log( enrichedDrivers );
     const matchedDriver = enrichedDrivers[ 0 ];
-    if ( !matchedDriver ) throw new Error( "No available driver found" );
+    if ( !matchedDriver ) throw new AppError( httpStatus.NOT_FOUND, "No available driver found" );
 
-    // Estimate fare (simplified example: 50 BDT base + 25/km)
-    const estimatedFare = 50 + 25 * matchedDriver.distanceInKm;
+    // Estimate fare: 50 BDT base + 25/km
+    const estimatedFare = 50 + 25 * ( matchedDriver.distanceInKm || 0 );
 
+    // Create ride
     const newRide = await Ride.create( {
-        rider: riderId,
-        driver: matchedDriver?.driverId,
+        rider: user.userId,
+        driver: matchedDriver.driverId,
         pickUpLocation,
         dropOffLocation,
-        driverLocation: matchedDriver?.location,
-        distanceInKm: matchedDriver?.distanceInKm,
+        driverLocation: matchedDriver.location,
+        distanceInKm: matchedDriver.distanceInKm,
         fare: estimatedFare,
         status: RideStatus.REQUESTED,
         requestedAt: new Date(),
         riderUserName: user.username,
-        driverUserName: matchedDriver?.username,
-        
+        driverUserName: matchedDriver.username,
     } );
 
     const ride = await Ride.findById( newRide._id )
         .populate( "rider", "name email username" )
-        .populate( "driver", "vehicleInfo rating driverStatus username user" );
+        .populate( "driver", "vehicleInfo rating driverStatus username" );
 
-    return { ride, totalAvailable:enrichedDrivers.length}
- 
+    return { ride, totalAvailable: enrichedDrivers.length };
 };
 
 export const ratingRideService = async (

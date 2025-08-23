@@ -8,11 +8,21 @@ import { ratingRideService, requestRideService } from "./ride.service";
 export const requestRide = asyncHandler( async ( req: Request, res: Response ) =>
 {
     const location = req.userLocation;
+
+    if ( !location )
+    {
+        throw new AppError(httpStatus.BAD_REQUEST, "Maybe you are not giving me your location!")
+    }
+
     const user = req.user;
     const activeDriver = req.activeDriverPayload;
-    const {lat, lng} = req.body;
+    const { lat, lng } = req.body;
+    
+    if ( !lat || !lng) {
+        throw new AppError(httpStatus.BAD_REQUEST, "Pickup location or destination missing");
+    };
 
-    const response = await requestRideService( location, user, activeDriver, lat, lng );
+    const response = await requestRideService( location, user, lat, lng );
 
     if ( !response && !user && !location )
     {
