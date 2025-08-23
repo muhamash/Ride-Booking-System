@@ -13,4 +13,6 @@ export const envStrings: EnvString = {
     BCRYPT_SALT: process.env.BCRYPT_SALT!,
     ACCESS_TOKEN_EXPIRE: process.env.ACCESS_TOKEN_EXPIRE!,
     REFRESH_TOKEN_EXPIRE: process.env.REFRESH_TOKEN_EXPIRE!,
+    PATHAO_API_KEY: process.env.PATHAO_API_KEY!,
+    LOCATIONIQ_API_KEY: process.env.LOCATIONIQ_API_KEY!
 };

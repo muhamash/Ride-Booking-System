@@ -21,7 +21,7 @@ const startServer = async () =>
 
         // Attach Socket.IO
         const io = new SocketIOServer( server, {
-            cors: { origin: ["http://localhost:5173", "https://ride-system-frontend.vercel.app"] },
+            cors: { origin: [ "http://localhost:5173", "https://ride-system-frontend.vercel.app" ] },
         } );
 
         io.on( "connection", ( socket: Socket ) =>
@@ -33,30 +33,41 @@ const startServer = async () =>
             {
                 console.log( "Received location:", data );
 
-                try
+                if ( data?.userId )
                 {
-                    const locationPayload: ILocation = {
-                        type: 'Point',
-                        coordinates: [ data.coordinates[ 0 ], data.coordinates[ 1 ] ],
-                        address: data.address
-                    };
+                    try
+                    {
+                        const locationPayload: ILocation = {
+                            type: 'Point',
+                            coordinates: [ data.coordinates[ 0 ], data.coordinates[ 1 ] ],
+                            address: data.address
+                        };
 
-                    // Save/update in DB
-                    const user = await User.findOneAndUpdate(
-                        { _id: data.userId },
-                        { $set: { location: locationPayload } },
-                        { upsert: true, new: true }
-                    );
+                        // Save/update in DB
+                        const user = await User.findOneAndUpdate(
+                            { _id: data.userId },
+                            { $set: { location: locationPayload } },
+                            { upsert: true, new: true }
+                        );
 
-                    // console.log(locationPayload)
+                        // console.log(locationPayload)
+                    }
+                    catch ( err )
+                    {
+                        console.error( "Failed to save location:", err );
+                    }
+
+                    // Broadcast to other clients
+                    socket.broadcast.emit( "user-location-updated", data );
                 }
-                catch ( err )
+                else
                 {
-                    console.error( "Failed to save location:", err );
+                    console.log( "User not mentioned!" )
+                    socket.on( "disconnect", () =>
+                    {
+                        console.log( "Client disconnected:", socket.id );
+                    } );
                 }
-
-                // Broadcast to other clients
-                socket.broadcast.emit( "user-location-updated", data );
             } );
 
             socket.on( "disconnect", () =>

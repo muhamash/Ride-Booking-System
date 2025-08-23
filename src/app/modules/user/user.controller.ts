@@ -32,6 +32,7 @@ export const createUser = asyncHandler( async ( req: Request, res: Response ): P
 
 export const getMe = asyncHandler( async ( req: Request, res: Response ): Promise<void> =>
 {
+    console.log("User me got a hit!")
     if ( !req.user || !( 'userId' in req.user ) )
     {
         throw new AppError( httpStatus.UNAUTHORIZED, "User not authenticated" );
