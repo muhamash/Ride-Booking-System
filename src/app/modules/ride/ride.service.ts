@@ -27,7 +27,8 @@ export const requestRideService = async (
     pickUpLocation: ILocation,
     user: any,
     dropLat: number,
-    dropLng: number
+    dropLng: number,
+    fare: any
 ) =>
 {
     if ( !pickUpLocation || !dropLat || !dropLng )
@@ -107,8 +108,8 @@ export const requestRideService = async (
     const matchedDriver = enrichedDrivers[ 0 ];
     if ( !matchedDriver ) throw new AppError( httpStatus.NOT_FOUND, "No available driver found" );
 
-    // Estimate fare: 50 BDT base + 25/km
-    const estimatedFare = 50 + 25 * ( matchedDriver.distanceInKm || 0 );
+    // // Estimate fare: 50 BDT base + 25/km
+    // const estimatedFare = 50 + 25 * ( matchedDriver.distanceInKm || 0 );
 
     // Create ride
     const newRide = await Ride.create( {
@@ -118,7 +119,7 @@ export const requestRideService = async (
         dropOffLocation,
         driverLocation: matchedDriver.location,
         distanceInKm: matchedDriver.distanceInKm,
-        fare: estimatedFare,
+        fare: fare,
         status: RideStatus.REQUESTED,
         requestedAt: new Date(),
         riderUserName: user.username,
@@ -129,7 +130,7 @@ export const requestRideService = async (
         .populate( "rider", "name email username" )
         .populate( "driver", "vehicleInfo rating driverStatus username" );
 
-    return { ride, totalAvailable: enrichedDrivers.length };
+    return { ride, totalAvailable: enrichedDrivers?.length };
 };
 
 export const ratingRideService = async (

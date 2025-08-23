@@ -2,6 +2,8 @@ import { Request, Response } from "express";
 import httpStatus from 'http-status-codes';
 import { AppError } from "../../../config/errors/App.error";
 import { asyncHandler, responseFunction } from "../../utils/controller.util";
+import { UserRole } from "../user/user.interface";
+import { User } from "../user/user.model";
 import { ratingRideService, requestRideService } from "./ride.service";
 
 
@@ -16,13 +18,13 @@ export const requestRide = asyncHandler( async ( req: Request, res: Response ) =
 
     const user = req.user;
     const activeDriver = req.activeDriverPayload;
-    const { lat, lng } = req.body;
+    const { lat, lng, fare } = req.body;
     
     if ( !lat || !lng) {
         throw new AppError(httpStatus.BAD_REQUEST, "Pickup location or destination missing");
     };
 
-    const response = await requestRideService( location, user, lat, lng );
+    const response = await requestRideService( location, user, lat, lng, fare );
 
     if ( !response && !user && !location )
     {
@@ -60,4 +62,31 @@ export const ratingOwnRide = asyncHandler( async ( req: Request, res: Response )
         data: ratings
     })
 
+} );
+
+export const getActiveDrivers = asyncHandler( async ( req: Request, res: Response ) =>
+{
+    const user = req.user;
+
+    if ( !user )
+    {
+        throw new AppError( httpStatus.EXPECTATION_FAILED, "Required user" );
+    }
+
+    // Find all online drivers and populate driver info
+    const activeDrivers = await User.find(
+        { isOnline: true, isBlocked: false, role: UserRole.DRIVER },
+        { location: 1, username: 1, _id: 1, name: 1, email: 1, isOnline: 1 }
+    ).populate( {
+        path: "driver",
+        select: "driverStatus isApproved vehicleInfo rating _id driver",
+    } ).lean();
+
+    // console.log(activeDrivers)
+
+    responseFunction( res, {
+        message: "Active drivers retrieved successfully",
+        statusCode: httpStatus.OK,
+        data: activeDrivers,
+    } );
 } );

@@ -15,7 +15,7 @@ const user_interface_1 = require("../user/user.interface");
 const user_model_1 = require("../user/user.model");
 const ride_interface_1 = require("./ride.interface");
 const ride_model_1 = require("./ride.model");
-const requestRideService = async (pickUpLocation, user, dropLat, dropLng) => {
+const requestRideService = async (pickUpLocation, user, dropLat, dropLng, fare) => {
     if (!pickUpLocation || !dropLat || !dropLng) {
         throw new App_error_1.AppError(http_status_codes_1.default.BAD_REQUEST, "Missing data: pickup or destination coordinates");
     }
@@ -70,8 +70,8 @@ const requestRideService = async (pickUpLocation, user, dropLat, dropLng) => {
     const matchedDriver = enrichedDrivers[0];
     if (!matchedDriver)
         throw new App_error_1.AppError(http_status_codes_1.default.NOT_FOUND, "No available driver found");
-    // Estimate fare: 50 BDT base + 25/km
-    const estimatedFare = 50 + 25 * (matchedDriver.distanceInKm || 0);
+    // // Estimate fare: 50 BDT base + 25/km
+    // const estimatedFare = 50 + 25 * ( matchedDriver.distanceInKm || 0 );
     // Create ride
     const newRide = await ride_model_1.Ride.create({
         rider: user.userId,
@@ -80,7 +80,7 @@ const requestRideService = async (pickUpLocation, user, dropLat, dropLng) => {
         dropOffLocation,
         driverLocation: matchedDriver.location,
         distanceInKm: matchedDriver.distanceInKm,
-        fare: estimatedFare,
+        fare: fare,
         status: ride_interface_1.RideStatus.REQUESTED,
         requestedAt: new Date(),
         riderUserName: user.username,
@@ -89,7 +89,7 @@ const requestRideService = async (pickUpLocation, user, dropLat, dropLng) => {
     const ride = await ride_model_1.Ride.findById(newRide._id)
         .populate("rider", "name email username")
         .populate("driver", "vehicleInfo rating driverStatus username");
-    return { ride, totalAvailable: enrichedDrivers.length };
+    return { ride, totalAvailable: enrichedDrivers?.length };
 };
 exports.requestRideService = requestRideService;
 const ratingRideService = async (user, rideId, body) => {
