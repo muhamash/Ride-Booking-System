@@ -119,7 +119,7 @@ export const requestRideService = async (
         dropOffLocation,
         driverLocation: matchedDriver.location,
         distanceInKm: matchedDriver.distanceInKm,
-        fare: fare,
+        fare,
         status: RideStatus.REQUESTED,
         requestedAt: new Date(),
         riderUserName: user.username,

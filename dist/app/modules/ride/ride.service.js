@@ -80,7 +80,7 @@ const requestRideService = async (pickUpLocation, user, dropLat, dropLng, fare) 
         dropOffLocation,
         driverLocation: matchedDriver.location,
         distanceInKm: matchedDriver.distanceInKm,
-        fare: fare,
+        fare,
         status: ride_interface_1.RideStatus.REQUESTED,
         requestedAt: new Date(),
         riderUserName: user.username,

@@ -1,0 +1,11 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.locationRouter = void 0;
+const express_1 = require("express");
+const checkAuth_middleware_1 = require("../../middlewares/checkAuth.middleware");
+const user_interface_1 = require("../user/user.interface");
+const location_controller_1 = require("./location.controller");
+const router = (0, express_1.Router)();
+router.post("/search", (0, checkAuth_middleware_1.checkAuth)(user_interface_1.UserRole.RIDER, user_interface_1.UserRole.ADMIN, user_interface_1.UserRole.DRIVER), location_controller_1.searchLocation);
+router.post("/get-direction", (0, checkAuth_middleware_1.checkAuth)(user_interface_1.UserRole.RIDER, user_interface_1.UserRole.ADMIN, user_interface_1.UserRole.DRIVER), location_controller_1.getDirection);
+exports.locationRouter = router;

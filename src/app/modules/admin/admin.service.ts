@@ -23,7 +23,7 @@ export const getAllUsersService = async ( query?: Record<string, string> ) =>
         modelQuery.getMeta()
     ] );
 
-    console.log(users, query)
+    console.log( query)
 
     return {
         data,
