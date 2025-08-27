@@ -5,6 +5,8 @@ export enum DriverStatus {
   UNAVAILABLE = "UNAVAILABLE",
   SUSPENDED = "SUSPENDED",
   RIDING = "RIDING",
+  APPROVED = "APPROVED",
+  NOTAPPROVED = "UNDER_REVIEW"
 }
 
 export interface VehicleInfo {

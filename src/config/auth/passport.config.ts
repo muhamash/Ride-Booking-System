@@ -1,9 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import bcrypt from "bcryptjs";
+import mongoose from "mongoose";
 import passport from "passport";
 import { Strategy as LocalStrategy } from "passport-local";
 import { Driver } from "../../app/modules/driver/driver.model";
-import { DriverStatus } from "../../app/modules/driver/river.interface";
+import { DriverStatus } from '../../app/modules/driver/river.interface';
 import { UserRole } from "../../app/modules/user/user.interface";
 import { User } from "../../app/modules/user/user.model";
 
@@ -20,7 +21,14 @@ passport.use(
             {
 
                 const userLocation = req.userLocation;
-                const user = await User.findOne( { email } );
+                const user = await User.findOne( { email } ).populate<{
+                    driver: {
+                        _id: mongoose.Types.ObjectId;
+                        driverStatus: DriverStatus;
+                        isApproved: boolean;
+                    } | null;
+                }>( "driver" );
+                
                 let response
 
                 if ( !user )
@@ -30,7 +38,16 @@ passport.use(
 
                 if ( user.isBlocked )
                 {
-                    return done( null, false, { message: "Your account is blocked" } );
+                    return done( null, false, { message: "Your account is blocked", flag: "BLOCKED", userId: user._id } as any );
+                }
+
+                if ( user?.driver?.driverStatus === DriverStatus.SUSPENDED )
+                {
+                    return done(
+                        null,
+                        false,
+                        { message: "Your driver account is SUSPENDED", flag: "SUSPENDED", userId: user._id } as any
+                    );
                 }
 
 
@@ -67,9 +84,9 @@ passport.use(
                 }
 
                 if ( !response )
-                    {
-                        return done( null, false, { message: "User not found" } );
-                    }
+                {
+                    return done( null, false, { message: "User not found" } );
+                }
 
                 // console.log("User logged in:", response, req.userLocation);
                 return done( null, response );

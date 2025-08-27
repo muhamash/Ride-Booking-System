@@ -40,6 +40,7 @@ exports.getMe = (0, controller_util_1.asyncHandler)(async (req, res) => {
     });
 });
 exports.updateUser = (0, controller_util_1.asyncHandler)(async (req, res) => {
+    console.log("update user hit");
     const userId = req.params?.id;
     if (!userId) {
         throw new App_error_1.AppError(http_status_codes_1.default.BAD_REQUEST, "No userId detected!!");

@@ -38,6 +38,7 @@ export const setCookie = async (
     res.cookie( cookieName, cookieData, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
+        sameSite: "none",
         maxAge
     } );
 };

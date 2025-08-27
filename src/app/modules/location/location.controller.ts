@@ -81,6 +81,8 @@ export const getDirection = asyncHandler( async ( req: Request, res: Response ) 
             },
         } );
 
+        console.log( response );
+
         responseFunction( res, {
             statusCode: httpStatus.OK,
             message: "Route retrieved successfully",

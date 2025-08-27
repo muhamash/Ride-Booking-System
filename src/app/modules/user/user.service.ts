@@ -14,6 +14,7 @@ export const createUserService = async ( payload: IUser ) =>
     await session.startTransaction();
 
     const { email, ...rest } = payload;
+    
 
     const existingUser = await User.findOne( { email } ).session( session );
     if ( existingUser )
@@ -21,14 +22,22 @@ export const createUserService = async ( payload: IUser ) =>
         throw new AppError( httpStatus.CONFLICT, "User already exists with this email" );
     }
 
+    console.log(payload, existingUser)
     const userDocs = await User.create( [ { email, ...rest } ], { session } );
+    console.log(userDocs)
     const createdUser = userDocs[ 0 ].toObject();
     delete createdUser.password;
+
+    
 
     let createdDriver = null;
 
     if ( createdUser.role === UserRole.DRIVER )
     {
+        if (!payload.vehicleInfo) {
+            throw new AppError(httpStatus.BAD_REQUEST,"Driver must provide vehicle info");
+        }
+        
         const driverDocs = await Driver.create( [ {
             user: createdUser._id,
             username: createdUser.username,
@@ -40,6 +49,7 @@ export const createUserService = async ( payload: IUser ) =>
             throw new AppError( httpStatus.EXPECTATION_FAILED, "Failed to create driver" );
         }
 
+        console.log( driverDocs[ 0 ] );
         // Link the driver to the user
         const updatedUser = await User.findByIdAndUpdate(
             createdUser._id,
@@ -74,14 +84,24 @@ export const getUserByIdService = async (userId: string): Promise<IUser | null> 
     return user;
 }
 
-export const updateUserService = async ( userId: string, payload: Partial<IUser> ) =>
+export const updateUserService = async ( userId: string, payload: any ) =>
 {
-    if ( payload.password )
+    const user = await User.findById( userId );
+    console.log( payload );
+
+    if ( payload.oldPassword )
     {
-        payload.password = await bcrypt.hash( payload.password, envStrings.BCRYPT_SALT );
+        const isMatch = await bcrypt.compare( payload.oldPassword, user.password );
+
+        if ( !isMatch )
+        {
+            throw new AppError(httpStatus.UNAUTHORIZED, "old password mismatched!")
+        }
+        
+        payload.newPassword = await bcrypt.hash( payload.newPassword, Number(envStrings.BCRYPT_SALT) );
     }
 
-    const newUpdatedUser = await User.findByIdAndUpdate( userId, payload, { new: true, runValidators: true } ).lean();
+    const newUpdatedUser = await User.findByIdAndUpdate( userId, {name: payload.name, password: payload.newPassword}, { new: true, runValidators: true } ).lean();
 
     delete newUpdatedUser?.password;
 

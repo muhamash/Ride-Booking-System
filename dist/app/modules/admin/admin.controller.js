@@ -98,14 +98,11 @@ exports.suspendDriverById = (0, controller_util_1.asyncHandler)(async (req, res)
 exports.blockUserById = (0, controller_util_1.asyncHandler)(async (req, res) => {
     const userId = req.params.id;
     const param = req.params?.blockParam;
-    const user = await (0, admin_service_1.blockUserByIdService)(userId, param);
-    if (!user) {
-        throw new App_error_1.AppError(http_status_codes_1.default.NOT_FOUND, "User not found");
-    }
+    await (0, admin_service_1.blockUserByIdService)(userId, param);
     (0, controller_util_1.responseFunction)(res, {
         message: "User modified",
         statusCode: http_status_codes_1.default.OK,
-        data: user,
+        data: null,
     });
 });
 exports.deleteBlockedUser = (0, controller_util_1.asyncHandler)(async (req, res) => {
@@ -129,6 +126,7 @@ exports.deleteRide = (0, controller_util_1.asyncHandler)(async (req, res) => {
 exports.approvalDriver = (0, controller_util_1.asyncHandler)(async (req, res) => {
     const userId = req.params.id;
     const param = req.params?.approveParam;
+    console.log(param);
     const user = await (0, admin_service_1.approveDriverService)(userId, param);
     if (!user) {
         throw new App_error_1.AppError(http_status_codes_1.default.EXPECTATION_FAILED, "Something went wrong during driver approval");

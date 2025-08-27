@@ -1,6 +1,8 @@
+import { Response } from 'express';
 import httpStatus from 'http-status-codes';
 import mongoose from 'mongoose';
 import { AppError } from '../../../config/errors/App.error';
+import { responseFunction } from '../../utils/controller.util';
 import { RideStatus } from '../ride/ride.interface';
 import { Ride } from '../ride/ride.model';
 import { IUser } from '../user/user.interface';
@@ -9,7 +11,7 @@ import { Driver } from './driver.model';
 import { DriverStatus, VehicleInfo } from './river.interface';
 
 
-export const checkRideRequestService = async ( username: string ) =>
+export const checkRideRequestService = async ( username: string, res: Response ) =>
 {
     if ( !username )
     {
@@ -24,10 +26,15 @@ export const checkRideRequestService = async ( username: string ) =>
 
     if ( ongoingRide )
     {
-        throw new AppError(
-            httpStatus.FORBIDDEN,
-            `You are currently on an ongoing ride (${ ongoingRide.status }). Complete it before accepting new requests.`
-        );
+        // throw new AppError(
+        //     httpStatus.FORBIDDEN,
+        //     `You are currently on an ongoing ride (${ ongoingRide.status }). Complete it before accepting new requests.`
+        // );
+        responseFunction( res, {
+            statusCode: httpStatus.OK,
+            message: "you have already accepted ride!",
+            data: ongoingRide,
+        } );
     }
 
     // If no ongoing rides, show available ride requests

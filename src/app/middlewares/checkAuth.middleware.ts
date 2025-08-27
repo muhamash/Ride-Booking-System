@@ -17,7 +17,9 @@ interface CustomJwtPayload extends JwtPayload {
 
 export const checkAuth = (...authRoles: UserRole[]) => 
   async (req: Request, res: Response, next: NextFunction): Promise<void> => { 
-    try {
+      try
+      {
+        console.log(req.cookies)
         const accessToken = req.cookies?.accessToken;
 
         if (!accessToken) {

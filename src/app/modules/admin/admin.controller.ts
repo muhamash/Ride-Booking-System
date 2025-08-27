@@ -134,17 +134,13 @@ export const blockUserById = asyncHandler( async ( req: Request, res: Response )
 {
     const userId = req.params.id;
     const param = req.params?.blockParam as blockParam;
-    const user = await blockUserByIdService( userId, param );
+    await blockUserByIdService( userId, param );
 
-    if ( !user )
-    {
-        throw new AppError( httpStatus.NOT_FOUND, "User not found" );
-    }
 
     responseFunction( res, {
         message: "User modified",
         statusCode: httpStatus.OK,
-        data: user,
+        data: null,
     } );
 } );
 
@@ -173,6 +169,7 @@ export const deleteRide = asyncHandler(async (req: Request, res: Response): Prom
 export const approvalDriver = asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const userId = req.params.id;
     const param = req.params?.approveParam as approvalParam;
+    console.log(param)
     const user = await approveDriverService(userId, param);
 
     if (!user) {

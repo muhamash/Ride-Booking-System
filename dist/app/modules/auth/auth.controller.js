@@ -16,6 +16,12 @@ exports.userLogin = (0, controller_util_1.asyncHandler)(async (req, res, next) =
             console.error("Authentication error:", error);
             return next(new App_error_1.AppError(http_status_codes_1.default.INTERNAL_SERVER_ERROR, typeof error === 'string' ? error : 'Authentication failed'));
         }
+        if (info?.flag === 'BLOCKED') {
+            return res.status(403).json({ message: info.message, flag: 'BLOCKED', userId: info.userId });
+        }
+        if (info?.flag === 'SUSPENDED') {
+            return res.status(403).json({ message: info.message, flag: 'SUSPENDED', userId: info.userId });
+        }
         if (!user) {
             return next(new App_error_1.AppError(http_status_codes_1.default.UNAUTHORIZED, info?.message || "Unauthorized"));
         }
@@ -42,17 +48,6 @@ exports.userLogout = (0, controller_util_1.asyncHandler)(async (req, res) => {
     if (!req.user?.userId) {
         throw new App_error_1.AppError(http_status_codes_1.default.BAD_REQUEST, "User ID not found in request");
     }
-    // const clearAccess = res.clearCookie( "accessToken", {
-    //   httpOnly: true,
-    //   sameSite: "lax",
-    //   secure: false
-    // } );
-    // const clearRefresh = res.clearCookie( "refreshToken", {
-    //   httpOnly: true,
-    //   sameSite: "lax",
-    //   secure: false
-    // } );
-    // console.log(clearAccess, clearRefresh)
     await (0, auth_service_1.userLogoutService)(req.user.userId);
     (0, controller_util_1.responseFunction)(res, {
         message: "User logged out successfully",

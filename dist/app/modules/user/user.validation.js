@@ -57,10 +57,17 @@ exports.updateUserZodSchema = zod_1.default.object({
         .min(2, "Name must be at least 2 characters long")
         .max(50, "Name cannot exceed 50 characters")
         .optional(),
-    password: zod_1.default.string()
+    newPassword: zod_1.default.string()
         .min(8, "Password must be at least 8 characters long")
         .regex(/^(?=.*[A-Z])/, "Password must contain at least 1 uppercase letter")
-        .regex(/^(?=.*[!@#$%^&*])/, "Password must contain at least 1 special character")
-        .regex(/^(?=.*\d)/, "Password must contain at least 1 number")
         .optional(),
-}).refine(data => Object.values(data).some(val => val !== undefined), "At least one field must be provided for update");
+    oldPassword: zod_1.default.string().optional(),
+}).refine((data) => {
+    if (data.newPassword && !data.oldPassword)
+        return false;
+    return true;
+}, {
+    message: "old password is required when changing password",
+    path: ["oldPassword"],
+})
+    .refine(data => Object.values(data).some(val => val !== undefined), "At least one field must be provided for update");

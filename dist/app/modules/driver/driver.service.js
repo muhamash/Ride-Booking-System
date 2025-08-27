@@ -7,12 +7,13 @@ exports.driverStateService = exports.updateVehicleService = exports.completeRide
 const http_status_codes_1 = __importDefault(require("http-status-codes"));
 const mongoose_1 = __importDefault(require("mongoose"));
 const App_error_1 = require("../../../config/errors/App.error");
+const controller_util_1 = require("../../utils/controller.util");
 const ride_interface_1 = require("../ride/ride.interface");
 const ride_model_1 = require("../ride/ride.model");
 const user_model_1 = require("../user/user.model");
 const driver_model_1 = require("./driver.model");
 const river_interface_1 = require("./river.interface");
-const checkRideRequestService = async (username) => {
+const checkRideRequestService = async (username, res) => {
     if (!username) {
         throw new App_error_1.AppError(http_status_codes_1.default.BAD_REQUEST, "Driver username is required");
     }
@@ -22,7 +23,15 @@ const checkRideRequestService = async (username) => {
         status: { $in: [ride_interface_1.RideStatus.ACCEPTED, ride_interface_1.RideStatus.PICKED_UP, ride_interface_1.RideStatus.IN_TRANSIT] }
     });
     if (ongoingRide) {
-        throw new App_error_1.AppError(http_status_codes_1.default.FORBIDDEN, `You are currently on an ongoing ride (${ongoingRide.status}). Complete it before accepting new requests.`);
+        // throw new AppError(
+        //     httpStatus.FORBIDDEN,
+        //     `You are currently on an ongoing ride (${ ongoingRide.status }). Complete it before accepting new requests.`
+        // );
+        (0, controller_util_1.responseFunction)(res, {
+            statusCode: http_status_codes_1.default.OK,
+            message: "you have already accepted ride!",
+            data: ongoingRide,
+        });
     }
     // If no ongoing rides, show available ride requests
     const availableRides = await ride_model_1.Ride.find({

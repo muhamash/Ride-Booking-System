@@ -2,26 +2,35 @@ import { Request, Response } from "express";
 import httpStatus from 'http-status-codes';
 import { AppError } from "../../../config/errors/App.error";
 import { asyncHandler, responseFunction } from "../../utils/controller.util";
-import { UserRole } from "../user/user.interface";
+import { QueryBuilder } from "../../utils/db/queybuilder.util";
+import { ILocation, UserRole } from "../user/user.interface";
 import { User } from "../user/user.model";
+import { Ride } from "./ride.model";
 import { ratingRideService, requestRideService } from "./ride.service";
 
 
 export const requestRide = asyncHandler( async ( req: Request, res: Response ) =>
 {
-    const location = req.userLocation;
-
+    let location : ILocation = req.userLocation;
+    
     if ( !location )
     {
-        throw new AppError(httpStatus.BAD_REQUEST, "Maybe you are not giving me your location!")
+        location = {
+            coordinates: [ req.body.picLat, req.body.picLng ],
+            type: 'Point',
+            address: "Default address!"
+        }
     }
 
-    const user = req.user;
+    console.log( location, req.body )
+
+    const user = req.user as any;
     const activeDriver = req.activeDriverPayload;
     const { lat, lng, fare } = req.body;
     
+    
     if ( !lat || !lng) {
-        throw new AppError(httpStatus.BAD_REQUEST, "Pickup location or destination missing");
+        throw new AppError(httpStatus.BAD_REQUEST, "DropOff location or destination missing");
     };
 
     const response = await requestRideService( location, user, lat, lng, fare );
@@ -88,5 +97,41 @@ export const getActiveDrivers = asyncHandler( async ( req: Request, res: Respons
         message: "Active drivers retrieved successfully",
         statusCode: httpStatus.OK,
         data: activeDrivers,
+    } );
+} );
+
+export const getUserRides = asyncHandler( async ( req: Request, res: Response ) =>
+{
+    const role = req.user?.role;
+    const userId = req.user?.userId; 
+    const query = req.query as Record<string, string>;
+
+    let ridesQuery;
+
+    if ( role === UserRole.DRIVER )
+    {
+        ridesQuery = new QueryBuilder( Ride.find( { driver: userId } ), query );
+    } else
+    {
+        ridesQuery = new QueryBuilder( Ride.find( { rider: userId } ), query );
+    }
+
+    ridesQuery
+        .searchableField( [ "riderUserName", "driverUserName", "status" ] )
+        .filter( [ "status" ] )
+        .sort()
+        .fields()
+        .pagination();
+
+    const [ ridesData, meta ] = await Promise.all( [
+        ridesQuery.modelQuery.exec(),
+        ridesQuery.getMeta()
+    ] );
+
+    responseFunction( res, {
+        message: "Your rides",
+        statusCode: httpStatus.OK,
+        data: ridesData,
+        meta,
     } );
 } );

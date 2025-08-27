@@ -61,9 +61,6 @@ exports.userSchema = new mongoose_1.Schema({
         type: mongoose_1.Schema.Types.ObjectId,
         ref: "Driver",
         default: null,
-        required: function () {
-            return this.role === user_interface_1.UserRole.DRIVER;
-        },
     },
     ridings: [
         {

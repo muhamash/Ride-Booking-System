@@ -7,4 +7,6 @@ var DriverStatus;
     DriverStatus["UNAVAILABLE"] = "UNAVAILABLE";
     DriverStatus["SUSPENDED"] = "SUSPENDED";
     DriverStatus["RIDING"] = "RIDING";
+    DriverStatus["APPROVED"] = "APPROVED";
+    DriverStatus["NOTAPPROVED"] = "UNDER_REVIEW";
 })(DriverStatus || (exports.DriverStatus = DriverStatus = {}));

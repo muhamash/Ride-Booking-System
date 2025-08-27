@@ -1,6 +1,8 @@
 import http from "http";
 import { Socket, Server as SocketIOServer } from "socket.io";
 import app from "./app/app";
+import { RideStatus } from "./app/modules/ride/ride.interface";
+import { Ride } from "./app/modules/ride/ride.model";
 import { ILocation } from "./app/modules/user/user.interface";
 import { User } from "./app/modules/user/user.model";
 import { dbConnect } from "./config/db/mongoos.config";
@@ -49,6 +51,25 @@ const startServer = async () =>
                             { $set: { location: locationPayload } },
                             { upsert: true, new: true }
                         );
+
+                        // console.log(user.driver)
+
+                        if ( user?.driver )
+                        {
+                            const checkRide = await Ride.findOne( { driver: user.driver, status: RideStatus.REQUESTED } );
+                            // console.log(checkRide)
+
+                            if ( checkRide && checkRide.status === "REQUESTED" )
+                            {
+                                const updatedDriverLocation = await Ride.findOneAndUpdate(
+                                    { _id: checkRide._id },
+                                    { $set: { driverLocation: locationPayload } },
+                                    { upsert: true, new: true }
+                                );
+
+                                console.log( "Updated driver location:", updatedDriverLocation.driverLocation );
+                            }
+                        }
 
                         // console.log(locationPayload)
                     }

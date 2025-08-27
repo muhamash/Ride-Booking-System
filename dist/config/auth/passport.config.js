@@ -18,13 +18,16 @@ passport_1.default.use(new passport_local_1.Strategy({
 }, async (req, email, password, done) => {
     try {
         const userLocation = req.userLocation;
-        const user = await user_model_1.User.findOne({ email });
+        const user = await user_model_1.User.findOne({ email }).populate("driver");
         let response;
         if (!user) {
             return done(null, false, { message: "Invalid email or password" });
         }
         if (user.isBlocked) {
-            return done(null, false, { message: "Your account is blocked" });
+            return done(null, false, { message: "Your account is blocked", flag: "BLOCKED", userId: user._id });
+        }
+        if (user?.driver?.driverStatus === river_interface_1.DriverStatus.SUSPENDED) {
+            return done(null, false, { message: "Your driver account is SUSPENDED", flag: "SUSPENDED", userId: user._id });
         }
         const isMatch = await bcryptjs_1.default.compare(password, user.password);
         if (!isMatch) {

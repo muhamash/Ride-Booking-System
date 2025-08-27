@@ -1,14 +1,15 @@
 import { Router } from "express";
 import { checkAuth } from "../../middlewares/checkAuth.middleware";
-import { updateUserLocationIntoDb } from "../../middlewares/updateUserLocation.middleware";
 import { validateRequest } from "../../middlewares/validateReq.middleware";
 import { UserRole } from '../user/user.interface';
-import { acceptRideRequest, cancelRideRequest, checkRideRequest, completeRide, driverState, inTransitRide, pickUpRide, updateVehicleInfo } from "./driver.controller";
+import { acceptRideRequest, cancelRideRequest, changeDrivingStatus, checkRideRequest, completeRide, driverState, inTransitRide, pickUpRide, updateVehicleInfo } from "./driver.controller";
 import { vehicleInfoZodSchema } from "./driver.validation";
 
 const router = Router();
 
-router.post( "/check-ride-request", checkAuth(  UserRole.DRIVER ), checkRideRequest );
+router.post( "/check-ride-request", checkAuth( UserRole.DRIVER ), checkRideRequest );
+
+router.patch( "/change-driving-status", checkAuth(  UserRole.DRIVER ), changeDrivingStatus );
 
 router.post( "/accept-ride-request/:id", checkAuth( UserRole.DRIVER, UserRole.ADMIN ), acceptRideRequest );
 

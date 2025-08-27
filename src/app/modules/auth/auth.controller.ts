@@ -9,12 +9,21 @@ import { getNewAccessTokenService, userLogoutService } from "./auth.service";
 
 export const userLogin = asyncHandler( async ( req: Request, res: Response, next: NextFunction ) =>
 {
-  passport.authenticate( "local", { session: false }, async ( error, user: any, info: { message?: string } ) =>
+  passport.authenticate( "local", { session: false }, async ( error, user: any, info: { message?: string, flag?: string, userId?: string } ) =>
   {
     if ( error )
     {
       console.error( "Authentication error:", error );
-      return next( new AppError( httpStatus.INTERNAL_SERVER_ERROR, typeof error === 'string' ? error : 'Authentication failed' ) );
+      return next( new AppError( httpStatus.INTERNAL_SERVER_ERROR, typeof error === 'string' ? error : 'Authentication failed', ) );
+    }
+
+    if (info?.flag === 'BLOCKED') {
+      return res.status(403).json({ message: info.message, flag: 'BLOCKED', userId: info.userId });
+    }
+
+    if (info?.flag === 'SUSPENDED') {
+      return res.status( 403 ).json( { message: info.message, flag: 'SUSPENDED', userId: info.userId } );
+      
     }
 
     if ( !user )
@@ -53,19 +62,6 @@ export const userLogout = asyncHandler( async ( req: Request, res: Response ) =>
     throw new AppError( httpStatus.BAD_REQUEST, "User ID not found in request" );
   }
 
-  // const clearAccess = res.clearCookie( "accessToken", {
-  //   httpOnly: true,
-  //   sameSite: "lax",
-  //   secure: false
-  // } );
-    
-  // const clearRefresh = res.clearCookie( "refreshToken", {
-  //   httpOnly: true,
-  //   sameSite: "lax",
-  //   secure: false
-  // } );
-
-  // console.log(clearAccess, clearRefresh)
   
   await userLogoutService( req.user.userId );
 
@@ -73,6 +69,7 @@ export const userLogout = asyncHandler( async ( req: Request, res: Response ) =>
     message: "User logged out successfully",
     statusCode: httpStatus.OK,
     data: null,
+    
   } );
 } );
 

@@ -166,9 +166,6 @@ const blockUserByIdService = async (userId, param) => {
         }, { new: true }).populate("user");
         return updatedTheUser;
     }
-    else {
-        throw new App_error_1.AppError(http_status_codes_1.default.BAD_REQUEST, "Failed to update  the driver");
-    }
 };
 exports.blockUserByIdService = blockUserByIdService;
 const deleteBlockedUserService = async (userId) => {
@@ -220,12 +217,12 @@ const approveDriverService = async (driverId, param) => {
     let updatedTheDriver;
     if (param === "notApproved" && driver.isApproved) {
         updatedTheDriver = await driver_model_1.Driver.findOneAndUpdate({ user: new mongoose_1.default.Types.ObjectId(driverId) }, {
-            $set: { isApproved: false }
+            $set: { isApproved: false, driverStatus: river_interface_1.DriverStatus.NOTAPPROVED }
         }, { new: true });
     }
     if (param === "approved" && !driver.isApproved) {
         updatedTheDriver = await driver_model_1.Driver.findOneAndUpdate({ user: new mongoose_1.default.Types.ObjectId(driverId) }, {
-            $set: { isApproved: true }
+            $set: { isApproved: true, driverStatus: river_interface_1.DriverStatus.APPROVED }
         }, { new: true });
     }
     // console.log( driver, updatedTheDriver, driver.isApproved, param === "approved", param )

@@ -15,13 +15,13 @@ const user_interface_1 = require("../user/user.interface");
 const user_model_1 = require("../user/user.model");
 const ride_interface_1 = require("./ride.interface");
 const ride_model_1 = require("./ride.model");
-const requestRideService = async (pickUpLocation, user, dropLat, dropLng, fare) => {
+const requestRideService = async (user, dropLat, dropLng, fare, pickUpLocation) => {
     if (!pickUpLocation || !dropLat || !dropLng) {
         throw new App_error_1.AppError(http_status_codes_1.default.BAD_REQUEST, "Missing data: pickup or destination coordinates");
     }
     // Get all online drivers
     const driversRaw = await user_model_1.User.find({ isOnline: true, role: user_interface_1.UserRole.DRIVER })
-        .select("-password username email name location")
+        .select("username email name location")
         .populate("driver", "driverStatus isApproved vehicleInfo rating _id")
         .lean();
     // Filter available drivers

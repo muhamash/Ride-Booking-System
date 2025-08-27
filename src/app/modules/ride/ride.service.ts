@@ -24,11 +24,11 @@ interface ActiveDriverPayload extends Record<string, string | number | object | 
 
 
 export const requestRideService = async (
-    pickUpLocation: ILocation,
     user: any,
     dropLat: number,
     dropLng: number,
-    fare: any
+    fare: number,
+    pickUpLocation?: ILocation,
 ) =>
 {
     if ( !pickUpLocation || !dropLat || !dropLng )
@@ -38,7 +38,7 @@ export const requestRideService = async (
 
     // Get all online drivers
     const driversRaw = await User.find( { isOnline: true, role: UserRole.DRIVER } )
-        .select( "-password username email name location" )
+        .select( "username email name location" )
         .populate<{
             driver: {
                 _id: mongoose.Types.ObjectId;

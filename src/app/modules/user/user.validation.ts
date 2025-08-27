@@ -59,20 +59,27 @@ export const locationZodSchema = z.object({
     address: z.string().optional(),
 });
 
-export const updateUserZodSchema = z.object({
+export const updateUserZodSchema = z.object( {
     name: z.string()
-        .min(2, "Name must be at least 2 characters long")
-        .max(50, "Name cannot exceed 50 characters")
+        .min( 2, "Name must be at least 2 characters long" )
+        .max( 50, "Name cannot exceed 50 characters" )
         .optional(),
 
-    password: z.string()
-        .min(8, "Password must be at least 8 characters long")
-        .regex(/^(?=.*[A-Z])/, "Password must contain at least 1 uppercase letter")
-        .regex(/^(?=.*[!@#$%^&*])/, "Password must contain at least 1 special character")
-        .regex(/^(?=.*\d)/, "Password must contain at least 1 number")
+    newPassword: z.string()
+        .min( 8, "Password must be at least 8 characters long" )
+        .regex( /^(?=.*[A-Z])/, "Password must contain at least 1 uppercase letter" )
         .optional(),
+    oldPassword: z.string().optional(),
 
-}).refine(
-    data => Object.values(data).some(val => val !== undefined),
-    "At least one field must be provided for update"
-);
+} ).refine( ( data ) =>
+{
+    if ( data.newPassword && !data.oldPassword ) return false;
+    return true;
+}, {
+    message: "old password is required when changing password",
+    path: [ "oldPassword" ],
+} )
+    .refine(
+        data => Object.values( data ).some( val => val !== undefined ),
+        "At least one field must be provided for update"
+    );

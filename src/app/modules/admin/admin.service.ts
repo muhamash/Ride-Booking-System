@@ -233,10 +233,6 @@ export const blockUserByIdService = async ( userId: string, param: blockParam ) 
 
         return updatedTheUser
     }
-    else
-    {
-        throw new AppError( httpStatus.BAD_REQUEST, "Failed to update  the driver" )
-    }
 };
 
 export const deleteBlockedUserService = async ( userId: string ) =>
@@ -320,14 +316,14 @@ export const approveDriverService = async ( driverId: string, param: approvalPar
     if ( param === "notApproved" && driver.isApproved )
     {
         updatedTheDriver = await Driver.findOneAndUpdate( { user: new mongoose.Types.ObjectId( driverId ) }, {
-            $set: { isApproved: false }
+            $set: { isApproved: false, driverStatus: DriverStatus.NOTAPPROVED }
         }, { new: true } );
     }
 
     if ( param === "approved" && !driver.isApproved )
     {
         updatedTheDriver = await Driver.findOneAndUpdate( { user: new mongoose.Types.ObjectId( driverId ) }, {
-            $set: { isApproved: true }
+            $set: { isApproved: true, driverStatus: DriverStatus.APPROVED }
         }, { new: true } );
     }
 

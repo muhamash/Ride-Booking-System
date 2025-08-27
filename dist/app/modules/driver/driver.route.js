@@ -9,6 +9,7 @@ const driver_controller_1 = require("./driver.controller");
 const driver_validation_1 = require("./driver.validation");
 const router = (0, express_1.Router)();
 router.post("/check-ride-request", (0, checkAuth_middleware_1.checkAuth)(user_interface_1.UserRole.DRIVER), driver_controller_1.checkRideRequest);
+router.patch("/change-driving-status", (0, checkAuth_middleware_1.checkAuth)(user_interface_1.UserRole.DRIVER), driver_controller_1.changeDrivingStatus);
 router.post("/accept-ride-request/:id", (0, checkAuth_middleware_1.checkAuth)(user_interface_1.UserRole.DRIVER, user_interface_1.UserRole.ADMIN), driver_controller_1.acceptRideRequest);
 router.post("/cancel-ride-request/:id", (0, checkAuth_middleware_1.checkAuth)(user_interface_1.UserRole.ADMIN, user_interface_1.UserRole.DRIVER, user_interface_1.UserRole.RIDER), driver_controller_1.cancelRideRequest);
 router.patch("/pick-up/:id", (0, checkAuth_middleware_1.checkAuth)(user_interface_1.UserRole.DRIVER), driver_controller_1.pickUpRide);

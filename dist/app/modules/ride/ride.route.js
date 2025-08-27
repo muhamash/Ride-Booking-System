@@ -10,5 +10,6 @@ const ride_validation_1 = require("./ride.validation");
 const router = (0, express_1.Router)();
 router.post("/request", (0, checkAuth_middleware_1.checkAuth)(user_interface_1.UserRole.RIDER, user_interface_1.UserRole.ADMIN), (0, validateReq_middleware_1.validateRequest)(ride_validation_1.zodRideRequest), ride_controller_1.requestRide);
 router.post("/rating/:id", (0, checkAuth_middleware_1.checkAuth)(user_interface_1.UserRole.RIDER, user_interface_1.UserRole.ADMIN), (0, validateReq_middleware_1.validateRequest)(ride_validation_1.ratingZodSchema), ride_controller_1.ratingOwnRide);
+router.get("/view-user-rides", (0, checkAuth_middleware_1.checkAuth)(user_interface_1.UserRole.RIDER, user_interface_1.UserRole.ADMIN, user_interface_1.UserRole.DRIVER), ride_controller_1.getUserRides);
 router.get("/get-active-drivers", (0, checkAuth_middleware_1.checkAuth)(user_interface_1.UserRole.RIDER, user_interface_1.UserRole.ADMIN), ride_controller_1.getActiveDrivers);
 exports.rideRoutes = router;

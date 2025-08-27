@@ -23,7 +23,7 @@ app.use( passport.session() );
 app.use( cookieParser() );
 app.use( express.json() );
 app.use( cors( {
-    origin: ["http://localhost:5173", "https://ride-system-frontend.vercel.app"],
+    origin: ["http://localhost:5173", "https://ride-system-frontend.vercel.app", "http://localhost:3000"],
     credentials: true
 }) );
 

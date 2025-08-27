@@ -57,10 +57,6 @@ export const userSchema = new Schema<IUser>( {
         type: Schema.Types.ObjectId,
         ref: "Driver",
         default: null,
-        required: function ( this: any )
-        {
-            return this.role === UserRole.DRIVER;
-        },
     },
     ridings: [
         {

@@ -56,6 +56,7 @@ exports.getDirection = (0, controller_util_1.asyncHandler)(async (req, res) => {
                 overview: overview || "simplified",
             },
         });
+        console.log(response);
         (0, controller_util_1.responseFunction)(res, {
             statusCode: http_status_codes_1.default.OK,
             message: "Route retrieved successfully",

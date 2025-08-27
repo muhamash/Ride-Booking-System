@@ -2,19 +2,71 @@ import { Request, Response } from "express";
 import httpStatus from 'http-status-codes';
 import { AppError } from "../../../config/errors/App.error";
 import { asyncHandler, responseFunction } from "../../utils/controller.util";
+import { Driver } from "./driver.model";
 import { acceptRideRequestService, cancelRideRequestService, checkRideRequestService, completeRideService, driverStateService, inTransitRideService, pickUpService, updateVehicleService } from "./driver.service";
+import { DriverStatus } from "./river.interface";
+
+
+export const changeDrivingStatus = asyncHandler( async ( req: Request, res: Response ) =>
+{
+    const user = req.user;
+
+    
+    if ( user?.role !== "DRIVER" )
+    {
+        res.status( httpStatus.BAD_REQUEST ).json( {
+            message: "Driver not found",
+            statusCode: httpStatus.BAD_REQUEST,
+        } );
+
+        return;
+    }
+
+    // Find driver
+    const findDriver = await Driver.findOne( { username: user.username } );
+    if ( !findDriver )
+    {
+        res.status( httpStatus.NOT_FOUND ).json( {
+            message: "Driver not found in database",
+            statusCode: httpStatus.NOT_FOUND,
+        } );
+
+        return
+    }
+
+    // Toggle status
+    const newStatus =
+        findDriver.driverStatus === DriverStatus.AVAILABLE
+            ? DriverStatus.UNAVAILABLE
+            : DriverStatus.AVAILABLE;
+
+    const updatedDriver = await Driver.findByIdAndUpdate(
+        findDriver._id,
+        { $set: { driverStatus: newStatus } },
+        {upsert: true ,new: true }
+    );
+
+    responseFunction( res, {
+        message: `Driver status updated to ${ newStatus }`,
+        statusCode: httpStatus.OK,
+        data: updatedDriver,
+    } );
+} );
+
 
 export const checkRideRequest = asyncHandler( async ( req: Request, res: Response) =>
 {
+    console.log("check ride request hit!")
     // const body = req.body;
     const user = req.user;
     const username = user.username;
-    // console.log(user)
+    // console.log( user )
+    
     if ( !username )
     {
         throw new AppError(httpStatus.BAD_REQUEST, "username got empty!!")
     }
-    const ride = await checkRideRequestService( username );
+    const ride = await checkRideRequestService( username, res );
 
     responseFunction( res, {
         message: `Found some ride requests!!`,
@@ -27,6 +79,8 @@ export const acceptRideRequest = asyncHandler( async ( req: Request, res: Respon
 {
     const rideId = req.params.id;
     const user = req.user;
+
+    console.log( "got it accept ride api" );
 
     const acceptedRide = await acceptRideRequestService( rideId, user );
 

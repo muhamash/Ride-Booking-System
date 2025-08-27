@@ -50,6 +50,7 @@ export const getMe = asyncHandler( async ( req: Request, res: Response ): Promis
 
 export const updateUser = asyncHandler( async ( req: Request, res: Response ): Promise<void> =>
 {
+    console.log("update user hit")
     const userId = req.params?.id
     if ( !userId )
     {

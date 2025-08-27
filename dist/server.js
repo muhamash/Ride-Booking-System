@@ -6,6 +6,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const http_1 = __importDefault(require("http"));
 const socket_io_1 = require("socket.io");
 const app_1 = __importDefault(require("./app/app"));
+const ride_interface_1 = require("./app/modules/ride/ride.interface");
+const ride_model_1 = require("./app/modules/ride/ride.model");
 const user_model_1 = require("./app/modules/user/user.model");
 const mongoos_config_1 = require("./config/db/mongoos.config");
 const startServer = async () => {
@@ -31,6 +33,15 @@ const startServer = async () => {
                         };
                         // Save/update in DB
                         const user = await user_model_1.User.findOneAndUpdate({ _id: data.userId }, { $set: { location: locationPayload } }, { upsert: true, new: true });
+                        // console.log(user.driver)
+                        if (user?.driver) {
+                            const checkRide = await ride_model_1.Ride.findOne({ driver: user.driver, status: ride_interface_1.RideStatus.REQUESTED });
+                            // console.log(checkRide)
+                            if (checkRide && checkRide.status === "REQUESTED") {
+                                const updatedDriverLocation = await ride_model_1.Ride.findOneAndUpdate({ _id: checkRide._id }, { $set: { driverLocation: locationPayload } }, { upsert: true, new: true });
+                                console.log("Updated driver location:", updatedDriverLocation.driverLocation);
+                            }
+                        }
                         // console.log(locationPayload)
                     }
                     catch (err) {

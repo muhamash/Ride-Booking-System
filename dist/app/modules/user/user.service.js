@@ -20,11 +20,16 @@ const createUserService = async (payload) => {
     if (existingUser) {
         throw new App_error_1.AppError(http_status_codes_1.default.CONFLICT, "User already exists with this email");
     }
+    console.log(payload, existingUser);
     const userDocs = await user_model_1.User.create([{ email, ...rest }], { session });
+    console.log(userDocs);
     const createdUser = userDocs[0].toObject();
     delete createdUser.password;
     let createdDriver = null;
     if (createdUser.role === user_interface_1.UserRole.DRIVER) {
+        if (!payload.vehicleInfo) {
+            throw new App_error_1.AppError(http_status_codes_1.default.BAD_REQUEST, "Driver must provide vehicle info");
+        }
         const driverDocs = await driver_model_1.Driver.create([{
                 user: createdUser._id,
                 username: createdUser.username,
@@ -33,6 +38,7 @@ const createUserService = async (payload) => {
         if (!driverDocs?.length) {
             throw new App_error_1.AppError(http_status_codes_1.default.EXPECTATION_FAILED, "Failed to create driver");
         }
+        console.log(driverDocs[0]);
         // Link the driver to the user
         const updatedUser = await user_model_1.User.findByIdAndUpdate(createdUser._id, { driver: driverDocs[0]._id }, { new: true, session }).populate({ path: "driver", select: "-password" });
         createdDriver = updatedUser?.toObject();
@@ -57,10 +63,16 @@ const getUserByIdService = async (userId) => {
 };
 exports.getUserByIdService = getUserByIdService;
 const updateUserService = async (userId, payload) => {
-    if (payload.password) {
-        payload.password = await bcryptjs_1.default.hash(payload.password, env_config_1.envStrings.BCRYPT_SALT);
+    const user = await user_model_1.User.findById(userId);
+    console.log(payload);
+    if (payload.oldPassword) {
+        const isMatch = await bcryptjs_1.default.compare(payload.oldPassword, user.password);
+        if (!isMatch) {
+            throw new App_error_1.AppError(http_status_codes_1.default.UNAUTHORIZED, "old password mismatched!");
+        }
+        payload.newPassword = await bcryptjs_1.default.hash(payload.newPassword, Number(env_config_1.envStrings.BCRYPT_SALT));
     }
-    const newUpdatedUser = await user_model_1.User.findByIdAndUpdate(userId, payload, { new: true, runValidators: true }).lean();
+    const newUpdatedUser = await user_model_1.User.findByIdAndUpdate(userId, { name: payload.name, password: payload.newPassword }, { new: true, runValidators: true }).lean();
     delete newUpdatedUser?.password;
     return newUpdatedUser;
 };

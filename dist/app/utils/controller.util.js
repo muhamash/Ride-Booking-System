@@ -21,6 +21,7 @@ const setCookie = async (res, cookieName, cookieData, maxAge) => {
     res.cookie(cookieName, cookieData, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
+        sameSite: "none",
         maxAge
     });
 };
