@@ -22,7 +22,7 @@ export const requestRide = asyncHandler( async ( req: Request, res: Response ) =
         }
     }
 
-    console.log( location, req.body )
+    // console.log( location, req.body )
 
     const user = req.user as any;
     const activeDriver = req.activeDriverPayload;
@@ -33,7 +33,7 @@ export const requestRide = asyncHandler( async ( req: Request, res: Response ) =
         throw new AppError(httpStatus.BAD_REQUEST, "DropOff location or destination missing");
     };
 
-    const response = await requestRideService( location, user, lat, lng, fare );
+    const response = await requestRideService( user, lat, lng, fare, location );
 
     if ( !response && !user && !location )
     {

@@ -18,5 +18,6 @@ exports.envStrings = {
     REFRESH_TOKEN_EXPIRE: process.env.REFRESH_TOKEN_EXPIRE,
     PATHAO_API_KEY: process.env.PATHAO_API_KEY,
     LOCATIONIQ_API_KEY: process.env.LOCATIONIQ_API_KEY,
-    GEOAPIFY_API_KEY: process.env.GEOAPIFY_API_KEY
+    GEOAPIFY_API_KEY: process.env.GEOAPIFY_API_KEY,
+    DINGI_API_KEY: process.env.DINGI_API_KEY
 };

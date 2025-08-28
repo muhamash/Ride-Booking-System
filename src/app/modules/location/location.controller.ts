@@ -22,21 +22,35 @@ export const searchLocation = asyncHandler( async ( req: Request, res: Response 
 
         // `https://maps-api.pathao.io/v1/location/autocomplete/${ userLocation.coordinates[ 1 ] }/${ userLocation.coordinates[ 0 ] }/${ query_text }`,
 
+        // `https://api.geoapify.com/v1/geocode/search?text=${ query_text }&format=json&apiKey=${envStrings.GEOAPIFY_API_KEY}`,
+        
+        //  curl -X GET "https://dev.maps.api.dingi.live/search/all/?token=haripur" -H "accept: application/json" -H "x-api-key: 8ad2645c-ad1f-4492-ab28-efedc7beced2"
+
+        // const response = await axios.get(
+        //     `https://api.geoapify.com/v1/geocode/search?text=${ query_text }&format=json&apiKey=${envStrings.GEOAPIFY_API_KEY}`,
+        //     // {
+        //     //     headers: {
+        //     //         Authorization: envStrings.PATHAO_API_KEY,
+        //     //     },
+        //     // }
+        // );
+
         const response = await axios.get(
-            `https://api.geoapify.com/v1/geocode/search?text=${ query_text }&format=json&apiKey=${envStrings.GEOAPIFY_API_KEY}`,
-            // {
-            //     headers: {
-            //         Authorization: envStrings.PATHAO_API_KEY,
-            //     },
-            // }
+            `https://dev.maps.api.dingi.live/search/all/?token=${ query_text }`,
+            {
+                headers: {
+                    "accept": "application/json",
+                    "x-api-key": envStrings.DINGI_API_KEY, 
+                },
+            }
         );
 
-        // console.log(response)
+        // console.log(response.data.result)
         const result = response.data;
         // console.log(result)
 
         responseFunction( res, {
-            data: result.results,
+            data: result.result,
             message: "search result",
             statusCode: httpStatus.OK
         } );
@@ -81,7 +95,7 @@ export const getDirection = asyncHandler( async ( req: Request, res: Response ) 
             },
         } );
 
-        console.log( response );
+        // console.log( response );
 
         responseFunction( res, {
             statusCode: httpStatus.OK,

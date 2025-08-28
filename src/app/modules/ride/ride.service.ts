@@ -93,6 +93,7 @@ export const requestRideService = async (
     // Calculate distance from pickup to each driver
     const enrichedDrivers = activeDrivers.map( ( driver ) =>
     {
+        // console.log(pickUpLocation, driver.location)
         const distanceInMeters = haversine( pickUpLocation.coordinates, driver.location.coordinates );
         const distanceInKm = Number( ( distanceInMeters / 1000 ).toFixed( 2 ) );
         return { ...driver, distanceInKm };

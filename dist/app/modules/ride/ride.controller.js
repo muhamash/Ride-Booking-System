@@ -21,7 +21,7 @@ exports.requestRide = (0, controller_util_1.asyncHandler)(async (req, res) => {
             address: "Default address!"
         };
     }
-    console.log(location, req.body);
+    // console.log( location, req.body )
     const user = req.user;
     const activeDriver = req.activeDriverPayload;
     const { lat, lng, fare } = req.body;
@@ -29,7 +29,7 @@ exports.requestRide = (0, controller_util_1.asyncHandler)(async (req, res) => {
         throw new App_error_1.AppError(http_status_codes_1.default.BAD_REQUEST, "DropOff location or destination missing");
     }
     ;
-    const response = await (0, ride_service_1.requestRideService)(location, user, lat, lng, fare);
+    const response = await (0, ride_service_1.requestRideService)(user, lat, lng, fare, location);
     if (!response && !user && !location) {
         (0, controller_util_1.responseFunction)(res, {
             message: `something wrong while requesting a ride!!`,

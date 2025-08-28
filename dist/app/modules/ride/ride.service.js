@@ -57,6 +57,7 @@ const requestRideService = async (user, dropLat, dropLng, fare, pickUpLocation) 
     };
     // Calculate distance from pickup to each driver
     const enrichedDrivers = activeDrivers.map((driver) => {
+        // console.log(pickUpLocation, driver.location)
         const distanceInMeters = (0, haversine_distance_1.default)(pickUpLocation.coordinates, driver.location.coordinates);
         const distanceInKm = Number((distanceInMeters / 1000).toFixed(2));
         return { ...driver, distanceInKm };
