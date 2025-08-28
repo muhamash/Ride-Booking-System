@@ -6,7 +6,6 @@ import { asyncHandler, responseFunction, setCookie } from "../../utils/controlle
 import { userTokens } from "../../utils/service.util";
 import { getNewAccessTokenService, userLogoutService } from "./auth.service";
 
-
 export const userLogin = asyncHandler( async ( req: Request, res: Response, next: NextFunction ) =>
 {
   passport.authenticate( "local", { session: false }, async ( error, user: any, info: { message?: string, flag?: string, userId?: string } ) =>
@@ -33,8 +32,8 @@ export const userLogin = asyncHandler( async ( req: Request, res: Response, next
 
     const loginData = await userTokens( user );
 
-    await setCookie( res, "refreshToken", loginData.refreshToken, 4 * 60 * 60 * 1000 );
-    await setCookie( res, "accessToken", loginData.accessToken, 7 * 24 * 60 * 1000 );
+    await setCookie( res, "refreshToken", loginData.refreshToken, 30 * 60  * 1000 );
+    await setCookie( res, "accessToken", loginData.accessToken, 30  * 1000 );
 
     const responseData = user?.toObject();
     delete responseData.password;
@@ -90,8 +89,8 @@ export const getNewAccessToken = asyncHandler( async ( req: Request, res: Respon
 
     if ( tokenInfo.refreshToken && tokenInfo.accessToken )
     {
-        await setCookie( res, "refreshToken", tokenInfo.refreshToken, 4 * 60 * 60 * 1000 );
-        await setCookie( res, "accessToken", tokenInfo.accessToken, 7 * 24 * 60 * 1000 );
+        await setCookie( res, "refreshToken", tokenInfo.refreshToken, 30 * 60 * 1000 );
+        await setCookie( res, "accessToken", tokenInfo.accessToken,  30 * 1000 );
 
         responseFunction( res, {
             message: `New tokens created!!`,

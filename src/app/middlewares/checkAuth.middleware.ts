@@ -19,7 +19,7 @@ export const checkAuth = (...authRoles: UserRole[]) =>
   async (req: Request, res: Response, next: NextFunction): Promise<void> => { 
       try
       {
-        console.log(req.cookies)
+        // console.log(req.cookies)
         const accessToken = req.cookies?.accessToken;
 
         if (!accessToken) {

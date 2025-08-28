@@ -12,7 +12,7 @@ const middleware_util_1 = require("../utils/middleware.util");
 ;
 const checkAuth = (...authRoles) => async (req, res, next) => {
     try {
-        console.log(req.cookies);
+        // console.log(req.cookies)
         const accessToken = req.cookies?.accessToken;
         if (!accessToken) {
             throw new App_error_1.AppError(http_status_codes_1.default.FORBIDDEN, "No Token Received!");

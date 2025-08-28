@@ -8,6 +8,7 @@ const http_status_codes_1 = __importDefault(require("http-status-codes"));
 const App_error_1 = require("../../../config/errors/App.error");
 const controller_util_1 = require("../../utils/controller.util");
 const queybuilder_util_1 = require("../../utils/db/queybuilder.util");
+const driver_model_1 = require("../driver/driver.model");
 const user_interface_1 = require("../user/user.interface");
 const user_model_1 = require("../user/user.model");
 const ride_model_1 = require("./ride.model");
@@ -78,9 +79,14 @@ exports.getUserRides = (0, controller_util_1.asyncHandler)(async (req, res) => {
     const role = req.user?.role;
     const userId = req.user?.userId;
     const query = req.query;
+    console.log(userId, role);
     let ridesQuery;
     if (role === user_interface_1.UserRole.DRIVER) {
-        ridesQuery = new queybuilder_util_1.QueryBuilder(ride_model_1.Ride.find({ driver: userId }), query);
+        const driver = await driver_model_1.Driver.findOne({ user: userId });
+        if (!driver) {
+            throw new App_error_1.AppError(http_status_codes_1.default.NOT_FOUND, "He is not a diver!");
+        }
+        ridesQuery = new queybuilder_util_1.QueryBuilder(ride_model_1.Ride.find({ driver: driver._id }), query);
     }
     else {
         ridesQuery = new queybuilder_util_1.QueryBuilder(ride_model_1.Ride.find({ rider: userId }), query);

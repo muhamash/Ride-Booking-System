@@ -3,6 +3,7 @@ import httpStatus from 'http-status-codes';
 import { AppError } from "../../../config/errors/App.error";
 import { asyncHandler, responseFunction } from "../../utils/controller.util";
 import { QueryBuilder } from "../../utils/db/queybuilder.util";
+import { Driver } from "../driver/driver.model";
 import { ILocation, UserRole } from "../user/user.interface";
 import { User } from "../user/user.model";
 import { Ride } from "./ride.model";
@@ -106,12 +107,22 @@ export const getUserRides = asyncHandler( async ( req: Request, res: Response ) 
     const userId = req.user?.userId; 
     const query = req.query as Record<string, string>;
 
+    console.log( userId, role)
+
     let ridesQuery;
 
     if ( role === UserRole.DRIVER )
     {
-        ridesQuery = new QueryBuilder( Ride.find( { driver: userId } ), query );
-    } else
+        const driver = await Driver.findOne( { user: userId } );
+
+        if ( !driver )
+        {
+            throw new AppError(httpStatus.NOT_FOUND, "He is not a diver!")
+        }
+
+        ridesQuery = new QueryBuilder( Ride.find( { driver: driver._id } ), query );
+    }
+    else
     {
         ridesQuery = new QueryBuilder( Ride.find( { rider: userId } ), query );
     }

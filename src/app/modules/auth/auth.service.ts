@@ -46,7 +46,7 @@ export const getNewAccessTokenService = async ( refreshToken: string ) =>
         { new: true }
     );
 
-    // console.log(user, refreshTokenVerify)
+    console.log(user, refreshTokenVerify)
     if ( !user )
     {
         throw new AppError( httpStatus.NOT_FOUND, "User not found!!" );

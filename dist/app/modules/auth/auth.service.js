@@ -30,7 +30,7 @@ exports.userLogoutService = userLogoutService;
 const getNewAccessTokenService = async (refreshToken) => {
     const refreshTokenVerify = (0, middleware_util_1.verifyToken)(refreshToken, env_config_1.envStrings.REFRESH_TOKEN_SECRET);
     const user = await user_model_1.User.findOneAndUpdate({ email: refreshTokenVerify?.email }, { $set: { lastOnlineAt: new Date() } }, { new: true });
-    // console.log(user, refreshTokenVerify)
+    console.log(user, refreshTokenVerify);
     if (!user) {
         throw new App_error_1.AppError(http_status_codes_1.default.NOT_FOUND, "User not found!!");
     }

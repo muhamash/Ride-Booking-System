@@ -67,7 +67,9 @@ export const requestRideService = async (
         vehicleInfo: u.driver.vehicleInfo || ( {} as VehicleInfo ),
     } ) );
 
-    if ( !activeDrivers.length )
+    console.log(activeDrivers)
+
+    if ( activeDrivers.length === 0 )
     {
         throw new AppError( httpStatus.EXPECTATION_FAILED, "No drivers are online!" );
     }

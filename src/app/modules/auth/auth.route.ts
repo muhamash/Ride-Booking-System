@@ -12,7 +12,6 @@ router.post( "/login", validateRequest( authLogin ), userLogin );
 
 router.post( "/logout", checkAuth( UserRole.ADMIN, UserRole.DRIVER, UserRole.RIDER ), userLogout );
 
-router.post( "/refresh-token", checkAuth( UserRole.ADMIN, UserRole.DRIVER, UserRole.RIDER ), getNewAccessToken );
-
+router.post( "/refresh-token", getNewAccessToken );
 
 export const authRoute = router;

@@ -37,7 +37,8 @@ const requestRideService = async (user, dropLat, dropLng, fare, pickUpLocation) 
         avgRating: u.driver.rating?.averageRating || 0,
         vehicleInfo: u.driver.vehicleInfo || {},
     }));
-    if (!activeDrivers.length) {
+    console.log(activeDrivers);
+    if (activeDrivers.length === 0) {
         throw new App_error_1.AppError(http_status_codes_1.default.EXPECTATION_FAILED, "No drivers are online!");
     }
     // Check if the user already has a pending ride
