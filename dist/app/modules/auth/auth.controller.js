@@ -26,8 +26,8 @@ exports.userLogin = (0, controller_util_1.asyncHandler)(async (req, res, next) =
             return next(new App_error_1.AppError(http_status_codes_1.default.UNAUTHORIZED, info?.message || "Unauthorized"));
         }
         const loginData = await (0, service_util_1.userTokens)(user);
-        await (0, controller_util_1.setCookie)(res, "refreshToken", loginData.refreshToken, 30 * 60 * 1000);
-        await (0, controller_util_1.setCookie)(res, "accessToken", loginData.accessToken, 30 * 1000);
+        await (0, controller_util_1.setCookie)(res, "refreshToken", loginData.refreshToken, 30 * 60 * 60 * 1000);
+        await (0, controller_util_1.setCookie)(res, "accessToken", loginData.accessToken, 3 * 60 * 1000);
         const responseData = user?.toObject();
         delete responseData.password;
         (0, controller_util_1.responseFunction)(res, {
@@ -65,8 +65,8 @@ exports.getNewAccessToken = (0, controller_util_1.asyncHandler)(async (req, res)
         throw new App_error_1.AppError(http_status_codes_1.default.UNAUTHORIZED, "Invalid refresh token or user not found!!");
     }
     if (tokenInfo.refreshToken && tokenInfo.accessToken) {
-        await (0, controller_util_1.setCookie)(res, "refreshToken", tokenInfo.refreshToken, 30 * 60 * 1000);
-        await (0, controller_util_1.setCookie)(res, "accessToken", tokenInfo.accessToken, 30 * 1000);
+        await (0, controller_util_1.setCookie)(res, "refreshToken", tokenInfo.refreshToken, 3 * 60 * 60 * 1000);
+        await (0, controller_util_1.setCookie)(res, "accessToken", tokenInfo.accessToken, 30 * 60 * 1000);
         (0, controller_util_1.responseFunction)(res, {
             message: `New tokens created!!`,
             statusCode: http_status_codes_1.default.CREATED,
