@@ -15,7 +15,7 @@ const user_interface_1 = require("../user/user.interface");
 const user_model_1 = require("../user/user.model");
 const ride_interface_1 = require("./ride.interface");
 const ride_model_1 = require("./ride.model");
-const requestRideService = async (user, dropLat, dropLng, fare, pickUpLocation) => {
+const requestRideService = async (user, dropLat, dropLng, fare, pickUpLocation, distanceInKm) => {
     if (!pickUpLocation || !dropLat || !dropLng) {
         throw new App_error_1.AppError(http_status_codes_1.default.BAD_REQUEST, "Missing data: pickup or destination coordinates");
     }
@@ -37,7 +37,7 @@ const requestRideService = async (user, dropLat, dropLng, fare, pickUpLocation) 
         avgRating: u.driver.rating?.averageRating || 0,
         vehicleInfo: u.driver.vehicleInfo || {},
     }));
-    console.log(activeDrivers);
+    // console.log(activeDrivers)
     if (activeDrivers.length === 0) {
         throw new App_error_1.AppError(http_status_codes_1.default.EXPECTATION_FAILED, "No drivers are online!");
     }
@@ -54,13 +54,14 @@ const requestRideService = async (user, dropLat, dropLng, fare, pickUpLocation) 
     const dropOffLocation = {
         type: "Point",
         coordinates: [dropLat, dropLng],
-        address: dropOffAddress?.displayName || "Unknown",
+        address: dropOffAddress?.displayName || "Default drop off address",
     };
     // Calculate distance from pickup to each driver
     const enrichedDrivers = activeDrivers.map((driver) => {
         // console.log(pickUpLocation, driver.location)
         const distanceInMeters = (0, haversine_distance_1.default)(pickUpLocation.coordinates, driver.location.coordinates);
         const distanceInKm = Number((distanceInMeters / 1000).toFixed(2));
+        console.log(distanceInKm, pickUpLocation.coordinates, driver.location.coordinates, "for distance calculation");
         return { ...driver, distanceInKm };
     });
     // Sort: highest rating first, then closest
@@ -81,7 +82,7 @@ const requestRideService = async (user, dropLat, dropLng, fare, pickUpLocation) 
         pickUpLocation,
         dropOffLocation,
         driverLocation: matchedDriver.location,
-        distanceInKm: matchedDriver.distanceInKm,
+        distanceInKm,
         fare,
         status: ride_interface_1.RideStatus.REQUESTED,
         requestedAt: new Date(),
@@ -103,7 +104,7 @@ const ratingRideService = async (user, rideId, body) => {
     if (!ride) {
         throw new App_error_1.AppError(http_status_codes_1.default.NOT_FOUND, "Ride not found.");
     }
-    console.log(ride, user);
+    // console.log(ride, user)
     if (!ride.rider || !user.userId || ride.rider.toString() !== user.userId) {
         throw new App_error_1.AppError(http_status_codes_1.default.FORBIDDEN, "You are not authorized to rate this ride.");
     }

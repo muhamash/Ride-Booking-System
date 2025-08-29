@@ -60,8 +60,10 @@ export class QueryBuilder<T extends Document> {
     return this;
   }
 
-  async getMeta(): Promise<Record<string, unknown>> {
-    const totalDocuments = await this.modelQuery.model.countDocuments();
+  async getMeta (): Promise<Record<string, unknown>>
+  {
+    const filter = this.modelQuery.getFilter() || {};
+    const totalDocuments = await this.modelQuery.model.countDocuments(filter);
     const limit = Number(this.query.limit) || 5;
     const page = Number(this.query.page) || 1;
     const totalPage = Math.ceil( totalDocuments / limit );

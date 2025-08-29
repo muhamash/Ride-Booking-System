@@ -119,11 +119,12 @@ exports.updateVehicleInfo = (0, controller_util_1.asyncHandler)(async (req, res)
     });
 });
 exports.driverState = (0, controller_util_1.asyncHandler)(async (req, res) => {
-    const userId = req.params.id;
+    const userId = req.user.userId;
     const states = await (0, driver_service_1.driverStateService)(userId);
     if (!states) {
         throw new App_error_1.AppError(http_status_codes_1.default.INTERNAL_SERVER_ERROR, "Something happened when tried to fetch the driver state!!");
     }
+    // console.log(states, "driver stats hits")
     (0, controller_util_1.responseFunction)(res, {
         message: "Driver states fetched!!",
         statusCode: http_status_codes_1.default.ACCEPTED,

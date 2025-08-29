@@ -12,4 +12,5 @@ const router = (0, express_1.Router)();
 router.post("/create", (0, validateReq_middleware_1.validateRequest)(user_validation_1.zodUserSchema), user_controller_1.createUser);
 router.get("/me", (0, checkAuth_middleware_1.checkAuth)(user_interface_1.UserRole.ADMIN, user_interface_1.UserRole.DRIVER, user_interface_1.UserRole.RIDER), user_controller_1.getMe);
 router.patch("/update-user/:id", (0, checkAuth_middleware_1.checkAuth)(user_interface_1.UserRole.ADMIN, user_interface_1.UserRole.DRIVER, user_interface_1.UserRole.RIDER), (0, validateReq_middleware_1.validateRequest)(user_validation_1.updateUserZodSchema), checkUpdatePermission_middleware_1.checkUpdatePermission, user_controller_1.updateUser);
+router.get("/user-stats", (0, checkAuth_middleware_1.checkAuth)(user_interface_1.UserRole.ADMIN, user_interface_1.UserRole.RIDER), user_controller_1.getUserStats);
 exports.userRoute = router;

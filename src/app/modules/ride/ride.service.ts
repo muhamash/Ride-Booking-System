@@ -29,6 +29,7 @@ export const requestRideService = async (
     dropLng: number,
     fare: number,
     pickUpLocation?: ILocation,
+    distanceInKm?: Number
 ) =>
 {
     if ( !pickUpLocation || !dropLat || !dropLng )
@@ -67,7 +68,7 @@ export const requestRideService = async (
         vehicleInfo: u.driver.vehicleInfo || ( {} as VehicleInfo ),
     } ) );
 
-    console.log(activeDrivers)
+    // console.log(activeDrivers)
 
     if ( activeDrivers.length === 0 )
     {
@@ -89,7 +90,7 @@ export const requestRideService = async (
     const dropOffLocation: ILocation = {
         type: "Point",
         coordinates: [ dropLat, dropLng ],
-        address: dropOffAddress?.displayName || "Unknown",
+        address: dropOffAddress?.displayName || "Default drop off address",
     };
 
     // Calculate distance from pickup to each driver
@@ -97,7 +98,10 @@ export const requestRideService = async (
     {
         // console.log(pickUpLocation, driver.location)
         const distanceInMeters = haversine( pickUpLocation.coordinates, driver.location.coordinates );
+
         const distanceInKm = Number( ( distanceInMeters / 1000 ).toFixed( 2 ) );
+
+        console.log( distanceInKm,pickUpLocation.coordinates, driver.location.coordinates , "for distance calculation" );
         return { ...driver, distanceInKm };
     } );
 
@@ -121,7 +125,7 @@ export const requestRideService = async (
         pickUpLocation,
         dropOffLocation,
         driverLocation: matchedDriver.location,
-        distanceInKm: matchedDriver.distanceInKm,
+        distanceInKm,
         fare,
         status: RideStatus.REQUESTED,
         requestedAt: new Date(),
@@ -155,7 +159,7 @@ export const ratingRideService = async (
         throw new AppError( httpStatus.NOT_FOUND, "Ride not found." );
     }
 
-    console.log(ride, user)
+    // console.log(ride, user)
 
     if ( !ride.rider || !user.userId || ride.rider.toString() !== user.userId )
     {

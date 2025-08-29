@@ -79,14 +79,17 @@ export const getDriverByIdService = async ( userId: string ) =>
 
 export const allRideService = async ( query?: Record<string, string> ) =>
 {
+    // console.log(query)
     const modelQuery = new QueryBuilder( Ride.find().populate( "driver" ).populate( "rider" ).select( "-password" ), query );
 
-    const users = modelQuery.filter( excludeField ).sort().fields().pagination();
+    const rides = modelQuery.searchableField( [ "riderUserName", "driverUserName", "status" ] ).filter( excludeField ).sort().fields().pagination();
 
     const [data, meta] = await Promise.all( [
-        users.modelQuery.exec(),
+        rides.modelQuery.exec(),
         modelQuery.getMeta()
     ] );
+
+    // console.log(users)
 
     return {
         data,
@@ -96,8 +99,8 @@ export const allRideService = async ( query?: Record<string, string> ) =>
 
 export const getRideByIdService = async ( rideId: string ) =>
 {
-    // console.log( rideId );
     const ride = await Ride.findById( rideId ).populate( "rider" ).populate( "driver" ).select( "-password" );
+    console.log( rideId, ride );
 
     if ( !ride )
     {

@@ -62,12 +62,14 @@ const getDriverByIdService = async (userId) => {
 };
 exports.getDriverByIdService = getDriverByIdService;
 const allRideService = async (query) => {
+    // console.log(query)
     const modelQuery = new queybuilder_util_1.QueryBuilder(ride_model_1.Ride.find().populate("driver").populate("rider").select("-password"), query);
-    const users = modelQuery.filter(admin_constrain_1.excludeField).sort().fields().pagination();
+    const rides = modelQuery.searchableField(["riderUserName", "driverUserName", "status"]).filter(admin_constrain_1.excludeField).sort().fields().pagination();
     const [data, meta] = await Promise.all([
-        users.modelQuery.exec(),
+        rides.modelQuery.exec(),
         modelQuery.getMeta()
     ]);
+    // console.log(users)
     return {
         data,
         meta,
@@ -75,8 +77,8 @@ const allRideService = async (query) => {
 };
 exports.allRideService = allRideService;
 const getRideByIdService = async (rideId) => {
-    // console.log( rideId );
     const ride = await ride_model_1.Ride.findById(rideId).populate("rider").populate("driver").select("-password");
+    console.log(rideId, ride);
     if (!ride) {
         throw new App_error_1.AppError(http_status_codes_1.default.NOT_FOUND, "ride not found");
     }

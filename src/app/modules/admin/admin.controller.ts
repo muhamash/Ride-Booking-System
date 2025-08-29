@@ -86,7 +86,9 @@ export const getDriverById = asyncHandler(async (req: Request, res: Response): P
 export const getAllRides = asyncHandler( async ( req: Request, res: Response ): Promise<void> =>
 {
     const query = req.query as Record<string, string>;
-    const rides = await allRideService(query);
+    const rides = await allRideService( query );
+    
+    // console.log(rides)
 
     if (!rides?.data || !Array.isArray(rides.data) || rides?.data?.length === 0) {
         throw new AppError(httpStatus.OK, "Rides dataset is empty!");
@@ -99,7 +101,9 @@ export const getAllRides = asyncHandler( async ( req: Request, res: Response ): 
     });
 });
 
-export const getRideById = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+export const getRideById = asyncHandler( async ( req: Request, res: Response ): Promise<void> =>
+{
+    console.log("getRide by id hit")
     const rideId = req.params.id;
     const ride = await getRideByIdService(rideId);
 

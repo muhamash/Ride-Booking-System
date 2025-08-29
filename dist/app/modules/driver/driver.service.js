@@ -195,12 +195,14 @@ const driverStateService = async (userId) => {
         throw new App_error_1.AppError(http_status_codes_1.default.CONFLICT, "This user is not a driver!!");
     }
     const rides = await ride_model_1.Ride.find({ driver: driver._id }).populate("driver");
-    if (rides.length < 1) {
+    if (rides.length === 0) {
         throw new App_error_1.AppError(http_status_codes_1.default.NOT_FOUND, "No rides found!!");
     }
-    const totalEarnings = rides.reduce((sum, ride) => sum + (ride.fare || 0), 0);
-    const totalRides = rides.length;
-    const totalTravelledInKm = rides.reduce((sum, ride) => sum + (ride.distanceInKm || 0), 0);
+    const completedRides = rides.filter(ride => ride.status === "COMPLETED");
+    const totalSpent = completedRides.reduce((sum, ride) => sum + (ride.fare || 0), 0);
+    const totalRides = completedRides.length;
+    const totalTravelledInKm = completedRides.reduce((sum, ride) => sum + (ride.distanceInKm || 0), 0);
+    const totalEarnings = completedRides.reduce((sum, ride) => sum + (ride.fare || 0), 0);
     return {
         driver: {
             id: driver._id,

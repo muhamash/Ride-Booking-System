@@ -23,6 +23,6 @@ router.patch( "/complete-ride/:id", checkAuth( UserRole.DRIVER ), completeRide )
 
 router.patch( "/driver-update-vehicle/:id", checkAuth( UserRole.DRIVER, UserRole.ADMIN ), validateRequest( vehicleInfoZodSchema ), updateVehicleInfo );
 
-router.get( "/driver-state/:id", checkAuth( UserRole.DRIVER, UserRole.ADMIN ) , driverState); 
+router.get( "/driver-stats", checkAuth( UserRole.DRIVER, UserRole.ADMIN ) , driverState); 
 
 export const driverRoutes = router;

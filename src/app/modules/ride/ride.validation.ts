@@ -6,6 +6,7 @@ export const zodRideRequest = z.object( {
     fare: z.any(),
     picLat: z.number().min( -90 ).max( 90 ).optional(),
     picLng: z.number().min( -180 ).max( 180 ).optional(),
+    distanceInKm: z.number().optional()
 } );
 
 export const ratingZodSchema = z.object( {

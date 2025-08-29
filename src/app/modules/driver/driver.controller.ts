@@ -168,7 +168,7 @@ export const updateVehicleInfo = asyncHandler( async ( req: Request, res: Respon
 
 export const driverState = asyncHandler( async ( req: Request, res: Response ) =>
 {
-    const userId = req.params.id;
+    const userId = req.user.userId;
 
     const states = await driverStateService( userId );
 
@@ -176,6 +176,8 @@ export const driverState = asyncHandler( async ( req: Request, res: Response ) =
     {
         throw new AppError(httpStatus.INTERNAL_SERVER_ERROR, "Something happened when tried to fetch the driver state!!")
     }
+
+    // console.log(states, "driver stats hits")
 
     responseFunction( res, {
         message: "Driver states fetched!!",

@@ -1,9 +1,8 @@
 import { Router } from "express";
 import { checkAuth } from "../../middlewares/checkAuth.middleware";
 import { checkUpdatePermission } from "../../middlewares/checkUpdatePermission.middleware";
-import { updateUserLocationIntoDb } from "../../middlewares/updateUserLocation.middleware";
 import { validateRequest } from "../../middlewares/validateReq.middleware";
-import { createUser, getMe, updateUser } from "./user.controller";
+import { createUser, getMe, getUserStats, updateUser } from "./user.controller";
 import { UserRole } from "./user.interface";
 import { updateUserZodSchema, zodUserSchema } from "./user.validation";
 
@@ -24,5 +23,7 @@ router.patch(
   checkUpdatePermission, 
   updateUser
 );
+
+router.get( "/user-stats", checkAuth( UserRole.ADMIN, UserRole.RIDER ), getUserStats );
 
 export const userRoute = router;

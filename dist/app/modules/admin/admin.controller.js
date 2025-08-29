@@ -61,6 +61,7 @@ exports.getDriverById = (0, controller_util_1.asyncHandler)(async (req, res) => 
 exports.getAllRides = (0, controller_util_1.asyncHandler)(async (req, res) => {
     const query = req.query;
     const rides = await (0, admin_service_1.allRideService)(query);
+    // console.log(rides)
     if (!rides?.data || !Array.isArray(rides.data) || rides?.data?.length === 0) {
         throw new App_error_1.AppError(http_status_codes_1.default.OK, "Rides dataset is empty!");
     }
@@ -71,6 +72,7 @@ exports.getAllRides = (0, controller_util_1.asyncHandler)(async (req, res) => {
     });
 });
 exports.getRideById = (0, controller_util_1.asyncHandler)(async (req, res) => {
+    console.log("getRide by id hit");
     const rideId = req.params.id;
     const ride = await (0, admin_service_1.getRideByIdService)(rideId);
     if (!ride) {

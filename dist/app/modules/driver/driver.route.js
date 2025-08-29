@@ -16,5 +16,5 @@ router.patch("/pick-up/:id", (0, checkAuth_middleware_1.checkAuth)(user_interfac
 router.patch("/in-transit/:id", (0, checkAuth_middleware_1.checkAuth)(user_interface_1.UserRole.DRIVER), driver_controller_1.inTransitRide);
 router.patch("/complete-ride/:id", (0, checkAuth_middleware_1.checkAuth)(user_interface_1.UserRole.DRIVER), driver_controller_1.completeRide);
 router.patch("/driver-update-vehicle/:id", (0, checkAuth_middleware_1.checkAuth)(user_interface_1.UserRole.DRIVER, user_interface_1.UserRole.ADMIN), (0, validateReq_middleware_1.validateRequest)(driver_validation_1.vehicleInfoZodSchema), driver_controller_1.updateVehicleInfo);
-router.get("/driver-state/:id", (0, checkAuth_middleware_1.checkAuth)(user_interface_1.UserRole.DRIVER, user_interface_1.UserRole.ADMIN), driver_controller_1.driverState);
+router.get("/driver-stats", (0, checkAuth_middleware_1.checkAuth)(user_interface_1.UserRole.DRIVER, user_interface_1.UserRole.ADMIN), driver_controller_1.driverState);
 exports.driverRoutes = router;
