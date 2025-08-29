@@ -21,30 +21,27 @@ exports.searchLocation = (0, controller_util_1.asyncHandler)(async (req, res) =>
         // `https://maps-api.pathao.io/v1/location/autocomplete/${ userLocation.coordinates[ 1 ] }/${ userLocation.coordinates[ 0 ] }/${ query_text }`,
         // `https://api.geoapify.com/v1/geocode/search?text=${ query_text }&format=json&apiKey=${envStrings.GEOAPIFY_API_KEY}`,
         //  curl -X GET "https://dev.maps.api.dingi.live/search/all/?token=haripur" -H "accept: application/json" -H "x-api-key: 8ad2645c-ad1f-4492-ab28-efedc7beced2"
+        const response = await axios_1.default.get(`https://api.geoapify.com/v1/geocode/search?text=${query_text}&format=json&apiKey=${env_config_1.envStrings.GEOAPIFY_API_KEY}`);
         // const response = await axios.get(
-        //     `https://api.geoapify.com/v1/geocode/search?text=${ query_text }&format=json&apiKey=${envStrings.GEOAPIFY_API_KEY}`,
-        //     // {
-        //     //     headers: {
-        //     //         Authorization: envStrings.PATHAO_API_KEY,
-        //     //     },
-        //     // }
+        //     `https://dev.maps.api.dingi.live/search/all/?token=${ query_text }`,
+        //     {
+        //         headers: {
+        //             "accept": "application/json",
+        //             "x-api-key": envStrings.DINGI_API_KEY, 
+        //         },
+        //     }
         // );
-        const response = await axios_1.default.get(`https://dev.maps.api.dingi.live/search/all/?token=${query_text}`, {
-            headers: {
-                "accept": "application/json",
-                "x-api-key": env_config_1.envStrings.DINGI_API_KEY,
-            },
-        });
-        console.log(response.data.result);
+        // console.log(response.data)
         const result = response.data;
         // console.log(result)
         (0, controller_util_1.responseFunction)(res, {
-            data: result.result,
+            data: result.results,
             message: "search result",
             statusCode: http_status_codes_1.default.OK
         });
     }
     catch (error) {
+        console.log(error);
         if (error instanceof Error) {
             console.error("Location search error:", error.message);
         }

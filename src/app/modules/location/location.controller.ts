@@ -26,37 +26,38 @@ export const searchLocation = asyncHandler( async ( req: Request, res: Response 
         
         //  curl -X GET "https://dev.maps.api.dingi.live/search/all/?token=haripur" -H "accept: application/json" -H "x-api-key: 8ad2645c-ad1f-4492-ab28-efedc7beced2"
 
-        // const response = await axios.get(
-        //     `https://api.geoapify.com/v1/geocode/search?text=${ query_text }&format=json&apiKey=${envStrings.GEOAPIFY_API_KEY}`,
-        //     // {
-        //     //     headers: {
-        //     //         Authorization: envStrings.PATHAO_API_KEY,
-        //     //     },
-        //     // }
-        // );
-
         const response = await axios.get(
-            `https://dev.maps.api.dingi.live/search/all/?token=${ query_text }`,
-            {
-                headers: {
-                    "accept": "application/json",
-                    "x-api-key": envStrings.DINGI_API_KEY, 
-                },
-            }
+            `https://api.geoapify.com/v1/geocode/search?text=${ query_text }&format=json&apiKey=${envStrings.GEOAPIFY_API_KEY}`,
+            // {
+            //     headers: {
+            //         Authorization: envStrings.PATHAO_API_KEY,
+            //     },
+            // }
         );
 
-        console.log(response.data.result)
+        // const response = await axios.get(
+        //     `https://dev.maps.api.dingi.live/search/all/?token=${ query_text }`,
+        //     {
+        //         headers: {
+        //             "accept": "application/json",
+        //             "x-api-key": envStrings.DINGI_API_KEY, 
+        //         },
+        //     }
+        // );
+
+        // console.log(response.data)
         const result = response.data;
         // console.log(result)
 
         responseFunction( res, {
-            data: result.result,
+            data: result.results,
             message: "search result",
             statusCode: httpStatus.OK
         } );
 
     } catch ( error: unknown )
     {
+        console.log(error)
         if ( error instanceof Error )
         {
             console.error( "Location search error:", error.message );
