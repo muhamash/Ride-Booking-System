@@ -16,10 +16,20 @@ const admin_route_1 = require("./routes/admin.route");
 const module_route_1 = require("./routes/module.route");
 const service_route_1 = require("./routes/service.route");
 const app = (0, express_1.default)();
+// app.use( expressSession( {
+//     secret: "my-secret",
+//     resave: true,
+//     saveUninitialized:false
+// } ) );
 app.use((0, express_session_1.default)({
     secret: "my-secret",
     resave: true,
-    saveUninitialized: false
+    saveUninitialized: false,
+    cookie: {
+        secure: process.env.NODE_ENV === "production",
+        sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+        httpOnly: true,
+    }
 }));
 app.use(passport_1.default.initialize());
 app.use(passport_1.default.session());

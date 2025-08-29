@@ -13,11 +13,24 @@ import { riderRouter } from './routes/service.route';
 
 const app: Application = express();
 
+// app.use( expressSession( {
+//     secret: "my-secret",
+//     resave: true,
+//     saveUninitialized:false
+// } ) );
+
 app.use( expressSession( {
     secret: "my-secret",
     resave: true,
-    saveUninitialized:false
+    saveUninitialized: false,
+    cookie: {
+        secure: process.env.NODE_ENV === "production",
+        sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+        httpOnly: true,
+    }
 } ) );
+
+
 app.use( passport.initialize() );
 app.use( passport.session() );
 app.use( cookieParser() );
