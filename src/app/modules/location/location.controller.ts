@@ -45,7 +45,7 @@ export const searchLocation = asyncHandler( async ( req: Request, res: Response 
             }
         );
 
-        // console.log(response.data.result)
+        console.log(response.data.result)
         const result = response.data;
         // console.log(result)
 

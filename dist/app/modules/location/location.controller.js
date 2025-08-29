@@ -35,7 +35,7 @@ exports.searchLocation = (0, controller_util_1.asyncHandler)(async (req, res) =>
                 "x-api-key": env_config_1.envStrings.DINGI_API_KEY,
             },
         });
-        // console.log(response.data.result)
+        console.log(response.data.result);
         const result = response.data;
         // console.log(result)
         (0, controller_util_1.responseFunction)(res, {
