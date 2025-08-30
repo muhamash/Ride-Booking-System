@@ -24,8 +24,8 @@ app.use( expressSession( {
     resave: true,
     saveUninitialized: false,
     cookie: {
-        secure: process.env.NODE_ENV === "production",
-        // sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+        secure: true,
+        sameSite: "none",
         httpOnly: true,
     }
 } ) );

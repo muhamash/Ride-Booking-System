@@ -26,8 +26,8 @@ app.use((0, express_session_1.default)({
     resave: true,
     saveUninitialized: false,
     cookie: {
-        secure: process.env.NODE_ENV === "production",
-        // sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+        secure: true,
+        sameSite: "none",
         httpOnly: true,
     }
 }));
