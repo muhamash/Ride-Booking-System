@@ -37,4 +37,5 @@ export interface IRide {
   distanceInKm?: number;
   durationInMin?: number;
   rating?: IRatings;
+  createdAt?: Date;
 };

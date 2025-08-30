@@ -3,10 +3,10 @@ import mongoose from 'mongoose';
 import { AppError } from "../../../config/errors/App.error";
 import { QueryBuilder } from "../../utils/db/queybuilder.util";
 import { Driver } from '../driver/driver.model';
-import { DriverStatus } from '../driver/river.interface';
+import { DriverStatus, IDriver } from '../driver/river.interface';
 import { RideStatus } from '../ride/ride.interface';
 import { Ride } from '../ride/ride.model';
-import { UserRole } from '../user/user.interface';
+import { IUser, UserRole } from '../user/user.interface';
 import { User } from "../user/user.model";
 import { driverSearchableFields, excludeField, searchableFields } from "./admin.constrain";
 import { approvalParam, blockParam, suspendParam } from './admin.type';
@@ -33,15 +33,46 @@ export const getAllUsersService = async ( query?: Record<string, string> ) =>
 
 export const getUserByIdService = async ( userId: string ) =>
 {
-    console.log( userId );
-    const user = await User.findById( userId ).populate( "driver" ).select( "-password" );
+    const user = await User.findById( userId )
+        .populate( [
+            { path: "driver", populate: { path: "rides", select: "fare createdAt status" } },
+            { path: "rideDetails", select: "fare status createdAt" },
+            { path: "driverDetails", select: "name email" },
+        ] )
+        .select( "-password" )
+        .lean<IUser & { driver?: IDriver }>();
 
-    if ( !user )
+    if ( !user ) throw new AppError( httpStatus.NOT_FOUND, "User not found" );
+
+    let stats: any = {};
+
+    if ( user.role === "DRIVER" && user.driver && typeof user.driver !== "string" )
     {
-        throw new AppError( httpStatus.NOT_FOUND, "User not found" );
+        const driverData = user.driver as IDriver;
+
+        stats = {
+            totalRides: driverData.totalRides,
+            totalEarnings: driverData.totalEarnings,
+            averageRating: driverData.rating?.averageRating || 0,
+            ratingsCount: driverData.rating?.totalRatings || 0,
+            earningsChart: driverData.rides?.map( ( ride ) => ( {
+                date: ride.createdAt,
+                fare: ride.fare,
+            } ) ) as any,
+        };
+    } else
+    {
+        stats = {
+            totalTrips: Array.isArray( user.ridings ) ? user.ridings.length : 0,
+            totalSpent: user.rideDetails?.reduce( ( acc, r ) => acc + ( r.fare || 0 ), 0 ) || 0,
+            tripHistoryChart: user.rideDetails?.map( ( r ) => ( {
+                date: r.createdAt,
+                fare: r.fare,
+            } ) ),
+        };
     }
 
-    return user;
+    return { user, stats };
 };
 
 export const getAllDriversServices = async ( query?: Record<string, string> ) =>

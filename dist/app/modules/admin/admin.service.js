@@ -30,12 +30,41 @@ const getAllUsersService = async (query) => {
 };
 exports.getAllUsersService = getAllUsersService;
 const getUserByIdService = async (userId) => {
-    console.log(userId);
-    const user = await user_model_1.User.findById(userId).populate("driver").select("-password");
-    if (!user) {
+    const user = await user_model_1.User.findById(userId)
+        .populate([
+        { path: "driver", populate: { path: "rides", select: "fare createdAt status" } },
+        { path: "rideDetails", select: "fare status createdAt" },
+        { path: "driverDetails", select: "name email" },
+    ])
+        .select("-password")
+        .lean();
+    if (!user)
         throw new App_error_1.AppError(http_status_codes_1.default.NOT_FOUND, "User not found");
+    let stats = {};
+    if (user.role === "DRIVER" && user.driver && typeof user.driver !== "string") {
+        const driverData = user.driver;
+        stats = {
+            totalRides: driverData.totalRides,
+            totalEarnings: driverData.totalEarnings,
+            averageRating: driverData.rating?.averageRating || 0,
+            ratingsCount: driverData.rating?.totalRatings || 0,
+            earningsChart: driverData.rides?.map((ride) => ({
+                date: ride.createdAt,
+                fare: ride.fare,
+            })),
+        };
     }
-    return user;
+    else {
+        stats = {
+            totalTrips: Array.isArray(user.ridings) ? user.ridings.length : 0,
+            totalSpent: user.rideDetails?.reduce((acc, r) => acc + (r.fare || 0), 0) || 0,
+            tripHistoryChart: user.rideDetails?.map((r) => ({
+                date: r.createdAt,
+                fare: r.fare,
+            })),
+        };
+    }
+    return { user, stats };
 };
 exports.getUserByIdService = getUserByIdService;
 const getAllDriversServices = async (query) => {

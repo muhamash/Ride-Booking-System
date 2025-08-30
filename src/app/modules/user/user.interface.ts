@@ -1,4 +1,6 @@
 import { Schema } from 'mongoose';
+import { IDriver } from '../driver/river.interface';
+import { IRide } from '../ride/ride.interface';
 
 export enum UserRole {
   RIDER = "RIDER",
@@ -26,10 +28,11 @@ export interface IUser {
   role: UserRole;
   isBlocked: boolean;
   isOnline: boolean;
-  driver?: Schema.Types.ObjectId;
+  driver?: Schema.Types.ObjectId | IDriver;
   lastOnlineAt?: Date;
   location?: ILocation;
   vehicleInfo?: VehicleInfo; 
+  rideDetails?: IRide[];
   
   ridings?: {
     rideId?: Schema.Types.ObjectId;

@@ -3,6 +3,7 @@ import httpStatus from 'http-status-codes';
 import { AppError } from "../../../config/errors/App.error";
 import { asyncHandler, responseFunction } from "../../utils/controller.util";
 import { QueryBuilder } from "../../utils/db/queybuilder.util";
+import { reverseGeocode } from "../../utils/helperr.util";
 import { excludeField } from "../admin/admin.constrain";
 import { Driver } from "../driver/driver.model";
 import { ILocation, UserRole } from "../user/user.interface";
@@ -17,10 +18,12 @@ export const requestRide = asyncHandler( async ( req: Request, res: Response ) =
     
     if ( req.body.picLat && req.body.picLng )
     {
+        const pickUpAddress = await reverseGeocode( req.body.picLat, req.body.picLng );
+
         location = {
             coordinates: [ req.body.picLat, req.body.picLng ],
             type: 'Point',
-            address: "Default pick up address!"
+            address: pickUpAddress?.displayName || "Default pick up address!"
         }
     }
 

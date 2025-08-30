@@ -8,6 +8,7 @@ const http_status_codes_1 = __importDefault(require("http-status-codes"));
 const App_error_1 = require("../../../config/errors/App.error");
 const controller_util_1 = require("../../utils/controller.util");
 const queybuilder_util_1 = require("../../utils/db/queybuilder.util");
+const helperr_util_1 = require("../../utils/helperr.util");
 const admin_constrain_1 = require("../admin/admin.constrain");
 const driver_model_1 = require("../driver/driver.model");
 const user_interface_1 = require("../user/user.interface");
@@ -17,10 +18,11 @@ const ride_service_1 = require("./ride.service");
 exports.requestRide = (0, controller_util_1.asyncHandler)(async (req, res) => {
     let location = req.userLocation;
     if (req.body.picLat && req.body.picLng) {
+        const pickUpAddress = await (0, helperr_util_1.reverseGeocode)(req.body.picLat, req.body.picLng);
         location = {
             coordinates: [req.body.picLat, req.body.picLng],
             type: 'Point',
-            address: "Default pick up address!"
+            address: pickUpAddress?.displayName || "Default pick up address!"
         };
     }
     // console.log( location, req.body )
